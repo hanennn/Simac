@@ -1,0 +1,53 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+export interface LoginResponse {
+  message: string;
+  email: string;
+}
+
+export interface VerifyOtpResponse {
+  token: string;
+  nom: string;
+  prenom: string;
+  email: string;
+  role: string;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class Auth {
+  private apiUrl = 'http://localhost:8081/api/auth';
+
+  constructor(private http: HttpClient) {}
+
+  login(email: string, motDePasse: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, { email, motDePasse });
+  }
+
+  verifyOtp(email: string, code: string): Observable<VerifyOtpResponse> {
+    return this.http.post<VerifyOtpResponse>(`${this.apiUrl}/verify-otp`, { email, code });
+  }
+
+  sauvegarderToken(token: string): void {
+    localStorage.setItem('token', token);
+  }
+
+  sauvegarderEmailTemporaire(email: string): void {
+    sessionStorage.setItem('emailEnAttente', email);
+  }
+
+  recupererEmailTemporaire(): string | null {
+    return sessionStorage.getItem('emailEnAttente');
+  }
+
+  motDePasseOublie(email: string): Observable<{ message: string }> {
+  return this.http.post<{ message: string }>(`${this.apiUrl}/mot-de-passe-oublie`, { email });
+}
+
+reinitialiserMotDePasse(email: string, code: string, nouveauMotDePasse: string): Observable<{ message: string }> {
+  return this.http.post<{ message: string }>(`${this.apiUrl}/reinitialiser-mot-de-passe`, { email, code, nouveauMotDePasse });
+}
+}
