@@ -29,23 +29,24 @@ export class VerifyOtp implements OnInit {
   }
 
   verifier(): void {
-    this.erreur.set('');
-    this.chargement.set(true);
+  this.erreur.set('');
+  this.chargement.set(true);
 
-    this.authService.verifyOtp(this.email, this.code).subscribe({
-      next: (response) => {
-        this.chargement.set(false);
-        this.authService.sauvegarderToken(response.token);
-        this.router.navigate(['/dashboard']);
-      },
-      error: () => {
-        this.chargement.set(false);
-        this.erreur.set('Code invalide ou expiré. Redirection vers la connexion...');
-
-        setTimeout(() => {
-          this.router.navigate(['/login']);
-        }, 2000);
-      }
-    });
-  }
+  this.authService.verifyOtp(this.email, this.code).subscribe({
+    next: (response) => {
+      this.chargement.set(false);
+      this.authService.sauvegarderToken(response.token);
+      this.authService.sauvegarderUtilisateur(response);   // ← ligne ajoutée
+      this.router.navigate(['/dashboard']);
+    },
+    error: () => {
+      this.chargement.set(false);
+      this.erreur.set('Code invalide ou expiré. Redirection vers la connexion...');
+      setTimeout(() => {
+        this.router.navigate(['/login']);
+      }, 2000);
+    }
+  });
 }
+    
+  }

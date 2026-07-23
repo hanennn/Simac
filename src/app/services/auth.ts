@@ -50,4 +50,22 @@ export class Auth {
 reinitialiserMotDePasse(email: string, code: string, nouveauMotDePasse: string): Observable<{ message: string }> {
   return this.http.post<{ message: string }>(`${this.apiUrl}/reinitialiser-mot-de-passe`, { email, code, nouveauMotDePasse });
 }
+
+sauvegarderUtilisateur(utilisateur: any): void {
+  localStorage.setItem('utilisateur', JSON.stringify(utilisateur));
+}
+
+recupererUtilisateur(): any {
+  const data = localStorage.getItem('utilisateur');
+  return data ? JSON.parse(data) : null;
+}
+
+deconnexion(): void {
+  localStorage.removeItem('token');
+  localStorage.removeItem('utilisateur');
+}
+
+estConnecte(): boolean {
+  return !!localStorage.getItem('token');
+}
 }

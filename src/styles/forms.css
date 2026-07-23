@@ -1,0 +1,50 @@
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text-1);
+  margin-bottom: 8px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-family: var(--font-body);
+  color: var(--text-1);
+  background: var(--paper);
+  transition: border-color 0.15s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--gold-500);
+}
+
+.form-input::placeholder {
+  color: var(--text-3);
+}
+
+.form-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-2);
+}
+
+.form-link {
+  font-size: 14px;
+  color: var(--gold-600);
+  text-decoration: none;
+}
+
+.form-link:hover {
+  text-decoration: underline;
+}
