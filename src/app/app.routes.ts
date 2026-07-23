@@ -5,6 +5,8 @@ import { ForgotPassword } from './forgot-password/forgot-password';
 import { ResetPassword } from './reset-password/reset-password';
 import { NotFound } from './not-found/not-found';
 import { Dashboard } from './dashboard/dashboard';
+import { Departements } from './departements/departements';
+import { Utilisateurs } from './utilisateurs/utilisateurs';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -12,6 +14,8 @@ export const routes: Routes = [
   { path: 'verify-otp', component: VerifyOtp },
   { path: 'forgot-password', component: ForgotPassword },
   { path: 'reset-password', component: ResetPassword },
-   { path: 'dashboard', component: Dashboard },
+  { path: 'dashboard', component: Dashboard },
+  { path: 'departements', component: Departements },
+  { path: 'utilisateurs', component: Utilisateurs },
   { path: '**', component: NotFound }
 ];

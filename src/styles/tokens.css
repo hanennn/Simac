@@ -1,10 +1,7 @@
-/* Palette commune SIMAC — utilisée par toutes les interfaces
-   (dashboard, login, gestion des utilisateurs, départements, budgets...) */
-
 :root {
-  --ink-900: #1e3a5c;
-  --ink-800: #26476b;
-  --ink-700: #33578a;
+  --ink-900: #1c1f24;
+  --ink-800: #262a31;
+  --ink-700: #3a3f47;
 
   --gold-600: #a9821a;
   --gold-500: #c9a227;
@@ -32,4 +29,17 @@
 
   --shadow-sm: 0 1px 2px rgba(15, 27, 51, 0.05);
   --shadow-md: 0 8px 24px rgba(15, 27, 51, 0.1);
+}
+
+:root.dark-theme {
+  --bg: #14171c;
+  --paper: #1c2027;
+  --line: #2c313a;
+  --text-1: #eceef0;
+  --text-2: #a8adb5;
+  --text-3: #767c86;
+  --text-empty: #4c525c;
+  --green-100: #16332580;
+  --gold-100: #3a2f1580;
+  --blue-100: #1c2a4080;
 }
