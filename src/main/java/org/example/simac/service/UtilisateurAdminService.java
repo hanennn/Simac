@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor //const créee auto
 public class UtilisateurAdminService {
 
     private final UtilisateurRepository utilisateurRepository;
@@ -26,7 +26,7 @@ public class UtilisateurAdminService {
     }
 
     public Utilisateur creer(UtilisateurRequest request) {
-        String motDePasseTemporaire = UUID.randomUUID().toString().substring(0, 10);
+        String motDePasseTemporaire = UUID.randomUUID().toString().substring(0, 10); //extrait 10 caractères
 
         Utilisateur utilisateur = new Utilisateur();
         utilisateur.setNomUser(request.getNomUser());
@@ -42,19 +42,38 @@ public class UtilisateurAdminService {
         }
 
         Utilisateur saved = utilisateurRepository.save(utilisateur);
-
+        //mdp genéré auto et envoyé à user
         notificationEmailService.envoyerEmail(
                 request.getEmail(),
                 "Creation de votre compte SIMAC",
-                "Votre compte a ete cree. Mot de passe temporaire : " + motDePasseTemporaire
+                "Bonjour, " +
+                        "Votre compte a ete cree avec succés! Voici votre mot de passe, ne le communiquez avec personne ! votre mot de passe: " + motDePasseTemporaire
         );
 
         return saved;
     }
-
     public void supprimer(Long id) {
+        Utilisateur utilisateur = utilisateurRepository.findById(id).orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+        utilisateurRepository.delete(utilisateur);
+    }
+
+    public Utilisateur modifier(Long id, UtilisateurRequest request) {
         Utilisateur utilisateur = utilisateurRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
-        utilisateurRepository.delete(utilisateur);
+
+        utilisateur.setNomUser(request.getNomUser());
+        utilisateur.setPrenomUser(request.getPrenomUser());
+        utilisateur.setEmail(request.getEmail());
+        utilisateur.setRole(request.getRole());
+
+        if (request.getDepartementId() != null) {
+            Departement departement = departementRepository.findById(request.getDepartementId())
+                    .orElseThrow(() -> new RuntimeException("Departement introuvable"));
+            utilisateur.setDepartement(departement);
+        } else {
+            utilisateur.setDepartement(null);
+        }
+
+        return utilisateurRepository.save(utilisateur);
     }
 }

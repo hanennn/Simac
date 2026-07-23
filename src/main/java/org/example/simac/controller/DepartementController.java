@@ -12,7 +12,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/departements")
+@RequestMapping("/api/departements")//toute route commence par api départ
 @RequiredArgsConstructor
 public class DepartementController {
 

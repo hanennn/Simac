@@ -7,6 +7,7 @@ public class CategorieDepart {
     public static final List<String> VALEURS_DEPART = List.of(
             "OPERATIONNEL",
             "SUPPORT",
+            "RESSOURCES HUMAINES",
             "COMMERCIAL",
             "ADMINISTRATIF"
     );

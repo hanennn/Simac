@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/depenses")
+@RequestMapping("/api/depenses")//toute route commence par api depense
 @RequiredArgsConstructor
 public class DepenseController {
 
     private final DepenseService depenseService;
 
     @GetMapping
-    @PreAuthorize("hasRole('RESPONSABLE_FINANCIER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('RESPONSABLE_FINANCIER') ")
     public List<Depense> listerTous() {
         return depenseService.listerTous();
     }
@@ -39,7 +39,7 @@ public class DepenseController {
 
     @PatchMapping("/{id}/valider")
     @PreAuthorize("hasRole('RESPONSABLE_FINANCIER')")
-    public ResponseEntity<Depense> valider(@PathVariable Long id) {
+    public ResponseEntity<Depense> valider(@PathVariable Long id) { //pathvariable récupère var depuis url
         return ResponseEntity.ok(depenseService.valider(id));
     }
 

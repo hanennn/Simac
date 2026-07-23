@@ -20,14 +20,14 @@ public class JwtService {
     @Value("${jwt.expiration}")
     private long expiration;
 
-    // Genere un token pour un utilisateur donne
+    // Genere un token pour utilisateur donne
     public String genererToken(UserDetails userDetails) {
         return Jwts.builder()
-                .subject(userDetails.getUsername())  // ici, le "username" = l'email
+                .subject(userDetails.getUsername())  // username=email
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSigningKey())
-                .compact();
+                .compact(); //transf en token
     }
 
     // Extrait l'email contenu dans le token
@@ -38,7 +38,7 @@ public class JwtService {
     // Verifie que le token est valide (bon email + pas expire)
     public boolean estValide(String token, UserDetails userDetails) {
         String email = extraireEmail(token);
-        return email.equals(userDetails.getUsername()) && !estExpire(token);
+        return email.equals(userDetails.getUsername()) && !estExpire(token); //email ds token correspond à utilisateur
     }
 
     private boolean estExpire(String token) {

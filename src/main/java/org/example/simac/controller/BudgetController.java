@@ -12,31 +12,31 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/budgets")
-@RequiredArgsConstructor
+@RequestMapping("/api/budgets") //toute route commence par api bud
+@RequiredArgsConstructor//genere auto constr
 public class BudgetController {
 
     private final BudgetService budgetService;
 
     @GetMapping
-    @PreAuthorize("hasRole('RESPONSABLE_FINANCIER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('RESPONSABLE_FINANCIER')")
     public List<Budget> listerTous() {
         return budgetService.listerTous();
     }
 
-    @GetMapping("/departement/{departementId}")
-    public List<Budget> listerParDepartement(@PathVariable Long departementId) {
+    @GetMapping("/departement/{departementId}")//liste bud par départ
+    public List<Budget> listerParDepartement(@PathVariable Long departementId) { //pathvariable récupère var depuis url
         return budgetService.listerParDepartement(departementId);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id}") //liste par id
     public Budget trouverParId(@PathVariable Long id) {
         return budgetService.trouverParId(id);
     }
 
     @PostMapping
     @PreAuthorize("hasRole('RESPONSABLE_FINANCIER')")
-    public ResponseEntity<Budget> creer(@Valid @RequestBody BudgetRequest request) {
+    public ResponseEntity<Budget> creer(@Valid @RequestBody BudgetRequest request) { //déf budget  201:created
         return ResponseEntity.status(201).body(budgetService.creer(request));
     }
 

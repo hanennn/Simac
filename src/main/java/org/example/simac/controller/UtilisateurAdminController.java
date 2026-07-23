@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin/utilisateurs")
+@RequestMapping("/api/admin/utilisateurs")//toute route commence api ........
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasRole('ADMIN')") //que admin
 public class UtilisateurAdminController {
 
     private final UtilisateurAdminService utilisateurAdminService;
@@ -33,5 +33,11 @@ public class UtilisateurAdminController {
     public ResponseEntity<Void> supprimer(@PathVariable Long id) {
         utilisateurAdminService.supprimer(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Utilisateur> modifier(@PathVariable Long id, @RequestBody UtilisateurRequest request) {
+        return ResponseEntity.ok(utilisateurAdminService.modifier(id, request));
     }
 }
