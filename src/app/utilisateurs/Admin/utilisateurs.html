@@ -1,0 +1,168 @@
+<div class="dashboard-container">
+
+  <app-sidebar></app-sidebar>
+
+  <main class="dashboard-content">
+
+    <div class="page-head">
+      <div class="page-head-icon">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="9" cy="7" r="3.2"/>
+          <path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/>
+          <circle cx="17" cy="8" r="2.6"/>
+          <path d="M15.5 14.6c2.6.3 4.5 2.2 4.5 5.4"/>
+        </svg>
+      </div>
+      <div style="flex:1;">
+        <h1 class="page-title">Utilisateurs</h1>
+        <p class="page-sub">Créer et gérer les comptes, rôles et accès par département.</p>
+      </div>
+      <button class="btn btn-primary" type="button" (click)="ouvrirCreation()">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        Nouvel utilisateur
+      </button>
+    </div>
+
+    <div class="page-search">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="7"/>
+        <path d="M21 21l-4.3-4.3"/>
+      </svg>
+      <input type="text" placeholder="Rechercher un utilisateur..."
+             [ngModel]="rechercheTerme()" (ngModelChange)="rechercheTerme.set($event)">
+      <button *ngIf="rechercheTerme()" type="button" class="page-search-clear" (click)="rechercheTerme.set('')" aria-label="Effacer">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="alert-error" *ngIf="erreur()">{{ erreur() }}</div>
+
+    <div class="loading-state" *ngIf="chargement()">Chargement des utilisateurs...</div>
+
+    <div class="empty-state" *ngIf="!chargement() && utilisateursFiltres().length === 0 && utilisateurs().length === 0">
+      <div class="empty-state-icon">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="9" cy="7" r="3.2"/>
+          <path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/>
+          <circle cx="17" cy="8" r="2.6"/>
+          <path d="M15.5 14.6c2.6.3 4.5 2.2 4.5 5.4"/>
+        </svg>
+      </div>
+      <p>Aucun utilisateur pour l'instant.</p>
+      <button class="btn btn-outline-gold" type="button" (click)="ouvrirCreation()">Créer le premier utilisateur</button>
+    </div>
+
+    <div class="empty-state" *ngIf="!chargement() && utilisateursFiltres().length === 0 && utilisateurs().length > 0">
+      <p>Aucun utilisateur ne correspond à « {{ rechercheTerme() }} ».</p>
+    </div>
+
+    <div class="dept-list card" *ngIf="!chargement() && utilisateursFiltres().length > 0">
+      <div class="dept-row" *ngFor="let u of utilisateursFiltres()">
+        <div class="user-avatar">{{ getInitiales(u) }}</div>
+
+        <div class="dept-row-info">
+          <div class="dept-row-head">
+            <h3 class="dept-row-title">{{ u.prenomUser }} {{ u.nomUser }}</h3>
+            <span class="dept-badge">{{ formatRole(u.role) }}</span>
+          </div>
+          <p class="dept-row-desc">
+            {{ u.email }}
+            <span *ngIf="u.departement"> · {{ u.departement.nomDepart }}</span>
+          </p>
+        </div>
+
+        <div class="dept-actions">
+          <button class="icon-btn" type="button" title="Modifier" aria-label="Modifier" (click)="ouvrirModification(u)">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 20h9"/>
+              <path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/>
+            </svg>
+          </button>
+          <button class="icon-btn icon-btn-danger" type="button" title="Supprimer" aria-label="Supprimer" (click)="demanderSuppression(u)">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal-overlay" *ngIf="modalOuvert()">
+    <div class="modal">
+      <div class="modal-head">
+        <h2>{{ modeEdition() ? 'Modifier l\'utilisateur' : 'Nouvel utilisateur' }}</h2>
+        <button class="icon-btn" type="button" aria-label="Fermer" (click)="fermerModal()">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <form (ngSubmit)="enregistrer()">
+        <div class="form-group">
+          <label class="form-label" for="prenomUser">Prénom</label>
+          <input class="form-input" id="prenomUser" type="text" name="prenomUser"
+                 [(ngModel)]="formulaire.prenomUser" placeholder="Ex. Hanen" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="nomUser">Nom</label>
+          <input class="form-input" id="nomUser" type="text" name="nomUser"
+                 [(ngModel)]="formulaire.nomUser" placeholder="Ex. Ben Naceur" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Adresse e-mail</label>
+          <input class="form-input" id="email" type="email" name="email"
+                 [(ngModel)]="formulaire.email" placeholder="nom@entreprise.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="role">Rôle</label>
+          <select class="form-input" id="role" name="role" [(ngModel)]="formulaire.role" required>
+            <option value="" disabled>Choisir un rôle</option>
+            <option *ngFor="let r of roles" [value]="r">{{ formatRole(r) }}</option>
+          </select>
+        </div>
+
+        <div class="form-group" *ngIf="formulaire.role === 'CHEF_DEPARTEMENT'">
+          <label class="form-label" for="departementId">Département</label>
+          <select class="form-input" id="departementId" name="departementId" [(ngModel)]="formulaire.departementId">
+            <option [ngValue]="null">Aucun</option>
+            <option *ngFor="let d of departements()" [ngValue]="d.idDepart">{{ d.nomDepart }}</option>
+          </select>
+        </div>
+
+        <p class="form-hint" *ngIf="!modeEdition()">Un mot de passe temporaire sera généré et envoyé par email à cet utilisateur.</p>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" type="button" (click)="fermerModal()">Annuler</button>
+          <button class="btn btn-primary" type="submit" [disabled]="enregistrementEnCours()">
+            {{ enregistrementEnCours() ? 'Enregistrement...' : (modeEdition() ? 'Enregistrer' : 'Créer') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="utilisateurASupprimer() as u">
+    <div class="modal modal-sm">
+      <h2>Supprimer cet utilisateur ?</h2>
+      <p class="card-text">
+        « {{ u.prenomUser }} {{ u.nomUser }} » sera supprimé définitivement. Cette action est irréversible.
+      </p>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" type="button" (click)="annulerSuppression()">Annuler</button>
+        <button class="btn btn-danger" type="button" (click)="confirmerSuppression()" [disabled]="suppressionEnCours()">
+          {{ suppressionEnCours() ? 'Suppression...' : 'Supprimer' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

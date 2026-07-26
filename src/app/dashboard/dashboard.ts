@@ -1,18 +1,19 @@
 import { Component, OnInit, signal } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive} from '@angular/router';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs';
-import { Auth } from '../services/auth';
-import { Departement } from '../services/departement';
-import { Budget } from '../services/budget';
-import { UtilisateurAdmin } from '../services/utilisateur-admin';
-import { Depense } from '../services/depense';
+import { Auth } from '../auth/auth';
+import { Departement } from '../departements/Admin/departement';
+import { Budget } from '../budgets/budget';
+import { UtilisateurAdmin } from '../utilisateurs/Admin/utilisateur-admin';
+import { Depense } from '../depenses/depense';
 import { Theme } from '../services/theme';
+import { Sidebar } from '../shared/sidebar/sidebar';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, Sidebar],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
@@ -44,9 +45,7 @@ export class Dashboard implements OnInit {
   }
 
   basculerTheme(): void {
-    console.log('clic détecté, valeur avant:', this.themeService.sombre());
-  this.themeService.basculer();
-  console.log('valeur après:', this.themeService.sombre());
+    this.themeService.basculer();
   }
 
   ngOnInit(): void {
@@ -144,5 +143,4 @@ export class Dashboard implements OnInit {
     };
     return classes[this.utilisateur()?.role] || '';
   }
-
 }

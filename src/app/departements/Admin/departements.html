@@ -1,0 +1,171 @@
+<div class="dashboard-container">
+
+  <app-sidebar></app-sidebar>
+
+  <main class="dashboard-content">
+
+    <div class="page-head">
+      <div class="page-head-icon">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="3" width="9" height="18"/>
+          <rect x="13" y="8" width="7" height="13"/>
+        </svg>
+      </div>
+      <div style="flex:1;">
+        <h1 class="page-title">Départements</h1>
+        <p class="page-sub">Créer, modifier et supprimer les départements de l'organisation.</p>
+      </div>
+      <button class="btn btn-primary" type="button" (click)="ouvrirCreation()">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        Nouveau département
+      </button>
+    </div>
+
+    <div class="page-search">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="7"/>
+        <path d="M21 21l-4.3-4.3"/>
+      </svg>
+      <input type="text" placeholder="Rechercher un département..."
+             [ngModel]="rechercheTerme()" (ngModelChange)="rechercheTerme.set($event)">
+      <button *ngIf="rechercheTerme()" type="button" class="page-search-clear" (click)="rechercheTerme.set('')" aria-label="Effacer">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="alert-error" *ngIf="erreur()">{{ erreur() }}</div>
+
+    <div class="loading-state" *ngIf="chargement()">Chargement des départements...</div>
+
+    <div class="empty-state" *ngIf="!chargement() && departementsFiltres().length === 0 && departements().length === 0">
+      <div class="empty-state-icon">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="3" width="9" height="18"/>
+          <rect x="13" y="8" width="7" height="13"/>
+        </svg>
+      </div>
+      <p>Aucun département pour l'instant.</p>
+      <button class="btn btn-outline-gold" type="button" (click)="ouvrirCreation()">Créer le premier département</button>
+    </div>
+
+    <div class="empty-state" *ngIf="!chargement() && departementsFiltres().length === 0 && departements().length > 0">
+      <p>Aucun département ne correspond à « {{ rechercheTerme() }} ».</p>
+    </div>
+
+    <div class="dept-list card" *ngIf="!chargement() && departementsFiltres().length > 0">
+  <div class="dept-item" *ngFor="let dept of departementsFiltres()">
+    <div class="dept-row" (click)="toggleDepartement(dept.idDepart)">
+      <div class="stat-icon blue dept-row-icon">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="3" width="9" height="18"/>
+          <rect x="13" y="8" width="7" height="13"/>
+        </svg>
+      </div>
+
+      <div class="dept-row-info">
+        <div class="dept-row-head">
+          <h3 class="dept-row-title">{{ dept.nomDepart }}</h3>
+          <span class="dept-badge">{{ dept.categorieDepart }}</span>
+          <span class="dept-user-count">{{ utilisateursDuDepartement(dept.idDepart).length }} utilisateur(s)</span>
+        </div>
+        <p class="dept-row-desc">{{ dept.descDepart || 'Aucune description.' }}</p>
+      </div>
+
+      <svg class="dept-chevron" [class.open]="departementOuvert() === dept.idDepart" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 9l6 6 6-6"/>
+      </svg>
+
+      <div class="dept-actions" (click)="$event.stopPropagation()">
+        <button class="icon-btn" type="button" title="Modifier" aria-label="Modifier" (click)="ouvrirModification(dept)">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20h9"/>
+            <path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/>
+          </svg>
+        </button>
+        <button class="icon-btn icon-btn-danger" type="button" title="Supprimer" aria-label="Supprimer" (click)="demanderSuppression(dept)">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="dept-users-panel" *ngIf="departementOuvert() === dept.idDepart">
+      <div class="dept-users-empty" *ngIf="utilisateursDuDepartement(dept.idDepart).length === 0">
+        Aucun utilisateur dans ce département.
+      </div>
+      <div class="dept-user-chip" *ngFor="let u of utilisateursDuDepartement(dept.idDepart)">
+        <div class="dept-user-avatar">{{ (u.prenomUser?.[0] || '') + (u.nomUser?.[0] || '') }}</div>
+        <div>
+          <div class="dept-user-name">{{ u.prenomUser }} {{ u.nomUser }}</div>
+          <div class="dept-user-email">{{ u.email }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  </main>
+
+  <div class="modal-overlay" *ngIf="modalOuvert()">
+    <div class="modal">
+      <div class="modal-head">
+        <h2>{{ modeEdition() ? 'Modifier le département' : 'Nouveau département' }}</h2>
+        <button class="icon-btn" type="button" aria-label="Fermer" (click)="fermerModal()">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <form (ngSubmit)="enregistrer()">
+        <div class="form-group">
+          <label class="form-label" for="nomDepart">Nom du département</label>
+          <input class="form-input" id="nomDepart" type="text" name="nomDepart"
+                 [(ngModel)]="formulaire.nomDepart" placeholder="Ex. Ressources humaines" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="categorieDepart">Catégorie</label>
+          <select class="form-input" id="categorieDepart" name="categorieDepart"
+                  [(ngModel)]="formulaire.categorieDepart" required>
+            <option value="" disabled>Choisir une catégorie</option>
+            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="descDepart">Description</label>
+          <textarea class="form-input" id="descDepart" name="descDepart" rows="3"
+                    [(ngModel)]="formulaire.descDepart" placeholder="Rôle du département, périmètre..."></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn btn-secondary" type="button" (click)="fermerModal()">Annuler</button>
+          <button class="btn btn-primary" type="submit" [disabled]="enregistrementEnCours()">
+            {{ enregistrementEnCours() ? 'Enregistrement...' : (modeEdition() ? 'Enregistrer' : 'Créer') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="departementASupprimer() as dept">
+    <div class="modal modal-sm">
+      <h2>Supprimer ce département ?</h2>
+      <p class="card-text">
+        « {{ dept.nomDepart }} » sera supprimé définitivement. Cette action est irréversible.
+      </p>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" type="button" (click)="annulerSuppression()">Annuler</button>
+        <button class="btn btn-danger" type="button" (click)="confirmerSuppression()" [disabled]="suppressionEnCours()">
+          {{ suppressionEnCours() ? 'Suppression...' : 'Supprimer' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,61 @@
+<div class="dashboard-container">
+
+  <app-sidebar></app-sidebar>
+
+  <main class="dashboard-content">
+
+    <div class="page-head">
+      <div class="page-head-icon">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="3" width="16" height="18" rx="1.5"/>
+          <path d="M9 8h6M9 12h6M9 16h4"/>
+        </svg>
+      </div>
+      <div style="flex:1;">
+        <h1 class="page-title">Mes dépenses</h1>
+        <p class="page-sub">Dépenses saisies via l'ERP pour votre département.</p>
+      </div>
+    </div>
+
+    <div class="alert-error" *ngIf="erreur()">{{ erreur() }}</div>
+
+    <div class="loading-state" *ngIf="chargement()">Chargement de vos dépenses...</div>
+
+    <div class="empty-state" *ngIf="!chargement() && depenses().length === 0">
+      <div class="empty-state-icon">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="3" width="16" height="18" rx="1.5"/>
+          <path d="M9 8h6M9 12h6M9 16h4"/>
+        </svg>
+      </div>
+      <p>Aucune dépense enregistrée pour l'instant.</p>
+    </div>
+
+    <div class="dept-list card" *ngIf="!chargement() && depenses().length > 0">
+      <div class="dept-row" *ngFor="let dep of depenses()">
+        <div class="stat-icon blue dept-row-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 7v5l3 2"/>
+          </svg>
+        </div>
+
+        <div class="dept-row-info">
+          <div class="dept-row-head">
+            <h3 class="dept-row-title">{{ dep.categorieDepense }} · {{ dep.montant | number:'1.0-2' }} DT</h3>
+            <span class="dept-badge" [ngClass]="{
+              'badge-attente': dep.statutDepense === 'EN_ATTENTE',
+              'badge-validee': dep.statutDepense === 'VALIDEE',
+              'badge-rejetee': dep.statutDepense === 'REJETEE'
+            }">{{ formatStatut(dep.statutDepense) }}</span>
+            <span class="dept-badge-neutral" *ngIf="dep.budget?.departement">{{ dep.budget.departement?.categorieDepart }}</span>
+          </div>
+          <p class="dept-row-desc">
+            {{ dep.descDepense || 'Aucune description.' }}
+            <span> · {{ dep.dateDepense }}</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

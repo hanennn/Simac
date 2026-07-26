@@ -1,12 +1,15 @@
 import { Routes } from '@angular/router';
-import { Login } from './login/login';
-import { VerifyOtp } from './verify-otp/verify-otp';
-import { ForgotPassword } from './forgot-password/forgot-password';
-import { ResetPassword } from './reset-password/reset-password';
+import { Login } from './auth/login/login';
+import { VerifyOtp } from './auth/verify-otp/verify-otp';
+import { ForgotPassword } from './auth/forgot-password/forgot-password';
+import { ResetPassword } from './auth/reset-password/reset-password';
 import { NotFound } from './not-found/not-found';
 import { Dashboard } from './dashboard/dashboard';
-import { Departements } from './departements/departements';
-import { Utilisateurs } from './utilisateurs/utilisateurs';
+import { Departements } from './departements/Admin/departements';
+import { Utilisateurs } from './utilisateurs/Admin/utilisateurs';
+import { MesDepenses } from './depenses/chef-departement/mes-depenses';
+
+
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -17,5 +20,6 @@ export const routes: Routes = [
   { path: 'dashboard', component: Dashboard },
   { path: 'departements', component: Departements },
   { path: 'utilisateurs', component: Utilisateurs },
+  { path: 'mes-depenses', component: MesDepenses },
   { path: '**', component: NotFound }
 ];
