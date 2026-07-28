@@ -1,7 +1,10 @@
 export interface Depense {
   idDepense: number;
   montant: number;
-  categorieDepense: string;
+  categorieDepense: {
+    idCategorie: number;
+    nomCategorie: string;
+  };
   descDepense: string;
   dateDepense: string;
   statutDepense: 'EN_ATTENTE' | 'VALIDEE' | 'REJETEE';
@@ -10,7 +13,7 @@ export interface Depense {
     idBud: number;
     montantAlloueBud: number;
     montantConsommeBud: number;
-    departement?: { idDepart: number; nomDepart: string; categorieDepart: string };
+    departement?: { idDepart: number; nomDepart: string; categorieDepart: { idCategorie: number; nomCategorie: string } };
   };
   utilisateur?: {
     idUser: number;
@@ -21,7 +24,7 @@ export interface Depense {
 
 export interface DepenseRequest {
   montant: number;
-  categorieDepense: string;
+  categorieId: number;
   descDepense: string;
   dateDepense: string;
   budgetId: number;

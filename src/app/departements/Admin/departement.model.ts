@@ -2,13 +2,16 @@ export interface Departement {
   idDepart: number;
   nomDepart: string;
   descDepart: string;
-  categorieDepart: string;
+  categorieDepart: {
+    idCategorie: number;
+    nomCategorie: string;
+  };
 }
 
 export interface DepartementRequest {
   nomDepart: string;
   descDepart: string;
-  categorieDepart: string;
+  categorieId: number;
 }
 
 export const CATEGORIES_DEPARTEMENT: string[] = [

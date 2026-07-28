@@ -2,10 +2,12 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Departement as DepartementService } from './departement';
-import { Departement as DepartementModel, DepartementRequest, CATEGORIES_DEPARTEMENT } from './departement.model';
+import { Departement as DepartementModel, DepartementRequest } from './departement.model';
+import { CategorieDepartService, CategorieDepart } from './categorie-departement';
 import { UtilisateurAdmin as UtilisateurAdminService } from '../../utilisateurs/Admin/utilisateur-admin';
 import { Utilisateur as UtilisateurModel } from '../../utilisateurs/Admin/utilisateur-admin.model';
 import { Sidebar } from '../../shared/sidebar/sidebar';
+
 @Component({
   selector: 'app-departements',
   standalone: true,
@@ -17,6 +19,7 @@ export class Departements implements OnInit {
 
   departements = signal<DepartementModel[]>([]);
   utilisateurs = signal<UtilisateurModel[]>([]);
+  categories = signal<CategorieDepart[]>([]);
   departementOuvert = signal<number | null>(null);
 
   rechercheTerme = signal('');
@@ -26,7 +29,7 @@ export class Departements implements OnInit {
     if (!terme) return this.departements();
     return this.departements().filter(d =>
       d.nomDepart.toLowerCase().includes(terme) ||
-      d.categorieDepart.toLowerCase().includes(terme) ||
+      d.categorieDepart.nomCategorie.toLowerCase().includes(terme) ||
       (d.descDepart || '').toLowerCase().includes(terme)
     );
   });
@@ -34,12 +37,10 @@ export class Departements implements OnInit {
   chargement = signal(true);
   erreur = signal<string | null>(null);
 
-  categories = CATEGORIES_DEPARTEMENT;
-
   modalOuvert = signal(false);
   modeEdition = signal(false);
   enregistrementEnCours = signal(false);
-  formulaire: DepartementRequest = { nomDepart: '', descDepart: '', categorieDepart: '' };
+  formulaire: DepartementRequest = { nomDepart: '', descDepart: '', categorieId: 0 };
   idEnCoursDeModification: number | null = null;
 
   departementASupprimer = signal<DepartementModel | null>(null);
@@ -47,14 +48,19 @@ export class Departements implements OnInit {
 
   constructor(
     private departementService: DepartementService,
-    private utilisateurAdminService: UtilisateurAdminService
+    private utilisateurAdminService: UtilisateurAdminService,
+    private categorieDepartService: CategorieDepartService
   ) {}
 
   ngOnInit(): void {
     this.charger();
     this.utilisateurAdminService.listerTous().subscribe({
       next: (liste) => this.utilisateurs.set(liste),
-      error: () => {} // pas bloquant si ça échoue, le reste de la page fonctionne
+      error: () => {}
+    });
+    this.categorieDepartService.listerTous().subscribe({
+      next: (liste: CategorieDepart[]) => this.categories.set(liste),
+      error: () => {}
     });
   }
 
@@ -84,7 +90,7 @@ export class Departements implements OnInit {
   ouvrirCreation(): void {
     this.modeEdition.set(false);
     this.idEnCoursDeModification = null;
-    this.formulaire = { nomDepart: '', descDepart: '', categorieDepart: '' };
+    this.formulaire = { nomDepart: '', descDepart: '', categorieId: 0 };
     this.modalOuvert.set(true);
   }
 
@@ -94,7 +100,7 @@ export class Departements implements OnInit {
     this.formulaire = {
       nomDepart: dept.nomDepart,
       descDepart: dept.descDepart,
-      categorieDepart: dept.categorieDepart
+      categorieId: dept.categorieDepart.idCategorie
     };
     this.modalOuvert.set(true);
   }
@@ -104,7 +110,7 @@ export class Departements implements OnInit {
   }
 
   enregistrer(): void {
-    if (!this.formulaire.nomDepart || !this.formulaire.categorieDepart) {
+    if (!this.formulaire.nomDepart || !this.formulaire.categorieId) {
       this.erreur.set('Le nom et la catégorie sont obligatoires.');
       return;
     }

@@ -48,7 +48,7 @@
 
         <div class="dept-row-info">
           <div class="dept-row-head">
-            <h3 class="dept-row-title">{{ dep.categorieDepense }} · {{ dep.montant | number:'1.0-2' }} DT</h3>
+           <h3 class="dept-row-title">{{ dep.categorieDepense.nomCategorie }} · {{ dep.montant | number:'1.0-2' }} DT</h3>
             <span class="dept-badge" [ngClass]="{
                 'badge-attente': dep.statutDepense === 'EN_ATTENTE',
                 'badge-validee': dep.statutDepense === 'VALIDEE',

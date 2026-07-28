@@ -57,57 +57,57 @@
     </div>
 
     <div class="dept-list card" *ngIf="!chargement() && departementsFiltres().length > 0">
-  <div class="dept-item" *ngFor="let dept of departementsFiltres()">
-    <div class="dept-row" (click)="toggleDepartement(dept.idDepart)">
-      <div class="stat-icon blue dept-row-icon">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="4" y="3" width="9" height="18"/>
-          <rect x="13" y="8" width="7" height="13"/>
-        </svg>
-      </div>
+      <div class="dept-item" *ngFor="let dept of departementsFiltres()">
+        <div class="dept-row" (click)="toggleDepartement(dept.idDepart)">
+          <div class="stat-icon blue dept-row-icon">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="3" width="9" height="18"/>
+              <rect x="13" y="8" width="7" height="13"/>
+            </svg>
+          </div>
 
-      <div class="dept-row-info">
-        <div class="dept-row-head">
-          <h3 class="dept-row-title">{{ dept.nomDepart }}</h3>
-          <span class="dept-badge">{{ dept.categorieDepart }}</span>
-          <span class="dept-user-count">{{ utilisateursDuDepartement(dept.idDepart).length }} utilisateur(s)</span>
+          <div class="dept-row-info">
+            <div class="dept-row-head">
+              <h3 class="dept-row-title">{{ dept.nomDepart }}</h3>
+              <span class="dept-badge">{{ dept.categorieDepart.nomCategorie }}</span>
+              <span class="dept-user-count">{{ utilisateursDuDepartement(dept.idDepart).length }} utilisateur(s)</span>
+            </div>
+            <p class="dept-row-desc">{{ dept.descDepart || 'Aucune description.' }}</p>
+          </div>
+
+          <svg class="dept-chevron" [class.open]="departementOuvert() === dept.idDepart" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+
+          <div class="dept-actions" (click)="$event.stopPropagation()">
+            <button class="icon-btn" type="button" title="Modifier" aria-label="Modifier" (click)="ouvrirModification(dept)">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"/>
+                <path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/>
+              </svg>
+            </button>
+            <button class="icon-btn icon-btn-danger" type="button" title="Supprimer" aria-label="Supprimer" (click)="demanderSuppression(dept)">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+              </svg>
+            </button>
+          </div>
         </div>
-        <p class="dept-row-desc">{{ dept.descDepart || 'Aucune description.' }}</p>
-      </div>
 
-      <svg class="dept-chevron" [class.open]="departementOuvert() === dept.idDepart" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M6 9l6 6 6-6"/>
-      </svg>
-
-      <div class="dept-actions" (click)="$event.stopPropagation()">
-        <button class="icon-btn" type="button" title="Modifier" aria-label="Modifier" (click)="ouvrirModification(dept)">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 20h9"/>
-            <path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/>
-          </svg>
-        </button>
-        <button class="icon-btn icon-btn-danger" type="button" title="Supprimer" aria-label="Supprimer" (click)="demanderSuppression(dept)">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
-          </svg>
-        </button>
+        <div class="dept-users-panel" *ngIf="departementOuvert() === dept.idDepart">
+          <div class="dept-users-empty" *ngIf="utilisateursDuDepartement(dept.idDepart).length === 0">
+            Aucun utilisateur dans ce département.
+          </div>
+          <div class="dept-user-chip" *ngFor="let u of utilisateursDuDepartement(dept.idDepart)">
+            <div class="dept-user-avatar">{{ (u.prenomUser?.[0] || '') + (u.nomUser?.[0] || '') }}</div>
+            <div>
+              <div class="dept-user-name">{{ u.prenomUser }} {{ u.nomUser }}</div>
+              <div class="dept-user-email">{{ u.email }}</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-
-    <div class="dept-users-panel" *ngIf="departementOuvert() === dept.idDepart">
-      <div class="dept-users-empty" *ngIf="utilisateursDuDepartement(dept.idDepart).length === 0">
-        Aucun utilisateur dans ce département.
-      </div>
-      <div class="dept-user-chip" *ngFor="let u of utilisateursDuDepartement(dept.idDepart)">
-        <div class="dept-user-avatar">{{ (u.prenomUser?.[0] || '') + (u.nomUser?.[0] || '') }}</div>
-        <div>
-          <div class="dept-user-name">{{ u.prenomUser }} {{ u.nomUser }}</div>
-          <div class="dept-user-email">{{ u.email }}</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
   </main>
 
   <div class="modal-overlay" *ngIf="modalOuvert()">
@@ -129,11 +129,11 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="categorieDepart">Catégorie</label>
-          <select class="form-input" id="categorieDepart" name="categorieDepart"
-                  [(ngModel)]="formulaire.categorieDepart" required>
-            <option value="" disabled>Choisir une catégorie</option>
-            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+          <label class="form-label" for="categorieId">Catégorie</label>
+          <select class="form-input" id="categorieId" name="categorieId"
+                  [(ngModel)]="formulaire.categorieId" required>
+            <option [ngValue]="0" disabled>Choisir une catégorie</option>
+            <option *ngFor="let cat of categories()" [ngValue]="cat.idCategorie">{{ cat.nomCategorie }}</option>
           </select>
         </div>
 

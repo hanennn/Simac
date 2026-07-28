@@ -1,0 +1,67 @@
+<div class="dashboard-container">
+
+  <app-sidebar></app-sidebar>
+
+  <main class="dashboard-content">
+
+    <div class="page-head">
+      <div class="page-head-icon">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="3" width="16" height="18" rx="1.5"/>
+          <path d="M9 17V10M12 17V7M15 17v-5"/>
+        </svg>
+      </div>
+      <div style="flex:1;">
+        <h1 class="page-title">Mon budget</h1>
+        <p class="page-sub">Consultation du budget alloué à votre département.</p>
+      </div>
+    </div>
+
+    <div class="alert-error" *ngIf="erreur()">{{ erreur() }}</div>
+
+    <div class="loading-state" *ngIf="chargement()">Chargement du budget...</div>
+
+    <div class="empty-state" *ngIf="!chargement() && !erreur() && budgets().length === 0">
+      <div class="empty-state-icon">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="3" width="16" height="18" rx="1.5"/>
+          <path d="M9 17V10M12 17V7M15 17v-5"/>
+        </svg>
+      </div>
+      <p>Aucun budget alloué à votre département pour l'instant.</p>
+    </div>
+
+    <div class="budgets-grid" *ngIf="!chargement() && budgets().length > 0">
+      <div class="card budget-card" *ngFor="let b of budgets()">
+        <div class="budget-card-top">
+          <div>
+            <h3 class="budget-dept-name">{{ b.departement?.nomDepart }}</h3>
+            <span class="dept-badge">{{ b.departement?.categorieDepart }}</span>
+          </div>
+          <span class="budget-badge-danger" *ngIf="estDepasse(b)">Dépassé</span>
+        </div>
+
+        <div class="budget-amounts">
+          <div>
+            <span class="budget-amount-label">Alloué</span>
+            <span class="budget-amount-value">{{ b.montantAlloueBud | number:'1.0-2' }} DT</span>
+          </div>
+          <div>
+            <span class="budget-amount-label">Consommé</span>
+            <span class="budget-amount-value">{{ b.montantConsommeBud | number:'1.0-2' }} DT</span>
+          </div>
+          <div>
+            <span class="budget-amount-label">Solde</span>
+            <span class="budget-amount-value" [class.negatif]="soldeRestant(b) < 0">{{ soldeRestant(b) | number:'1.0-2' }} DT</span>
+          </div>
+        </div>
+
+        <div class="budget-progress">
+          <div class="budget-progress-bar" [class.danger]="estDepasse(b)" [style.width.%]="tauxConsommation(b)"></div>
+        </div>
+
+        <p class="budget-dates">Du {{ b.dateDebutBud }} au {{ b.dateFinBud }}</p>
+      </div>
+    </div>
+  </main>
+</div>

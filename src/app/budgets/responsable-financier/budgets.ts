@@ -1,11 +1,11 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Budget as BudgetService } from '../../budget';
-import { Budget as BudgetModel, BudgetRequest } from '../../budget.model';
-import { Departement as DepartementService } from '../../../departements/Admin/departement';
-import { Departement as DepartementModel } from '../../../departements/Admin/departement.model';
-import { Sidebar } from '../../../shared/sidebar/sidebar';
+import { Budget as BudgetService } from '../budget';
+import { Budget as BudgetModel, BudgetRequest } from '../budget.model';
+import { Departement as DepartementService } from '../../departements/Admin/departement';
+import { Departement as DepartementModel } from '../../departements/Admin/departement.model';
+import { Sidebar } from '../../shared/sidebar/sidebar';
 
 @Component({
   selector: 'app-budgets',
