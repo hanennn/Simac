@@ -51,6 +51,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))//mode stateless ne crée pas session
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()//accés n'importe qui
+                        .requestMatchers("/api/depenses/webhook-odoo").permitAll()//accessible par Odoo, sans authentification
                         .anyRequest().authenticated() // nécessite authentif
                 )
                 .authenticationProvider(authenticationProvider())

@@ -30,9 +30,11 @@ public class Budget {
     @Column(nullable = false)
     private LocalDate dateFinBud;
 
+    @Column(name = "departement_id",nullable = false)
+    private long idDepart;
+
     @ManyToOne
-    @JoinColumn(name = "departement_id", nullable = false)
-    @JsonBackReference
+    @JoinColumn(name = "departement_id",referencedColumnName ="idDepart" ,insertable = false, updatable = false)
     private Departement departement;
 
     public double calculerSoldeRestant() {

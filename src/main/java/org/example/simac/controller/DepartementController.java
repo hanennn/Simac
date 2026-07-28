@@ -18,7 +18,7 @@ public class DepartementController {
 
     private final DepartementService departementService;
 
-    @GetMapping
+    @GetMapping("/")
     public List<Departement> listerTous() {
         return departementService.listerTous();
     }
@@ -28,7 +28,7 @@ public class DepartementController {
         return departementService.trouverParId(id);
     }
 
-    @PostMapping
+    @PostMapping("/")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Departement> creer(@Valid @RequestBody DepartementRequest request) {
         Departement departement = departementService.creer(request);

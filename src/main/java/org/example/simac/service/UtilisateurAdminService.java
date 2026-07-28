@@ -42,16 +42,17 @@ public class UtilisateurAdminService {
         }
 
         Utilisateur saved = utilisateurRepository.save(utilisateur);
-        //mdp genéré auto et envoyé à user
-        notificationEmailService.envoyerEmail(
+
+        //mdp genéré auto et envoyé à user, via le template HTML de creation-compte.html
+        notificationEmailService.envoyerEmailCreationCompte(
                 request.getEmail(),
-                "Creation de votre compte SIMAC",
-                "Bonjour, " +
-                        "Votre compte a ete cree avec succés! Voici votre mot de passe, ne le communiquez avec personne ! votre mot de passe: " + motDePasseTemporaire
+                request.getPrenomUser(),
+                motDePasseTemporaire
         );
 
         return saved;
     }
+
     public void supprimer(Long id) {
         Utilisateur utilisateur = utilisateurRepository.findById(id).orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
         utilisateurRepository.delete(utilisateur);

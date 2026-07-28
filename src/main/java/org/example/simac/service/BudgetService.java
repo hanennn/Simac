@@ -3,12 +3,12 @@ package org.example.simac.service;
 import lombok.RequiredArgsConstructor;
 import org.example.simac.dto.BudgetRequest;
 import org.example.simac.entity.Budget;
-import org.example.simac.entity.Departement;
 import org.example.simac.repository.BudgetRepository;
 import org.example.simac.repository.DepartementRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +27,7 @@ public class BudgetService {
 
     public Budget trouverParId(Long id) {
         return budgetRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Budget introuvable"));
+                .orElseThrow(() -> new NoSuchElementException("Budget introuvable"));
     }
 
     public Budget creer(BudgetRequest request) {
@@ -35,30 +35,21 @@ public class BudgetService {
             throw new IllegalArgumentException("La date de fin doit etre posterieure a la date de debut");
         }
 
-        Departement departement = departementRepository.findById(request.getDepartementId())
-                .orElseThrow(() -> new RuntimeException("Departement introuvable"));
-
         Budget budget = new Budget();
         budget.setMontantAlloueBud(request.getMontantAlloueBud());
         budget.setMontantConsommeBud(0.0);
         budget.setDateDebutBud(request.getDateDebutBud());
         budget.setDateFinBud(request.getDateFinBud());
-        budget.setDepartement(departement);
-
+        budget.setIdDepart(request.getDepartementId());
         return budgetRepository.save(budget);
     }
 
     public Budget modifier(Long id, BudgetRequest request) {
         Budget budget = trouverParId(id);
-        Departement departement = departementRepository.findById(request.getDepartementId())
-                .orElseThrow(() -> new RuntimeException("Departement introuvable"));
-
         budget.setMontantAlloueBud(request.getMontantAlloueBud());
         budget.setDateDebutBud(request.getDateDebutBud());
         budget.setDateFinBud(request.getDateFinBud());
-        budget.setDepartement(departement);
-
-        return budgetRepository.save(budget);
+        return budgetRepository.saveAndFlush(budget);
     }
 
     public void supprimer(Long id) {

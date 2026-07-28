@@ -3,6 +3,7 @@ package org.example.simac.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.simac.dto.DepenseRequest;
+import org.example.simac.dto.OdooWebhookRequest;
 import org.example.simac.entity.Depense;
 import org.example.simac.service.DepenseService;
 import org.springframework.http.ResponseEntity;
@@ -47,5 +48,10 @@ public class DepenseController {
     @PreAuthorize("hasRole('RESPONSABLE_FINANCIER')")
     public ResponseEntity<Depense> rejeter(@PathVariable Long id) {
         return ResponseEntity.ok(depenseService.rejeter(id));
+    }
+
+    @PostMapping("/webhook-odoo")
+    public ResponseEntity<Depense> recevoirDepenseOdoo(@RequestBody OdooWebhookRequest request) {
+        return ResponseEntity.status(201).body(depenseService.saisirDepuisOdoo(request));
     }
 }

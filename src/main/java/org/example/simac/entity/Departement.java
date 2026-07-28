@@ -1,12 +1,9 @@
 package org.example.simac.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Entity
 @Table(name = "departements")
@@ -24,10 +21,7 @@ public class Departement {
 
     private String descDepart;
 
-    @Column(nullable = false)
-    private String categorieDepart;
-
-    @OneToMany(mappedBy = "departement")
-    @JsonManagedReference
-    private List<Budget> budgets;
+    @ManyToOne
+    @JoinColumn(name = "categorie_id", nullable = false)
+    private CategorieDepart categorieDepart;
 }

@@ -38,19 +38,25 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7); // enleve "Bearer " (7 caracteres)
-        String email = jwtService.extraireEmail(token);
 
-        // Si un email + ds token ET user pas connecté
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email); //recup user
+        try {
+            String email = jwtService.extraireEmail(token);
 
-            if (jwtService.estValide(token, userDetails)) {//token valide ?
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                //crée obj auth
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken); //se connecter
+            // Si un email + ds token ET user pas connecté
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(email); //recup user
+
+                if (jwtService.estValide(token, userDetails)) {//token valide ?
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    //crée obj auth
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken); //se connecter
+                }
             }
+        } catch (Exception e) {
+            // Token invalide/expire : on ignore simplement, la requete continue sans authentification
+            // (elle sera rejetee plus tard si la route necessite d'etre connecte)
         }
 
         filterChain.doFilter(request, response);

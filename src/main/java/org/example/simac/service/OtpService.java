@@ -26,11 +26,7 @@ public class OtpService {
         otp.setUtilise(false);
         codeOtpRepository.save(otp);
 
-        notificationEmailService.envoyerEmail(
-                email,
-                "Code de verification - SIMAC",
-                "Votre code de connexion est : " + code + "\nCe code est valide 5 minutes."
-        );
+        notificationEmailService.envoyerEmailOtp(email, code);
     }
 
     public boolean verifierOtp(String email, String codeSaisi) {

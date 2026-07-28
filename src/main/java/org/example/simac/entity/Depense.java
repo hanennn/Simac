@@ -21,8 +21,9 @@ public class Depense {
     @Column(nullable = false)
     private double montant;
 
-    @Column(nullable = false)
-    private String categorieDepense;
+    @ManyToOne
+    @JoinColumn(name = "categorie_id", nullable = false)
+    private CategorieDepense categorieDepense;
 
     private String descDepense;
 
@@ -38,8 +39,11 @@ public class Depense {
     private Budget budget;
 
     @ManyToOne
-    @JoinColumn(name = "utilisateur_id", nullable = false)
+    @JoinColumn(name = "utilisateur_id", nullable = false, insertable = false, updatable = false)
     private Utilisateur utilisateur;
+
+    @Column(name = "utilisateur_id", nullable = false)
+    private Long idUtilisateur;
 
     public void changerStatut(StatutDepense nouveauStatut) {
         this.statutDepense = nouveauStatut;

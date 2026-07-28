@@ -34,4 +34,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("message", "Une erreur est survenue"));
     }
+
+
 }
