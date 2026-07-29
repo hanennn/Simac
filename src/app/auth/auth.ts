@@ -13,6 +13,7 @@ export interface VerifyOtpResponse {
   prenom: string;
   email: string;
   role: string;
+  departementId: number | null;
 }
 
 @Injectable({

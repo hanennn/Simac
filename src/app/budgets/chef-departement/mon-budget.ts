@@ -25,7 +25,7 @@ export class MonBudget implements OnInit {
 
   ngOnInit(): void {
     const utilisateur = this.authService.recupererUtilisateur();
-    const departementId = utilisateur?.departement?.idDepart;
+    const departementId = utilisateur?.departementId;
 
     if (!departementId) {
       this.erreur.set("Aucun département associé à votre compte.");
