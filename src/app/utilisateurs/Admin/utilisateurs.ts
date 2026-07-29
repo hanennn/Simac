@@ -97,10 +97,23 @@ export class Utilisateurs implements OnInit {
     this.modalOuvert.set(false);
   }
 
+  onRoleChange(nouveauRole: string): void {
+    this.formulaire.role = nouveauRole;
+    if (nouveauRole !== 'CHEF_DEPARTEMENT') {
+      this.formulaire.departementId = null;
+    }
+  }
+
   enregistrer(): void {
     if (!this.formulaire.nomUser || !this.formulaire.prenomUser || !this.formulaire.email || !this.formulaire.role) {
       this.erreur.set('Nom, prénom, email et rôle sont obligatoires.');
       return;
+    }
+
+    // Filet de sécurité : un utilisateur qui n'est pas Chef de département
+    // ne doit jamais garder de département associé.
+    if (this.formulaire.role !== 'CHEF_DEPARTEMENT') {
+      this.formulaire.departementId = null;
     }
 
     this.enregistrementEnCours.set(true);
@@ -145,6 +158,13 @@ export class Utilisateurs implements OnInit {
         this.suppressionEnCours.set(false);
         this.erreur.set("La suppression a échoué.");
       }
+    });
+  }
+
+  changerStatut(u: UtilisateurModel): void {
+    this.utilisateurAdminService.changerStatut(u.idUser).subscribe({
+      next: () => this.charger(),
+      error: () => this.erreur.set("Le changement de statut a échoué.")
     });
   }
 

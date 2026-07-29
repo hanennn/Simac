@@ -4,6 +4,7 @@ export interface Utilisateur {
   prenomUser: string;
   email: string;
   role: string;
+  actif: boolean;
   departement: { idDepart: number; nomDepart: string } | null;
 }
 
@@ -15,8 +16,4 @@ export interface UtilisateurRequest {
   departementId: number | null;
 }
 
-export const ROLES_UTILISATEUR: string[] = [
-  'ADMIN',
-  'CHEF_DEPARTEMENT',
-  'RESPONSABLE_FINANCIER'
-];
+export const ROLES_UTILISATEUR: string[] = ['ADMIN', 'CHEF_DEPARTEMENT', 'RESPONSABLE_FINANCIER'];

@@ -1,3 +1,8 @@
+export interface CategorieDepart {
+  idCategorie: number;
+  nomCategorie: string;
+}
+
 export interface Budget {
   idBud: number;
   montantAlloueBud: number;
@@ -7,7 +12,7 @@ export interface Budget {
   departement: {
     idDepart: number;
     nomDepart: string;
-    categorieDepart: string;
+    categorieDepart: CategorieDepart;
   };
 }
 

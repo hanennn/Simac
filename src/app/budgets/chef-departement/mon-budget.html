@@ -36,7 +36,7 @@
         <div class="budget-card-top">
           <div>
             <h3 class="budget-dept-name">{{ b.departement?.nomDepart }}</h3>
-            <span class="dept-badge">{{ b.departement?.categorieDepart }}</span>
+            <span class="dept-badge">{{ b.departement?.categorieDepart?.nomCategorie }}</span>
           </div>
           <span class="budget-badge-danger" *ngIf="estDepasse(b)">Dépassé</span>
         </div>

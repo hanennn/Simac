@@ -31,9 +31,9 @@ export class Login {
         this.authService.sauvegarderEmailTemporaire(this.email);
         this.router.navigate(['/verify-otp']);
       },
-      error: () => {
+      error: (err) => {
         this.chargement.set(false);
-        this.erreur.set('Email ou mot de passe incorrect');
+        this.erreur.set(err.error?.message || 'Email ou mot de passe incorrect');
       }
     });
   }

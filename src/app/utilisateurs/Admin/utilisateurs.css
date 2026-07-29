@@ -296,3 +296,12 @@
   .dashboard-container { grid-template-columns: 1fr; }
   .page-head { flex-direction: column; align-items: flex-start; }
 }
+.badge-actif {
+  color: #1f5c42;
+  background: #e4f1e8;
+}
+
+.badge-inactif {
+  color: #a32d2d;
+  background: #fdecec;
+}

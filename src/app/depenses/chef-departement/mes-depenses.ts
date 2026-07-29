@@ -17,6 +17,9 @@ export class MesDepenses implements OnInit {
   chargement = signal(true);
   erreur = signal<string | null>(null);
 
+  alerteDepassementVisible = signal(false);
+  budgetDepasseInfo = signal<{ nomDepart: string; alloue: number; consomme: number } | null>(null);
+
   constructor(private depenseService: DepenseService) {}
 
   ngOnInit(): void {
@@ -30,12 +33,33 @@ export class MesDepenses implements OnInit {
       next: (liste) => {
         this.depenses.set(liste);
         this.chargement.set(false);
+        this.verifierDepassementBudget(liste);
       },
       error: () => {
         this.erreur.set("Impossible de charger vos dépenses.");
         this.chargement.set(false);
       }
     });
+  }
+
+  private verifierDepassementBudget(liste: DepenseModel[]): void {
+    const depenseAvecBudget = liste.find(d => d.budget);
+    if (!depenseAvecBudget) { return; }
+
+    const { montantAlloueBud, montantConsommeBud, departement } = depenseAvecBudget.budget;
+
+    if (montantConsommeBud > montantAlloueBud) {
+      this.budgetDepasseInfo.set({
+        nomDepart: departement?.nomDepart || 'votre département',
+        alloue: montantAlloueBud,
+        consomme: montantConsommeBud
+      });
+      this.alerteDepassementVisible.set(true);
+    }
+  }
+
+  fermerAlerte(): void {
+    this.alerteDepassementVisible.set(false);
   }
 
   formatStatut(statut: string): string {

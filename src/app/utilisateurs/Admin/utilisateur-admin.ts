@@ -24,4 +24,8 @@ export class UtilisateurAdmin {
   modifier(id: number, request: UtilisateurRequest): Observable<UtilisateurModel> {
     return this.http.put<UtilisateurModel>(`${this.apiUrl}/${id}`, request);
   }
+
+  changerStatut(id: number): Observable<UtilisateurModel> {
+    return this.http.patch<UtilisateurModel>(`${this.apiUrl}/${id}/statut`, {});
+  }
 }

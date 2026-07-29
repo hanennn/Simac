@@ -68,6 +68,9 @@
           <div class="dept-row-head">
             <h3 class="dept-row-title">{{ u.prenomUser }} {{ u.nomUser }}</h3>
             <span class="dept-badge">{{ formatRole(u.role) }}</span>
+            <span class="dept-badge" [ngClass]="u.actif ? 'badge-actif' : 'badge-inactif'">
+              {{ u.actif ? 'Actif' : 'Désactivé' }}
+            </span>
           </div>
           <p class="dept-row-desc">
             {{ u.email }}
@@ -76,6 +79,11 @@
         </div>
 
         <div class="dept-actions">
+          <button class="icon-btn" type="button" [title]="u.actif ? 'Désactiver' : 'Activer'" [attr.aria-label]="u.actif ? 'Désactiver' : 'Activer'" (click)="changerStatut(u)">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v10M18.4 6.6a9 9 0 11-12.77 0"/>
+            </svg>
+          </button>
           <button class="icon-btn" type="button" title="Modifier" aria-label="Modifier" (click)="ouvrirModification(u)">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 20h9"/>
@@ -107,19 +115,19 @@
         <div class="form-group">
           <label class="form-label" for="prenomUser">Prénom</label>
           <input class="form-input" id="prenomUser" type="text" name="prenomUser"
-                 [(ngModel)]="formulaire.prenomUser" placeholder="Ex. Hanen" required>
+                 [(ngModel)]="formulaire.prenomUser" required>
         </div>
 
         <div class="form-group">
           <label class="form-label" for="nomUser">Nom</label>
           <input class="form-input" id="nomUser" type="text" name="nomUser"
-                 [(ngModel)]="formulaire.nomUser" placeholder="Ex. Ben Naceur" required>
+                 [(ngModel)]="formulaire.nomUser" required>
         </div>
 
         <div class="form-group">
           <label class="form-label" for="email">Adresse e-mail</label>
           <input class="form-input" id="email" type="email" name="email"
-                 [(ngModel)]="formulaire.email" placeholder="nom@entreprise.com" required>
+                 [(ngModel)]="formulaire.email" required>
         </div>
 
         <div class="form-group">
