@@ -12,4 +12,5 @@ public class LoginResponse {
     private String prenom;
     private String email;
     private Role role;
+    private Long departementId;
 }

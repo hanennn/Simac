@@ -24,7 +24,7 @@ public class NotificationEmailService {
     }
 
     public void envoyerEmailCreationCompte(String destinataire, String prenom, String motDePasseTemporaire) {
-        String contenu = chargerTemplate("creation-compte.html")
+        String contenu = chargerTemplate("creation-comptes.html")
                 .replace("{{PRENOM}}", prenom)
                 .replace("{{MOT_DE_PASSE}}", motDePasseTemporaire);
 

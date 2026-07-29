@@ -63,7 +63,8 @@ public class AuthService {
                 utilisateur.getNomUser(),
                 utilisateur.getPrenomUser(),
                 utilisateur.getEmail(),
-                utilisateur.getRole()
+                utilisateur.getRole(),
+                utilisateur.getDepartement() != null ? utilisateur.getDepartement().getIdDepart() : null
         );
     }
 

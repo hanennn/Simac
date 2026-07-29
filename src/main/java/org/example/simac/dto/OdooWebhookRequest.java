@@ -10,4 +10,5 @@ public class OdooWebhookRequest {
     private String date_approve;
     private String display_name;
     private Long id;
+    private String x_departement;
 }
