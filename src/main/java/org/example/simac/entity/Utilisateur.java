@@ -25,6 +25,9 @@ public class Utilisateur {
     @Column(nullable = false)
     private String prenomUser;
 
+    @Column(nullable = false)
+    private boolean actif = true;
+
     @Email(message = "L'email doit etre valide")
     @NotBlank(message = "L'email est obligatoire")
     @Column(nullable = false, unique = true)

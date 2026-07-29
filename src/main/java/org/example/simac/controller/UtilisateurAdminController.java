@@ -40,4 +40,9 @@ public class UtilisateurAdminController {
     public ResponseEntity<Utilisateur> modifier(@PathVariable Long id, @RequestBody UtilisateurRequest request) {
         return ResponseEntity.ok(utilisateurAdminService.modifier(id, request));
     }
+
+    @PatchMapping("/{id}/statut")
+    public ResponseEntity<Utilisateur> changerStatut(@PathVariable Long id) {
+        return ResponseEntity.ok(utilisateurAdminService.changerStatut(id));
+    }
 }

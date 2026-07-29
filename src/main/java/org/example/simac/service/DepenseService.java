@@ -29,6 +29,7 @@ public class DepenseService {
     private final UtilisateurRepository utilisateurRepository;
     private final CategorieDepenseRepository categorieDepenseRepository;
     private final DepartementRepository departementRepository;
+    private final NotificationEmailService notificationEmailService;
 
     public List<Depense> listerTous() {
         return depenseRepository.findAll();
@@ -86,10 +87,14 @@ public class DepenseService {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Aucun chef de departement trouve pour ce departement"));
 
+        String nomProduit = request.getX_nom_produit() != null
+                ? request.getX_nom_produit()
+                : request.getDisplay_name();
+
         Depense depense = new Depense();
         depense.setMontant(request.getAmount_untaxed());
         depense.setCategorieDepense(categorie);
-        depense.setDescDepense("Achat ERP : " + request.getDisplay_name());
+        depense.setDescDepense("Achat ERP : " + nomProduit + " (" + request.getDisplay_name() + ")");
         depense.setDateDepense(LocalDate.parse(request.getDate_approve().substring(0, 10)));
         depense.setStatutDepense(StatutDepense.EN_ATTENTE);
         depense.setBudget(budget);
@@ -106,13 +111,31 @@ public class DepenseService {
         budget.setMontantConsommeBud(budget.getMontantConsommeBud() + depense.getMontant());
         budgetRepository.save(budget);
 
-        return depenseRepository.save(depense);
+        Depense sauvegardee = depenseRepository.save(depense);
+        envoyerNotificationStatut(sauvegardee, "validée");
+        return sauvegardee;
     }
 
     public Depense rejeter(Long id) {
         Depense depense = trouverParId(id);
         depense.changerStatut(StatutDepense.REJETEE);
-        return depenseRepository.save(depense);
+
+        Depense sauvegardee = depenseRepository.save(depense);
+        envoyerNotificationStatut(sauvegardee, "rejetée");
+        return sauvegardee;
+    }
+
+    private void envoyerNotificationStatut(Depense depense, String statutLibelle) {
+        Utilisateur chef = depense.getUtilisateur();
+        if (chef != null && chef.getEmail() != null) {
+            notificationEmailService.envoyerEmailStatutDepense(
+                    chef.getEmail(),
+                    chef.getPrenomUser(),
+                    statutLibelle,
+                    depense.getMontant(),
+                    depense.getDescDepense()
+            );
+        }
     }
 
     private Utilisateur utilisateurCourant(Authentication authentication) {

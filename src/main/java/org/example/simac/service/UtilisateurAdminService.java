@@ -77,4 +77,11 @@ public class UtilisateurAdminService {
 
         return utilisateurRepository.save(utilisateur);
     }
+
+    public Utilisateur changerStatut(Long id) {
+        Utilisateur utilisateur = utilisateurRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+        utilisateur.setActif(!utilisateur.isActif());
+        return utilisateurRepository.save(utilisateur);
+    }
 }

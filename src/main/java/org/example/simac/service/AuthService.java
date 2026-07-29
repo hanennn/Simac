@@ -33,6 +33,13 @@ public class AuthService {
     }
 
     public void login(LoginRequest request) {
+        Utilisateur utilisateur = utilisateurRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Email ou mot de passe incorrect"));
+
+        if (!utilisateur.isActif()) {
+            throw new RuntimeException("Ce compte a ete desactive. Contactez un administrateur.");
+        }
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getMotDePasse())
         );
@@ -49,6 +56,10 @@ public class AuthService {
 
         Utilisateur utilisateur = utilisateurRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+
+        if (!utilisateur.isActif()) {
+            throw new RuntimeException("Ce compte a ete desactive. Contactez un administrateur.");
+        }
 
         UserDetails userDetails = User.builder()
                 .username(utilisateur.getEmail())

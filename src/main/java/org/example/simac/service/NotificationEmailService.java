@@ -60,4 +60,15 @@ public class NotificationEmailService {
             throw new RuntimeException("Impossible de charger le template email : " + nomFichier, e);
         }
     }
+
+    public void envoyerEmailStatutDepense(String destinataire, String prenom, String statut, double montant, String description) {
+        String contenu = chargerTemplate("statut-depense.html")
+                .replace("{{PRENOM}}", prenom)
+                .replace("{{STATUT}}", statut)
+                .replace("{{MONTANT}}", String.format("%.2f", montant))
+                .replace("{{DESCRIPTION}}", description != null ? description : "");
+
+        String html = chargerTemplate("base.html").replace("{{CONTENU}}", contenu);
+        envoyerEmailHtml(destinataire, "Mise à jour de votre dépense - SIMAC", html);
+    }
 }
