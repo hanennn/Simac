@@ -1,8 +1,4 @@
-<div class="dashboard-container">
 
-  <app-sidebar></app-sidebar>
-
-  <main class="dashboard-content">
 
     <div class="page-head">
       <div class="page-head-icon">
@@ -69,7 +65,7 @@
           <div class="dept-row-info">
             <div class="dept-row-head">
               <h3 class="dept-row-title">{{ dept.nomDepart }}</h3>
-              <span class="dept-badge">{{ dept.categorieDepart.nomCategorie }}</span>
+              <span class="dept-badge-neutral">{{ dept.categorieDepart.nomCategorie }}</span>
               <span class="dept-user-count">{{ utilisateursDuDepartement(dept.idDepart).length }} utilisateur(s)</span>
             </div>
             <p class="dept-row-desc">{{ dept.descDepart || 'Aucune description.' }}</p>
@@ -108,7 +104,6 @@
         </div>
       </div>
     </div>
-  </main>
 
   <div class="modal-overlay" *ngIf="modalOuvert()">
     <div class="modal">
@@ -168,4 +163,3 @@
     </div>
   </div>
 
-</div>

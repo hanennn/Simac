@@ -38,7 +38,7 @@ export class Dashboard implements OnInit {
     private utilisateurAdminService: UtilisateurAdmin,
     private depenseService: Depense,
     private themeService: Theme
-  ) {}
+  ) { }
 
   get sombre() {
     return this.themeService.sombre;

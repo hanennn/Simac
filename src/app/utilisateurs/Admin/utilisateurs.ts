@@ -6,11 +6,12 @@ import { Utilisateur as UtilisateurModel, UtilisateurRequest, ROLES_UTILISATEUR 
 import { Departement as DepartementService } from '../../departements/Admin/departement';
 import { Departement as DepartementModel } from '../../departements/Admin/departement.model';
 import { Sidebar } from '../../shared/sidebar/sidebar';
+import { Modal } from '../../shared/modal/modal';
 
 @Component({
   selector: 'app-utilisateurs',
   standalone: true,
-  imports: [CommonModule, FormsModule, Sidebar],
+  imports: [CommonModule, FormsModule, Sidebar, Modal],
   templateUrl: './utilisateurs.html',
   styleUrl: './utilisateurs.css'
 })

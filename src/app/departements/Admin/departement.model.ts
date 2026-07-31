@@ -1,3 +1,5 @@
+//struct departement
+
 export interface Departement {
   idDepart: number;
   nomDepart: string;
@@ -7,13 +9,13 @@ export interface Departement {
     nomCategorie: string;
   };
 }
-
+//ce qu'on envoie au backend pour créer/modifier
 export interface DepartementRequest {
   nomDepart: string;
   descDepart: string;
   categorieId: number;
 }
-
+//const
 export const CATEGORIES_DEPARTEMENT: string[] = [
   'ADMINISTRATIF',
   'COMMERCIAL',

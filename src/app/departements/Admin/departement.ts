@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Departement as DepartementModel, DepartementRequest } from './departement.model';
-
+//service
 @Injectable({ providedIn: 'root' })
 export class Departement {
   private apiUrl = 'http://localhost:8081/api/departements';
@@ -17,7 +17,7 @@ export class Departement {
     return this.http.get<DepartementModel>(`${this.apiUrl}/${id}`);
   }
 
-  creer(request: DepartementRequest): Observable<DepartementModel> {
+  creer(request: DepartementRequest): Observable<DepartementModel> { //observable :type de retour(departement)
     return this.http.post<DepartementModel>(`${this.apiUrl}/`, request);
   }
 

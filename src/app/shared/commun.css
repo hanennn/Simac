@@ -1,7 +1,3 @@
-@import 'styles/tokens.css';
-@import 'styles/buttons.css';
-@import 'styles/cards.css';
-@import 'styles/forms.css';
 /* --- Modales (pop-ups) --- */
 .modal-overlay {
   position: fixed;

@@ -8,10 +8,11 @@ import { UtilisateurAdmin as UtilisateurAdminService } from '../../utilisateurs/
 import { Utilisateur as UtilisateurModel } from '../../utilisateurs/Admin/utilisateur-admin.model';
 import { Sidebar } from '../../shared/sidebar/sidebar';
 
+
 @Component({
   selector: 'app-departements',
   standalone: true,
-  imports: [CommonModule, FormsModule, Sidebar],
+  imports: [CommonModule, FormsModule],
   templateUrl: './departements.html',
   styleUrl: './departements.css'
 })
@@ -20,10 +21,11 @@ export class Departements implements OnInit {
   departements = signal<DepartementModel[]>([]);
   utilisateurs = signal<UtilisateurModel[]>([]);
   categories = signal<CategorieDepart[]>([]);
-  departementOuvert = signal<number | null>(null);
+  departementOuvert = signal<number | null>(null); //l'ID du département selectionné
 
+
+  //recherche
   rechercheTerme = signal('');
-
   departementsFiltres = computed(() => {
     const terme = this.rechercheTerme().toLowerCase().trim();
     if (!terme) return this.departements();
@@ -37,6 +39,9 @@ export class Departements implements OnInit {
   chargement = signal(true);
   erreur = signal<string | null>(null);
 
+
+
+//au départ les formulaire sont fermés
   modalOuvert = signal(false);
   modeEdition = signal(false);
   enregistrementEnCours = signal(false);
@@ -53,21 +58,21 @@ export class Departements implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.charger();
+    this.charger(); //charger départment
     this.utilisateurAdminService.listerTous().subscribe({
-      next: (liste) => this.utilisateurs.set(liste),
+      next: (liste) => this.utilisateurs.set(liste),//list users
       error: () => {}
     });
-    this.categorieDepartService.listerTous().subscribe({
+    this.categorieDepartService.listerTous().subscribe({//list categorie
       next: (liste: CategorieDepart[]) => this.categories.set(liste),
       error: () => {}
     });
   }
 
   charger(): void {
-    this.chargement.set(true);
+    this.chargement.set(true); //déclenche affichage
     this.erreur.set(null);
-    this.departementService.listerTous().subscribe({
+    this.departementService.listerTous().subscribe({//get departements
       next: (liste) => {
         this.departements.set(liste);
         this.chargement.set(false);
@@ -79,10 +84,11 @@ export class Departements implements OnInit {
     });
   }
 
-  utilisateursDuDepartement(idDepart: number): UtilisateurModel[] {
+  utilisateursDuDepartement(idDepart: number): UtilisateurModel[] { //user lié au département
     return this.utilisateurs().filter(u => u.departement && u.departement.idDepart === idDepart);
   }
 
+//ouverture/fermeture
   toggleDepartement(idDepart: number): void {
     this.departementOuvert.set(this.departementOuvert() === idDepart ? null : idDepart);
   }
@@ -105,6 +111,7 @@ export class Departements implements OnInit {
     this.modalOuvert.set(true);
   }
 
+  //ferme le pop-up (formulaire de création/modification d'un département)
   fermerModal(): void {
     this.modalOuvert.set(false);
   }

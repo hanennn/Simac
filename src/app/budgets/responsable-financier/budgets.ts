@@ -10,17 +10,17 @@ import { Sidebar } from '../../shared/sidebar/sidebar';
 @Component({
   selector: 'app-budgets',
   standalone: true,
-  imports: [CommonModule, FormsModule, Sidebar],
+  imports: [CommonModule, FormsModule],
   templateUrl: './budgets.html',
   styleUrl: './budgets.css'
 })
 export class Budgets implements OnInit {
 
-  budgets = signal<BudgetModel[]>([]);
-  departements = signal<DepartementModel[]>([]);
+  budgets = signal<BudgetModel[]>([]); //list budget
+  departements = signal<DepartementModel[]>([]);//list depart
 
-  rechercheTerme = signal('');
-
+//recherche
+  rechercheTerme = signal(''); //ttext tapé dans recherche
   budgetsFiltres = computed(() => {
     const terme = this.rechercheTerme().toLowerCase().trim();
     if (!terme) return this.budgets();
@@ -32,14 +32,14 @@ export class Budgets implements OnInit {
   chargement = signal(true);
   erreur = signal<string | null>(null);
 
-  modalOuvert = signal(false);
+  modalOuvert = signal(false); //affichage du pop-up de création/modification
   modeEdition = signal(false);
   enregistrementEnCours = signal(false);
   formulaire: BudgetRequest = { montantAlloueBud: 0, dateDebutBud: '', dateFinBud: '', departementId: 0 };
   idEnCoursDeModification: number | null = null;
 
-  budgetASupprimer = signal<BudgetModel | null>(null);
-  suppressionEnCours = signal(false);
+  budgetASupprimer = signal<BudgetModel | null>(null); //contient budget à supp
+  suppressionEnCours = signal(false); 
 
   constructor(
     private budgetService: BudgetService,
@@ -69,6 +69,7 @@ export class Budgets implements OnInit {
     });
   }
 
+//méth de calcul
   soldeRestant(b: BudgetModel): number {
     return b.montantAlloueBud - b.montantConsommeBud;
   }

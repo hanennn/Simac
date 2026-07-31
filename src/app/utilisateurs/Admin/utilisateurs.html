@@ -67,7 +67,7 @@
         <div class="dept-row-info">
           <div class="dept-row-head">
             <h3 class="dept-row-title">{{ u.prenomUser }} {{ u.nomUser }}</h3>
-            <span class="dept-badge">{{ formatRole(u.role) }}</span>
+            <span class="dept-badge-neutral">{{ formatRole(u.role) }}</span>
             <span class="dept-badge" [ngClass]="u.actif ? 'badge-actif' : 'badge-inactif'">
               {{ u.actif ? 'Actif' : 'Désactivé' }}
             </span>
@@ -100,77 +100,67 @@
     </div>
   </main>
 
-  <div class="modal-overlay" *ngIf="modalOuvert()">
-    <div class="modal">
-      <div class="modal-head">
-        <h2>{{ modeEdition() ? 'Modifier l\'utilisateur' : 'Nouvel utilisateur' }}</h2>
-        <button class="icon-btn" type="button" aria-label="Fermer" (click)="fermerModal()">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 6L6 18M6 6l12 12"/>
-          </svg>
-        </button>
+  <app-modal *ngIf="modalOuvert()"
+             [titre]="modeEdition() ? 'Modifier l\'utilisateur' : 'Nouvel utilisateur'"
+             (fermer)="fermerModal()">
+    <form (ngSubmit)="enregistrer()">
+      <div class="form-group">
+        <label class="form-label" for="prenomUser">Prénom</label>
+        <input class="form-input" id="prenomUser" type="text" name="prenomUser"
+               [(ngModel)]="formulaire.prenomUser" required>
       </div>
 
-      <form (ngSubmit)="enregistrer()">
-        <div class="form-group">
-          <label class="form-label" for="prenomUser">Prénom</label>
-          <input class="form-input" id="prenomUser" type="text" name="prenomUser"
-                 [(ngModel)]="formulaire.prenomUser" required>
-        </div>
+      <div class="form-group">
+        <label class="form-label" for="nomUser">Nom</label>
+        <input class="form-input" id="nomUser" type="text" name="nomUser"
+               [(ngModel)]="formulaire.nomUser" required>
+      </div>
 
-        <div class="form-group">
-          <label class="form-label" for="nomUser">Nom</label>
-          <input class="form-input" id="nomUser" type="text" name="nomUser"
-                 [(ngModel)]="formulaire.nomUser" required>
-        </div>
+      <div class="form-group">
+        <label class="form-label" for="email">Adresse e-mail</label>
+        <input class="form-input" id="email" type="email" name="email"
+               [(ngModel)]="formulaire.email" required>
+      </div>
 
-        <div class="form-group">
-          <label class="form-label" for="email">Adresse e-mail</label>
-          <input class="form-input" id="email" type="email" name="email"
-                 [(ngModel)]="formulaire.email" required>
-        </div>
+      <div class="form-group">
+        <label class="form-label" for="role">Rôle</label>
+        <select class="form-input" id="role" name="role" [(ngModel)]="formulaire.role" required>
+          <option value="" disabled>Choisir un rôle</option>
+          <option *ngFor="let r of roles" [value]="r">{{ formatRole(r) }}</option>
+        </select>
+      </div>
 
-        <div class="form-group">
-          <label class="form-label" for="role">Rôle</label>
-          <select class="form-input" id="role" name="role" [(ngModel)]="formulaire.role" required>
-            <option value="" disabled>Choisir un rôle</option>
-            <option *ngFor="let r of roles" [value]="r">{{ formatRole(r) }}</option>
-          </select>
-        </div>
+      <div class="form-group" *ngIf="formulaire.role === 'CHEF_DEPARTEMENT'">
+        <label class="form-label" for="departementId">Département</label>
+        <select class="form-input" id="departementId" name="departementId" [(ngModel)]="formulaire.departementId">
+          <option [ngValue]="null">Aucun</option>
+          <option *ngFor="let d of departements()" [ngValue]="d.idDepart">{{ d.nomDepart }}</option>
+        </select>
+      </div>
 
-        <div class="form-group" *ngIf="formulaire.role === 'CHEF_DEPARTEMENT'">
-          <label class="form-label" for="departementId">Département</label>
-          <select class="form-input" id="departementId" name="departementId" [(ngModel)]="formulaire.departementId">
-            <option [ngValue]="null">Aucun</option>
-            <option *ngFor="let d of departements()" [ngValue]="d.idDepart">{{ d.nomDepart }}</option>
-          </select>
-        </div>
+      <p class="form-hint" *ngIf="!modeEdition()">Un mot de passe temporaire sera généré et envoyé par email à cet utilisateur.</p>
 
-        <p class="form-hint" *ngIf="!modeEdition()">Un mot de passe temporaire sera généré et envoyé par email à cet utilisateur.</p>
-
-        <div class="modal-actions">
-          <button class="btn btn-secondary" type="button" (click)="fermerModal()">Annuler</button>
-          <button class="btn btn-primary" type="submit" [disabled]="enregistrementEnCours()">
-            {{ enregistrementEnCours() ? 'Enregistrement...' : (modeEdition() ? 'Enregistrer' : 'Créer') }}
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <div class="modal-overlay" *ngIf="utilisateurASupprimer() as u">
-    <div class="modal modal-sm">
-      <h2>Supprimer cet utilisateur ?</h2>
-      <p class="card-text">
-        « {{ u.prenomUser }} {{ u.nomUser }} » sera supprimé définitivement. Cette action est irréversible.
-      </p>
       <div class="modal-actions">
-        <button class="btn btn-secondary" type="button" (click)="annulerSuppression()">Annuler</button>
-        <button class="btn btn-danger" type="button" (click)="confirmerSuppression()" [disabled]="suppressionEnCours()">
-          {{ suppressionEnCours() ? 'Suppression...' : 'Supprimer' }}
+        <button class="btn btn-secondary" type="button" (click)="fermerModal()">Annuler</button>
+        <button class="btn btn-primary" type="submit" [disabled]="enregistrementEnCours()">
+          {{ enregistrementEnCours() ? 'Enregistrement...' : (modeEdition() ? 'Enregistrer' : 'Créer') }}
         </button>
       </div>
+    </form>
+  </app-modal>
+
+  <app-modal *ngIf="utilisateurASupprimer() as u"
+             titre="Supprimer cet utilisateur ?" [petit]="true"
+             (fermer)="annulerSuppression()">
+    <p class="card-text">
+      « {{ u.prenomUser }} {{ u.nomUser }} » sera supprimé définitivement. Cette action est irréversible.
+    </p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" type="button" (click)="annulerSuppression()">Annuler</button>
+      <button class="btn btn-danger" type="button" (click)="confirmerSuppression()" [disabled]="suppressionEnCours()">
+        {{ suppressionEnCours() ? 'Suppression...' : 'Supprimer' }}
+      </button>
     </div>
-  </div>
+  </app-modal>
 
 </div>

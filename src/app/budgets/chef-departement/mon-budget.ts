@@ -8,7 +8,7 @@ import { Sidebar } from '../../shared/sidebar/sidebar';
 @Component({
   selector: 'app-mon-budget',
   standalone: true,
-  imports: [CommonModule, Sidebar],
+  imports: [CommonModule],
   templateUrl: './mon-budget.html',
   styleUrl: './mon-budget.css'
 })
@@ -24,16 +24,16 @@ export class MonBudget implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const utilisateur = this.authService.recupererUtilisateur();
-    const departementId = utilisateur?.departementId;
+    const utilisateur = this.authService.recupererUtilisateur();//récupère l'utilisateur connecté
+    const departementId = utilisateur?.departementId; //extrait depart
 
-    if (!departementId) {
+    if (!departementId) { 
       this.erreur.set("Aucun département associé à votre compte.");
       this.chargement.set(false);
       return;
     }
 
-    this.budgetService.listerParDepartement(departementId).subscribe({
+    this.budgetService.listerParDepartement(departementId).subscribe({ //liste budget
       next: (liste) => {
         this.budgets.set(liste);
         this.chargement.set(false);

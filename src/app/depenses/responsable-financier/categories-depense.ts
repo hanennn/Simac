@@ -7,7 +7,7 @@ import { Sidebar } from '../../shared/sidebar/sidebar';
 @Component({
   selector: 'app-categories-depense',
   standalone: true,
-  imports: [CommonModule, FormsModule, Sidebar],
+  imports: [CommonModule, FormsModule],
   templateUrl: './categories-depense.html',
   styleUrl: './categories-depense.css'
 })

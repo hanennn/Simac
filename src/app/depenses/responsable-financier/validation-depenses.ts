@@ -7,7 +7,7 @@ import { Sidebar } from '../../shared/sidebar/sidebar';
 @Component({
   selector: 'app-validation-depenses',
   standalone: true,
-  imports: [CommonModule, Sidebar],
+  imports: [CommonModule],
   templateUrl: './validation-depenses.html',
   styleUrl: './validation-depenses.css'
 })

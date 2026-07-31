@@ -1,8 +1,3 @@
-<div class="dashboard-container">
-
-  <app-sidebar></app-sidebar>
-
-  <main class="dashboard-content">
 
     <div class="page-head">
       <div class="page-head-icon">
@@ -46,7 +41,7 @@
         <div class="budget-card-top">
           <div>
             <h3 class="budget-dept-name">{{ b.departement?.nomDepart }}</h3>
-            <span class="dept-badge">{{ b.departement?.categorieDepart }}</span>
+            <span class="dept-badge-neutral">{{ b.departement?.categorieDepart?.nomCategorie }}</span>
           </div>
           <span class="budget-badge-danger" *ngIf="estDepasse(b)">Dépassé</span>
         </div>
@@ -66,8 +61,20 @@
           </div>
         </div>
 
+        <div class="budget-progress-header">
+          <span class="budget-progress-label">Consommation du budget</span>
+          <span class="budget-progress-percent" [ngClass]="{
+            'percent-ok': tauxConsommation(b) < 60,
+            'percent-warning': tauxConsommation(b) >= 60 && tauxConsommation(b) < 90,
+            'percent-danger': tauxConsommation(b) >= 90
+          }">{{ tauxConsommation(b) }}%</span>
+        </div>
         <div class="budget-progress">
-          <div class="budget-progress-bar" [class.danger]="estDepasse(b)" [style.width.%]="tauxConsommation(b)"></div>
+          <div class="budget-progress-bar" [ngClass]="{
+            'progress-ok': tauxConsommation(b) < 60,
+            'progress-warning': tauxConsommation(b) >= 60 && tauxConsommation(b) < 90,
+            'progress-danger': tauxConsommation(b) >= 90
+          }" [style.width.%]="tauxConsommation(b)"></div>
         </div>
 
         <p class="budget-dates">Du {{ b.dateDebutBud }} au {{ b.dateFinBud }}</p>
@@ -87,7 +94,7 @@
         </div>
       </div>
     </div>
-  </main>
+  
 
   <div class="modal-overlay" *ngIf="modalOuvert()">
     <div class="modal">
@@ -154,4 +161,3 @@
     </div>
   </div>
 
-</div>

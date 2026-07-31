@@ -7,29 +7,29 @@ import { Sidebar } from '../../shared/sidebar/sidebar';
 @Component({
   selector: 'app-mes-depenses',
   standalone: true,
-  imports: [CommonModule, Sidebar],
+  imports: [CommonModule],
   templateUrl: './mes-depenses.html',
   styleUrl: './mes-depenses.css'
 })
 export class MesDepenses implements OnInit {
 
-  depenses = signal<DepenseModel[]>([]);
+  depenses = signal<DepenseModel[]>([]); //list depenses
   chargement = signal(true);
   erreur = signal<string | null>(null);
 
-  alerteDepassementVisible = signal(false);
+  alerteDepassementVisible = signal(false); //budget depassé fermé par défaut
   budgetDepasseInfo = signal<{ nomDepart: string; alloue: number; consomme: number } | null>(null);
 
   constructor(private depenseService: DepenseService) {}
 
   ngOnInit(): void {
-    this.charger();
+    this.charger(); //charger depense
   }
-
+//au chargmeent de la page
   charger(): void {
     this.chargement.set(true);
     this.erreur.set(null);
-    this.depenseService.listerMesDepenses().subscribe({
+    this.depenseService.listerMesDepenses().subscribe({ //liste depense
       next: (liste) => {
         this.depenses.set(liste);
         this.chargement.set(false);
@@ -54,7 +54,7 @@ export class MesDepenses implements OnInit {
         alloue: montantAlloueBud,
         consomme: montantConsommeBud
       });
-      this.alerteDepassementVisible.set(true);
+      this.alerteDepassementVisible.set(true); //genere alerte
     }
   }
 

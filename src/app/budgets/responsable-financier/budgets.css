@@ -319,3 +319,41 @@
 .modal {
   animation: modalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+.budget-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.budget-progress-label {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.budget-progress-percent {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.percent-ok { color: #2e7d32; }
+.percent-warning { color: #b8860b; }
+.percent-danger { color: #c0392b; }
+
+.budget-progress {
+  background: #eee;
+  border-radius: 6px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.budget-progress-bar {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.3s ease;
+}
+
+.progress-ok { background: #2e7d32; }
+.progress-warning { background: #d4a017; }
+.progress-danger { background: #c0392b; }

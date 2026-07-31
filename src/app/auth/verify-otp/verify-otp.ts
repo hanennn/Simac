@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Auth } from '../auth';
+import { take, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-verify-otp',
@@ -32,7 +33,9 @@ export class VerifyOtp implements OnInit {
   this.erreur.set('');
   this.chargement.set(true);
 
-  this.authService.verifyOtp(this.email, this.code).subscribe({
+  this.authService.verifyOtp(this.email, this.code)
+  .pipe(take(1))
+  .subscribe({
     next: (response) => {
       this.chargement.set(false);
       this.authService.sauvegarderToken(response.token);
