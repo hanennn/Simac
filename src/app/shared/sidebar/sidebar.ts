@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Auth } from '../../auth/auth';
+import { AlerteNotification } from '../../alertes/alerte-notification';
+
 
 @Component({
   selector: 'app-sidebar',

@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { Login } from './auth/login/login';
+import { Login } from '../login/login';
 import { VerifyOtp } from './auth/verify-otp/verify-otp';
 import { ForgotPassword } from './auth/forgot-password/forgot-password';
 import { ResetPassword } from './auth/reset-password/reset-password';
@@ -13,6 +13,7 @@ import { Budgets } from './budgets/responsable-financier/budgets';
 import { CategoriesDepartement } from './departements/Admin/categories-departement';
 import { ValidationDepenses } from './depenses/responsable-financier/validation-depenses';
 import { CategoriesDepense } from './depenses/responsable-financier/categories-depense';
+import { FaireAchat } from './produits/chef-departement/faire-achat';
 // ...
 
 
@@ -31,5 +32,6 @@ export const routes: Routes = [
   { path: 'validation-depenses', component: ValidationDepenses },
   { path: 'categories-departement', component: CategoriesDepartement },
   { path: 'categories-depense', component: CategoriesDepense },
+  { path: 'faire-achat', component: FaireAchat },
   { path: '**', component: NotFound }
 ];

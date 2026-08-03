@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Auth } from '../auth';
+import { Auth } from '../app/auth/auth';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
@@ -31,7 +31,7 @@ export class Login {
         this.authService.sauvegarderEmailTemporaire(this.email);
         this.router.navigate(['/verify-otp']);
       },
-      error: (err) => {
+      error: (err: any) => {
         this.chargement.set(false);
         this.erreur.set(err.error?.message || 'Email ou mot de passe incorrect');
       }

@@ -1,17 +1,4 @@
 
-  <div class="modal-overlay" *ngIf="alerteDepassementVisible() && budgetDepasseInfo() as info">
-    <div class="modal modal-sm">
-      <h2>⚠️ Budget dépassé</h2>
-      <p class="card-text">
-        Le budget du département <strong>{{ info.nomDepart }}</strong> est dépassé.<br>
-        Alloué : <strong>{{ info.alloue | number:'1.0-2' }} DT</strong><br>
-        Consommé : <strong>{{ info.consomme | number:'1.0-2' }} DT</strong>
-      </p>
-      <div class="modal-actions">
-        <button class="btn btn-primary" type="button" (click)="fermerAlerte()">J'ai compris</button>
-      </div>
-    </div>
-  </div>
 
     <div class="page-head">
       <div class="page-head-icon">
@@ -24,16 +11,11 @@
         <h1 class="page-title">Mes dépenses</h1>
         <p class="page-sub">Dépenses saisies via l'ERP pour votre département.</p>
       </div>
-      <a href="http://localhost:8069/web/session/logout?redirect=/web%23action%3D293%26model%3Dpurchase.order%26view_type%3Dlist%26cids%3D1%26menu_id%3D176" target="_blank" rel="noopener" class="btn btn-primary">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="9" cy="21" r="1"/>
-          <circle cx="20" cy="21" r="1"/>
-          <path d="M1 1h4l2.6 13.4a2 2 0 002 1.6h9.8a2 2 0 002-1.6L23 6H6"/>
-        </svg>
-        Faire un nouvel achat (ERP)
-      </a>
-    </div>
 
+       <app-alerte-notification></app-alerte-notification>
+
+    </div>
+    
     <div class="alert-error" *ngIf="erreur()">{{ erreur() }}</div>
 
     <div class="loading-state" *ngIf="chargement()">Chargement de vos dépenses...</div>
@@ -74,4 +56,3 @@
         </div>
       </div>
     </div>
-  

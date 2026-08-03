@@ -11,7 +11,7 @@ import { Modal } from '../../shared/modal/modal';
 @Component({
   selector: 'app-utilisateurs',
   standalone: true,
-  imports: [CommonModule, FormsModule, Sidebar, Modal],
+  imports: [CommonModule, FormsModule, Modal],
   templateUrl: './utilisateurs.html',
   styleUrl: './utilisateurs.css'
 })

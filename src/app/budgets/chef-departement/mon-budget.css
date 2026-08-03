@@ -7,123 +7,87 @@
   color: var(--text-1);
 }
 
-.dashboard-content { padding: 28px 40px 48px; max-width: 1180px; }
+.dashboard-content { padding: 32px 48px 56px; max-width: 1200px; }
 
-.page-head {
+.budgets-list {
+  padding: 0;
+  overflow: hidden;
+}
+
+.budget-row {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 24px;
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  padding: 20px 24px;
+  gap: 32px;
+  padding: 28px 32px;
+  border-bottom: 1px solid var(--line);
+  border-left: 5px solid #2e7d32;
+  transition: background 0.15s ease;
 }
 
-.page-head-icon {
-  width: 46px;
-  height: 46px;
-  border-radius: var(--radius-md);
-  background: var(--blue-100);
-  color: var(--ink-700);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+.budget-row:last-child { border-bottom: none; }
+.budget-row:hover { background: var(--bg); }
+
+.budget-row.row-warning { border-left-color: #d4a017; }
+
+.budget-row.row-danger {
+  border-left-color: #c0392b;
+  background: linear-gradient(180deg, #fff8f7 0%, #fffdfc 70%);
+  box-shadow: inset 0 0 0 1px #f3d3d0;
 }
 
-.page-title {
-  font-family: var(--font-display);
-  font-size: 26px;
-  font-weight: 700;
-  margin: 0 0 6px;
-  color: var(--text-1);
-}
-
-.page-sub { font-size: 14px; color: var(--text-2); margin: 0; }
-
-.alert-error {
-  background: #fdecec;
-  border: 1px solid #f3b9b9;
-  color: #9a2f2f;
-  padding: 12px 16px;
-  border-radius: var(--radius-sm);
-  font-size: 13.5px;
-  margin-bottom: 20px;
-}
-
-.loading-state, .empty-state {
-  text-align: center;
-  color: var(--text-2);
-  padding: 48px 20px;
+.budget-row-left {
+  flex: 0 0 220px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-
-.empty-state-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: var(--bg);
-  color: var(--text-3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 10px;
-}
-
-.budgets-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 18px;
-}
-
-.budget-card { display: flex; flex-direction: column; }
-
-.budget-card-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 16px;
+  gap: 10px;
 }
 
 .budget-dept-name {
   font-family: var(--font-display);
+  font-size: 18px;
   font-weight: 700;
-  font-size: 17px;
-  margin: 0 0 6px;
+  margin: 0;
   color: var(--text-1);
+  line-height: 1.3;
+}
+
+.budget-row-left .dept-badge,
+.budget-row-left .budget-badge-danger {
+  align-self: flex-start;
 }
 
 .dept-badge {
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--ink-700);
   background: var(--blue-100);
-  padding: 3px 9px;
+  padding: 4px 11px;
   border-radius: 999px;
 }
 
 .budget-badge-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #a32d2d;
-  background: #fdecec;
-  padding: 4px 10px;
+  color: #fff;
+  background: #c0392b;
+  padding: 4px 11px 4px 8px;
   border-radius: 999px;
-  white-space: nowrap;
 }
 
-.budget-amounts {
+.budget-badge-danger svg { width: 10px; height: 10px; flex-shrink: 0; }
+
+.budget-row-amounts {
+  flex: 0 0 auto;
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 14px;
+  gap: 40px;
+  padding: 0 8px;
 }
 
 .budget-amount-label {
@@ -131,23 +95,48 @@
   font-size: 10.5px;
   color: var(--text-3);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: 3px;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
 }
 
 .budget-amount-value {
   display: block;
-  font-family: var(--font-display);
+  font-size: 17px;
   font-weight: 700;
-  font-size: 15px;
   color: var(--text-1);
 }
 
-.budget-amount-value.negatif { color: #a32d2d; }
+.budget-amount-value.negatif {
+  color: #c0392b;
+}
+
+.budget-row-progress {
+  flex: 1;
+  min-width: 240px;
+  padding-left: 8px;
+}
+
+.budget-progress-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.budget-progress-percent {
+  font-size: 13px;
+  font-weight: 800;
+  padding: 3px 11px;
+  border-radius: 999px;
+}
+
+.percent-ok { color: #1f5c2e; background: #e4f1e8; }
+.percent-warning { color: #7a5c00; background: #fdf3d9; }
+.percent-danger { color: #8b2318; background: #fce4e2; }
 
 .budget-progress {
-  height: 6px;
-  background: var(--bg);
+  position: relative;
+  height: 10px;
+  background: #eee;
   border-radius: 999px;
   overflow: hidden;
   margin-bottom: 12px;
@@ -155,15 +144,73 @@
 
 .budget-progress-bar {
   height: 100%;
-  background: var(--ink-700);
   border-radius: 999px;
-  transition: width 0.3s ease;
+  transition: width 0.4s ease;
 }
 
-.budget-progress-bar.danger { background: #a32d2d; }
+.progress-ok { background: linear-gradient(90deg, #4caf50, #2e7d32); }
+.progress-warning { background: linear-gradient(90deg, #f2b705, #d4a017); }
+
+/* Rayures "danger" : signale visuellement qu'on est au-delà du budget,
+   plutôt qu'une simple barre pleine qui ressemble à "objectif atteint". */
+.progress-danger {
+  background: repeating-linear-gradient(
+    135deg,
+    #e74c3c 0px, #e74c3c 7px,
+    #c0392b 7px, #c0392b 14px
+  );
+}
+
+/* Repère "budget alloué" affiché à 100% de la piste, pour distinguer
+   le seuil autorisé du remplissage réel de la barre. */
+.budget-progress-limit-marker {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  right: 0;
+  width: 2px;
+  background: var(--text-1);
+  opacity: 0.35;
+}
+
+.budget-overrun-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 12px;
+  color: #8b2318;
+  background: #fce4e2;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin: 0 0 12px;
+}
+
+.budget-overrun-note svg { width: 13px; height: 13px; flex-shrink: 0; margin-top: 1px; }
+.budget-overrun-note strong { font-weight: 700; }
 
 .budget-dates {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 12px;
   color: var(--text-3);
   margin: 0;
+  padding-left: 250px;
+}
+
+.date-separator {
+  color: var(--text-3);
+  opacity: 0.5;
+}
+
+@media (max-width: 900px) {
+  .dashboard-content { padding: 20px; }
+  .budget-row {
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+  }
+  .budget-row-amounts {
+    gap: 20px;
+  }
 }

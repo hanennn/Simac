@@ -1,0 +1,26 @@
+<div class="notif-container">
+  <button class="notif-bell" type="button" (click)="toggle()" aria-label="Notifications">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
+      <path d="M13.73 21a2 2 0 01-3.46 0"/>
+    </svg>
+    <span class="notif-badge" *ngIf="alertes().length > 0">{{ alertes().length }}</span>
+  </button>
+
+  <div class="notif-panel" *ngIf="panneauOuvert()">
+    <div class="notif-panel-head">
+      <h4>Notifications</h4>
+    </div>
+
+    <div class="notif-empty" *ngIf="alertes().length === 0">
+      Aucune notification.
+    </div>
+
+    <div class="notif-item" *ngFor="let alerte of alertes()">
+      <p class="notif-message">⚠️ {{ alerte.message }}</p>
+      <button class="btn btn-primary notif-btn" type="button" (click)="marquerCommeLue(alerte.idAlerte)">
+        J'ai compris
+      </button>
+    </div>
+  </div>
+</div>

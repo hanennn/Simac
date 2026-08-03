@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { Depense as DepenseService } from '../depense';
 import { Depense as DepenseModel } from '../depense.model';
 import { Sidebar } from '../../shared/sidebar/sidebar';
+import { AlerteNotification } from '../../alertes/alerte-notification';
 
 @Component({
   selector: 'app-mes-depenses',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, AlerteNotification],
   templateUrl: './mes-depenses.html',
   styleUrl: './mes-depenses.css'
 })
