@@ -50,9 +50,12 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))//mode stateless ne crée pas session
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()//accés n'importe qui
-                        .requestMatchers("/api/depenses/webhook-odoo").permitAll()//accessible par Odoo, sans authentification
-                        .anyRequest().authenticated() // nécessite authentif
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/depenses/test-odoo").permitAll()
+                        .requestMatchers("/api/depenses/test-produits").permitAll()
+                        .requestMatchers("/api/depenses/webhook-odoo").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

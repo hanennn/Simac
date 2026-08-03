@@ -55,10 +55,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception e) {
-            // Token invalide/expire : on ignore simplement, la requete continue sans authentification
-            // (elle sera rejetee plus tard si la route necessite d'etre connecte)
+            System.out.println("ERREUR JWT: " + e.getMessage());
+            e.printStackTrace();
         }
-
         filterChain.doFilter(request, response);
     }
 }

@@ -10,8 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.example.simac.service.OdooClientService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/depenses")//toute route commence par api depense
@@ -19,6 +21,7 @@ import java.util.List;
 public class DepenseController {
 
     private final DepenseService depenseService;
+    private final OdooClientService odooClientService;
 
     @GetMapping
     @PreAuthorize("hasRole('RESPONSABLE_FINANCIER') ")
@@ -53,5 +56,16 @@ public class DepenseController {
     @PostMapping("/webhook-odoo")
     public ResponseEntity<Depense> recevoirDepenseOdoo(@RequestBody OdooWebhookRequest request) {
         return ResponseEntity.status(201).body(depenseService.saisirDepuisOdoo(request));
+    }
+    @GetMapping("/test-odoo")
+    public ResponseEntity<?> testerConnexionOdoo() throws Exception {
+        Integer uid = odooClientService.authentifier();
+        return ResponseEntity.ok(Map.of("uid", uid, "message", "Connexion Odoo réussie !"));
+    }
+
+    @GetMapping("/test-produits")
+    public ResponseEntity<?> testerListeProduits() throws Exception {
+        List<Map<String, Object>> produits = odooClientService.listerProduitsParCategorie("Ressources Humaines");
+        return ResponseEntity.ok(produits);
     }
 }

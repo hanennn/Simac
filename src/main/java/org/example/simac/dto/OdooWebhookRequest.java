@@ -12,4 +12,5 @@ public class OdooWebhookRequest {
     private Long id;
     private String x_departement;
     private String x_nom_produit;
+    private String x_categorie_depense;
 }

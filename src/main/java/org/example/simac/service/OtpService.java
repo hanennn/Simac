@@ -18,14 +18,13 @@ public class OtpService {
 
     public void genererEtEnvoyerOtp(String email) {
         String code = String.format("%06d", new Random().nextInt(999999));
-
         CodeOtp otp = new CodeOtp();
         otp.setEmail(email);
         otp.setCode(code);
         otp.setDateExpiration(LocalDateTime.now().plusMinutes(5));
         otp.setUtilise(false);
         codeOtpRepository.save(otp);
-
+        System.out.println("code "+code);
         notificationEmailService.envoyerEmailOtp(email, code);
     }
 
@@ -33,11 +32,9 @@ public class OtpService {
         var otp = codeOtpRepository
                 .findTopByEmailAndUtiliseFalseOrderByDateExpirationDesc(email)
                 .orElseThrow(()-> new IllegalArgumentException("Le code de connexion est invalide"));
-
         if (otp==null) {
             return false;
         }
-
 
         if (otp.getDateExpiration().isBefore(LocalDateTime.now())) {
             return false; // code expire

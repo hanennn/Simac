@@ -30,6 +30,7 @@ public class DepenseService {
     private final CategorieDepenseRepository categorieDepenseRepository;
     private final DepartementRepository departementRepository;
     private final NotificationEmailService notificationEmailService;
+    private final AlerteService alerteService;
 
     public List<Depense> listerTous() {
         return depenseRepository.findAll();
@@ -77,8 +78,12 @@ public class DepenseService {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Aucun budget disponible pour ce departement"));
 
-        CategorieDepense categorie = categorieDepenseRepository.findAll().stream().findFirst()
-                .orElseThrow(() -> new RuntimeException("Aucune categorie disponible"));
+        String nomCategorieDepense = request.getX_categorie_depense() != null
+                ? request.getX_categorie_depense()
+                : "Fourniture";
+
+        CategorieDepense categorie = categorieDepenseRepository.findByNomCategorie(nomCategorieDepense)
+                .orElseThrow(() -> new RuntimeException("Categorie de depense introuvable : " + nomCategorieDepense));
 
         Utilisateur chef = utilisateurRepository.findAll().stream()
                 .filter(u -> u.getRole() != null && "CHEF_DEPARTEMENT".equals(u.getRole().name())
@@ -110,6 +115,11 @@ public class DepenseService {
         Budget budget = depense.getBudget();
         budget.setMontantConsommeBud(budget.getMontantConsommeBud() + depense.getMontant());
         budgetRepository.save(budget);
+
+        // Si le budget est désormais dépassé, on crée une alerte (notification)
+        if (budget.getMontantConsommeBud() > budget.getMontantAlloueBud()) {
+            alerteService.creerAlerteDepassement(budget);
+        }
 
         Depense sauvegardee = depenseRepository.save(depense);
         envoyerNotificationStatut(sauvegardee, "validée");
