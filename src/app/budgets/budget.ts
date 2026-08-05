@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Budget as BudgetModel, BudgetRequest } from './budget.model';
+import { Budget as BudgetModel, BudgetRequest, EstimationBudgetResponse, PredictionDepassementResponse } from './budget.model';
 
 @Injectable({ providedIn: 'root' })
 export class Budget {
@@ -32,4 +32,13 @@ export class Budget {
   supprimer(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+   estimerBudget(departementId: number): Observable<EstimationBudgetResponse> {
+    return this.http.get<EstimationBudgetResponse>(`${this.apiUrl}/estimation/${departementId}`);
+  }
+
+  predireDepassement(budgetId: number): Observable<PredictionDepassementResponse> {
+    return this.http.get<PredictionDepassementResponse>(`${this.apiUrl}/${budgetId}/prediction`);
+  }
+  
 }

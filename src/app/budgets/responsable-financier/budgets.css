@@ -357,3 +357,79 @@
 .progress-ok { background: #2e7d32; }
 .progress-warning { background: #d4a017; }
 .progress-danger { background: #c0392b; }
+
+
+/* --- Prediction de depassement IA (pop-up) --- */
+.btn-prediction {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  justify-content: center;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  background: var(--blue-100);
+  color: var(--ink-700);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-prediction:hover {
+  background: #d6e2f0;
+}
+
+.prediction-loading {
+  text-align: center;
+  padding: 20px 0;
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+.prediction-error {
+  font-size: 12.5px;
+  color: #a32d2d;
+  margin: 0 0 12px;
+}
+
+.prediction-result {
+  padding: 4px 0;
+}
+
+.prediction-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.prediction-montant {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-1);
+}
+
+.risque-badge {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.risque-faible { color: #1f5c2e; background: #e4f1e8; }
+.risque-eleve  { color: #8b2318; background: #fce4e2; }
+
+.prediction-justification {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text-2);
+  margin: 0;
+  font-style: italic;
+}

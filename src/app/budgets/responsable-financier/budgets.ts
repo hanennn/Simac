@@ -2,7 +2,7 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Budget as BudgetService } from '../budget';
-import { Budget as BudgetModel, BudgetRequest } from '../budget.model';
+import { Budget as BudgetModel, BudgetRequest, PredictionDepassementResponse } from '../budget.model';
 import { Departement as DepartementService } from '../../departements/Admin/departement';
 import { Departement as DepartementModel } from '../../departements/Admin/departement.model';
 import { Sidebar } from '../../shared/sidebar/sidebar';
@@ -16,11 +16,10 @@ import { Sidebar } from '../../shared/sidebar/sidebar';
 })
 export class Budgets implements OnInit {
 
-  budgets = signal<BudgetModel[]>([]); //list budget
-  departements = signal<DepartementModel[]>([]);//list depart
+  budgets = signal<BudgetModel[]>([]);
+  departements = signal<DepartementModel[]>([]);
 
-//recherche
-  rechercheTerme = signal(''); //ttext tapé dans recherche
+  rechercheTerme = signal('');
   budgetsFiltres = computed(() => {
     const terme = this.rechercheTerme().toLowerCase().trim();
     if (!terme) return this.budgets();
@@ -32,14 +31,20 @@ export class Budgets implements OnInit {
   chargement = signal(true);
   erreur = signal<string | null>(null);
 
-  modalOuvert = signal(false); //affichage du pop-up de création/modification
+  modalOuvert = signal(false);
   modeEdition = signal(false);
   enregistrementEnCours = signal(false);
   formulaire: BudgetRequest = { montantAlloueBud: 0, dateDebutBud: '', dateFinBud: '', departementId: 0 };
   idEnCoursDeModification: number | null = null;
 
-  budgetASupprimer = signal<BudgetModel | null>(null); //contient budget à supp
-  suppressionEnCours = signal(false); 
+  budgetASupprimer = signal<BudgetModel | null>(null);
+  suppressionEnCours = signal(false);
+
+  // --- Ajout pour la prediction de depassement (pop-up) ---
+  budgetPredictionActif = signal<BudgetModel | null>(null);
+  predictionResultat = signal<PredictionDepassementResponse | null>(null);
+  predictionEnCours = signal(false);
+  erreurPrediction = signal<string | null>(null);
 
   constructor(
     private budgetService: BudgetService,
@@ -69,7 +74,6 @@ export class Budgets implements OnInit {
     });
   }
 
-//méth de calcul
   soldeRestant(b: BudgetModel): number {
     return b.montantAlloueBud - b.montantConsommeBud;
   }
@@ -81,6 +85,36 @@ export class Budgets implements OnInit {
   tauxConsommation(b: BudgetModel): number {
     if (b.montantAlloueBud === 0) return 0;
     return Math.min(100, Math.round((b.montantConsommeBud / b.montantAlloueBud) * 100));
+  }
+
+  // --- Ajout pour la prediction de depassement (pop-up) ---
+  estPeriodeEnCours(b: BudgetModel): boolean {
+    const aujourdHui = new Date().toISOString().slice(0, 10);
+    return b.dateDebutBud <= aujourdHui && aujourdHui <= b.dateFinBud;
+  }
+
+  verifierRisque(b: BudgetModel): void {
+    this.budgetPredictionActif.set(b);
+    this.predictionResultat.set(null);
+    this.erreurPrediction.set(null);
+    this.predictionEnCours.set(true);
+
+    this.budgetService.predireDepassement(b.idBud).subscribe({
+      next: (res) => {
+        this.predictionEnCours.set(false);
+        this.predictionResultat.set(res);
+      },
+      error: (err) => {
+        this.predictionEnCours.set(false);
+        this.erreurPrediction.set(err.error?.message || "Impossible d'obtenir une prédiction pour ce budget.");
+      }
+    });
+  }
+
+  fermerPrediction(): void {
+    this.budgetPredictionActif.set(null);
+    this.predictionResultat.set(null);
+    this.erreurPrediction.set(null);
   }
 
   ouvrirCreation(): void {

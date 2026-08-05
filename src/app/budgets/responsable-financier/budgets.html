@@ -1,5 +1,4 @@
-
-    <div class="page-head">
+<div class="page-head">
       <div class="page-head-icon">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 3v3M12 18v3"/>
@@ -79,6 +78,16 @@
 
         <p class="budget-dates">Du {{ b.dateDebutBud }} au {{ b.dateFinBud }}</p>
 
+        <!-- Ajout : bouton prediction de depassement IA (ouvre une pop-up) -->
+        <button class="btn-prediction" type="button"
+                *ngIf="estPeriodeEnCours(b)"
+                (click)="verifierRisque(b)">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a4 4 0 0 1 4 4v1a3 3 0 0 1 2 5.5V16a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4v-3.5A3 3 0 0 1 8 7V6a4 4 0 0 1 4-4Z"/>
+          </svg>
+          Vérifier le risque IA
+        </button>
+
         <div class="budget-actions">
           <button class="icon-btn" type="button" title="Modifier" aria-label="Modifier" (click)="ouvrirModification(b)">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -157,6 +166,41 @@
         <button class="btn btn-danger" type="button" (click)="confirmerSuppression()" [disabled]="suppressionEnCours()">
           {{ suppressionEnCours() ? 'Suppression...' : 'Supprimer' }}
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pop-up : resultat de la prediction de depassement -->
+  <div class="modal-overlay" *ngIf="budgetPredictionActif() as b">
+    <div class="modal modal-sm">
+      <div class="modal-head">
+        <h2>Risque de dépassement — {{ b.departement?.nomDepart }}</h2>
+        <button class="icon-btn" type="button" aria-label="Fermer" (click)="fermerPrediction()">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="prediction-loading" *ngIf="predictionEnCours()">
+        <p>Analyse en cours...</p>
+      </div>
+
+      <p class="prediction-error" *ngIf="erreurPrediction() as msg">{{ msg }}</p>
+
+      <div class="prediction-result" *ngIf="predictionResultat() as p">
+        <div class="prediction-top">
+          <span class="prediction-montant">Projeté : {{ p.montantProjete | number:'1.0-2' }} DT</span>
+          <span class="risque-badge" [ngClass]="{
+            'risque-eleve': p.vaDepasser,
+            'risque-faible': !p.vaDepasser
+          }">{{ p.vaDepasser ? 'Va dépasser' : 'Ne va pas dépasser' }}</span>
+        </div>
+        <p class="prediction-justification">{{ p.justification }}</p>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" type="button" (click)="fermerPrediction()">Fermer</button>
       </div>
     </div>
   </div>

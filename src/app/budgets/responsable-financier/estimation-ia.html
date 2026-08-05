@@ -1,0 +1,88 @@
+<div class="page-head">
+  <div class="page-head-icon">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2a4 4 0 0 1 4 4v1a3 3 0 0 1 2 5.5V16a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4v-3.5A3 3 0 0 1 8 7V6a4 4 0 0 1 4-4Z"/>
+      <line x1="9" y1="20" x2="9" y2="22"/>
+      <line x1="15" y1="20" x2="15" y2="22"/>
+    </svg>
+  </div>
+  <div style="flex:1;">
+    <h1 class="page-title">Estimation de budget par IA</h1>
+    <p class="page-sub">Obtenez une proposition de budget basée sur l'historique réel du département.</p>
+  </div>
+</div>
+
+<div class="alert-error" *ngIf="erreur()">{{ erreur() }}</div>
+
+<!-- Bloc selection -->
+<div class="ia-card card">
+  <label class="ia-label" for="dept-select">Département à estimer</label>
+  <div class="ia-controls">
+    <div class="ia-select-wrap">
+      <svg class="ia-select-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="3" width="9" height="18"/><rect x="13" y="8" width="7" height="13"/><path d="M7 7h1M7 11h1M7 15h1M16 12h1M16 16h1"/>
+      </svg>
+      <select id="dept-select" [(ngModel)]="departementSelectionne" class="ia-select">
+        <option [ngValue]="null" disabled>-- Choisir un département --</option>
+        <option *ngFor="let d of departements()" [ngValue]="d.idDepart">{{ d.nomDepart }}</option>
+      </select>
+    </div>
+
+    <button class="ia-btn" (click)="estimer()" [disabled]="chargement()">
+      <svg *ngIf="!chargement()" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2a4 4 0 0 1 4 4v1a3 3 0 0 1 2 5.5V16a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4v-3.5A3 3 0 0 1 8 7V6a4 4 0 0 1 4-4Z"/>
+      </svg>
+      {{ chargement() ? 'Analyse en cours...' : "Estimer avec l'IA" }}
+    </button>
+  </div>
+</div>
+
+<!-- Etat vide (avant toute estimation) -->
+<div class="ia-empty" *ngIf="!resultat() && !chargement()">
+  <div class="ia-empty-icon">
+    <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2a4 4 0 0 1 4 4v1a3 3 0 0 1 2 5.5V16a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4v-3.5A3 3 0 0 1 8 7V6a4 4 0 0 1 4-4Z"/>
+      <line x1="9" y1="20" x2="9" y2="22"/><line x1="15" y1="20" x2="15" y2="22"/>
+    </svg>
+  </div>
+  <p class="ia-empty-title">Aucune estimation pour l'instant</p>
+  <p class="ia-empty-sub">Choisis un département ci-dessus et lance l'analyse pour obtenir une proposition de budget.</p>
+</div>
+
+<!-- Etat chargement -->
+<div class="ia-loading" *ngIf="chargement()">
+  <div class="ia-loading-row">
+    <div class="ia-dot"></div>
+    <div class="ia-dot"></div>
+    <div class="ia-dot"></div>
+  </div>
+  <p class="ia-loading-text">Le modèle analyse l'historique du département...</p>
+</div>
+
+<!-- Resultat -->
+<div class="ia-result-card card" *ngIf="resultat() as r">
+  <div class="ia-result-top">
+    <div>
+      <span class="ia-result-label">Montant de budget proposé</span>
+      <span class="ia-result-amount">{{ r.montantEstime | number:'1.0-2' }} <span class="ia-result-unit">DT</span></span>
+    </div>
+    <span class="confiance-badge" [ngClass]="{
+      'confiance-faible': r.niveauConfiance === 'FAIBLE',
+      'confiance-moyen': r.niveauConfiance === 'MOYEN',
+      'confiance-eleve': r.niveauConfiance === 'ELEVE'
+    }">
+      <span class="confiance-dot"></span>
+      Confiance {{ r.niveauConfiance | lowercase }}
+    </span>
+  </div>
+
+  <div class="ia-justification">
+    <svg class="ia-quote-icon" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M9.5 4C6 4 4 6.7 4 10c0 3 1.8 5 4.3 5V9H6.2c0-1.6 1.2-2.8 3.3-3V4zm10 0c-3.5 0-5.5 2.7-5.5 6 0 3 1.8 5 4.3 5V9h-2.1c0-1.6 1.2-2.8 3.3-3V4z"/></svg>
+    <p>{{ r.justification }}</p>
+  </div>
+
+  <div class="ia-result-footer">
+    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    Cette estimation est une aide à la décision, basée sur l'historique réel. Le montant final reste à ta discrétion.
+  </div>
+</div>

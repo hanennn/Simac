@@ -14,7 +14,7 @@ import { CategoriesDepartement } from './departements/Admin/categories-departeme
 import { ValidationDepenses } from './depenses/responsable-financier/validation-depenses';
 import { CategoriesDepense } from './depenses/responsable-financier/categories-depense';
 import { FaireAchat } from './produits/chef-departement/faire-achat';
-// ...
+import { EstimationIa } from './budgets/responsable-financier/estimation-ia';
 
 
 export const routes: Routes = [
@@ -33,5 +33,6 @@ export const routes: Routes = [
   { path: 'categories-departement', component: CategoriesDepartement },
   { path: 'categories-depense', component: CategoriesDepense },
   { path: 'faire-achat', component: FaireAchat },
+  { path: 'estimation-ia', component: EstimationIa },
   { path: '**', component: NotFound }
 ];

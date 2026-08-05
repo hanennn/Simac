@@ -22,3 +22,15 @@ export interface BudgetRequest {
   dateFinBud: string;
   departementId: number;
 }
+
+export interface EstimationBudgetResponse {
+  montantEstime: number;
+  justification: string;
+  niveauConfiance: 'FAIBLE' | 'MOYEN' | 'ELEVE';
+}
+
+export interface PredictionDepassementResponse {
+  vaDepasser: boolean;
+  montantProjete: number;
+  justification: string;
+}
