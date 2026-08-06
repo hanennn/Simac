@@ -4,6 +4,7 @@ import { Depense as DepenseService } from '../depense';
 import { Depense as DepenseModel } from '../depense.model';
 import { Sidebar } from '../../shared/sidebar/sidebar';
 import { AlerteNotification } from '../../alertes/alerte-notification';
+import { creerEtatChargement } from '../../shared/etat-chargement';
 
 @Component({
   selector: 'app-mes-depenses',
@@ -15,9 +16,7 @@ import { AlerteNotification } from '../../alertes/alerte-notification';
 export class MesDepenses implements OnInit {
 
   depenses = signal<DepenseModel[]>([]); //list depenses
-  chargement = signal(true);
-  erreur = signal<string | null>(null);
-
+  etat = creerEtatChargement();
   alerteDepassementVisible = signal(false); //budget depassé fermé par défaut
   budgetDepasseInfo = signal<{ nomDepart: string; alloue: number; consomme: number } | null>(null);
 
@@ -28,17 +27,17 @@ export class MesDepenses implements OnInit {
   }
 //au chargmeent de la page
   charger(): void {
-    this.chargement.set(true);
-    this.erreur.set(null);
+    this.etat.chargement.set(true);
+    this.etat.erreur.set(null);
     this.depenseService.listerMesDepenses().subscribe({ //liste depense
       next: (liste) => {
         this.depenses.set(liste);
-        this.chargement.set(false);
+        this.etat.chargement.set(false);
         this.verifierDepassementBudget(liste);
       },
       error: () => {
-        this.erreur.set("Impossible de charger vos dépenses.");
-        this.chargement.set(false);
+        this.etat.erreur.set("Impossible de charger vos dépenses.");
+        this.etat.chargement.set(false);
       }
     });
   }

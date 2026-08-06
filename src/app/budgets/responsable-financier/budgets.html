@@ -26,16 +26,16 @@
              [ngModel]="rechercheTerme()" (ngModelChange)="rechercheTerme.set($event)">
     </div>
 
-    <div class="alert-error" *ngIf="erreur()">{{ erreur() }}</div>
+    <div class="alert-error" *ngIf="etat.erreur()">{{ etat.erreur() }}</div>
 
-    <div class="loading-state" *ngIf="chargement()">Chargement des budgets...</div>
+    <div class="loading-state" *ngIf="etat.chargement()">Chargement des budgets...</div>
 
-    <div class="empty-state" *ngIf="!chargement() && budgetsFiltres().length === 0">
+    <div class="empty-state" *ngIf="!etat.chargement() && budgetsFiltres().length === 0">
       <p>Aucun budget pour l'instant.</p>
       <button class="btn btn-outline-gold" type="button" (click)="ouvrirCreation()">Créer le premier budget</button>
     </div>
 
-    <div class="budgets-grid" *ngIf="!chargement() && budgetsFiltres().length > 0">
+    <div class="budgets-grid" *ngIf="!etat.chargement() && budgetsFiltres().length > 0">
       <div class="card budget-card" *ngFor="let b of budgetsFiltres()">
         <div class="budget-card-top">
           <div>

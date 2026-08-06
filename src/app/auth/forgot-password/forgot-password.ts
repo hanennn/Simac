@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Auth } from '../auth';
 import { RouterLink } from '@angular/router';
+import { creerEtatChargement } from '../../shared/etat-chargement';
 
 @Component({
   selector: 'app-forgot-password',
@@ -15,17 +16,17 @@ import { RouterLink } from '@angular/router';
 export class ForgotPassword {
   email: string = '';
   message = signal('');
-  chargement = signal(false);
+  etat=creerEtatChargement();
 
   constructor(private authService: Auth, private router: Router) {}
 
   envoyer(): void {
-    this.chargement.set(true);
+    this.etat.chargement.set(true);
     this.message.set('');
 
     this.authService.motDePasseOublie(this.email).subscribe({
       next: (response) => {
-        this.chargement.set(false);
+        this.etat.chargement.set(false);
         this.message.set(response.message);
         this.authService.sauvegarderEmailTemporaire(this.email);
 
@@ -34,7 +35,7 @@ export class ForgotPassword {
         }, 1500);
       },
       error: () => {
-        this.chargement.set(false);
+        this.etat.chargement.set(false);
         this.message.set('Une erreur est survenue');
       }
     });

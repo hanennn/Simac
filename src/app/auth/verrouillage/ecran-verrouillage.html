@@ -1,0 +1,35 @@
+<div class="lock-overlay">
+  <div class="lock-box">
+    <div class="lock-icon">
+      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="10" width="16" height="11" rx="2"/>
+        <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+      </svg>
+    </div>
+
+    <h2>Session verrouillée</h2>
+    <p class="lock-sub">
+      {{ utilisateur()?.prenom }} {{ utilisateur()?.nom }} — entrez votre mot de passe pour continuer.
+    </p>
+
+    <div class="alert-error" *ngIf="etat.erreur()">{{ etat.erreur() }}</div>
+
+    <form (ngSubmit)="deverrouiller()">
+      <input
+        type="password"
+        class="lock-input"
+        placeholder="Mot de passe"
+        [(ngModel)]="motDePasse"
+        name="motDePasse"
+        autofocus>
+
+      <button type="submit" class="lock-btn" [disabled]="etat.chargement()">
+        {{ etat.chargement() ? 'Vérification...' : 'Déverrouiller' }}
+      </button>
+    </form>
+
+    <button class="lock-logout" type="button" (click)="seDeconnecter()">
+      Se déconnecter
+    </button>
+  </div>
+</div>

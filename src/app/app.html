@@ -6,3 +6,5 @@
 </div>
 
 <router-outlet *ngIf="!afficherSidebar()"></router-outlet>
+
+<app-ecran-verrouillage *ngIf="inactivite.verrouille()"></app-ecran-verrouillage>

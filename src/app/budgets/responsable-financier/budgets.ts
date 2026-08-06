@@ -6,6 +6,7 @@ import { Budget as BudgetModel, BudgetRequest, PredictionDepassementResponse } f
 import { Departement as DepartementService } from '../../departements/Admin/departement';
 import { Departement as DepartementModel } from '../../departements/Admin/departement.model';
 import { Sidebar } from '../../shared/sidebar/sidebar';
+import { creerEtatChargement } from '../../shared/etat-chargement';
 
 @Component({
   selector: 'app-budgets',
@@ -28,8 +29,7 @@ export class Budgets implements OnInit {
     );
   });
 
-  chargement = signal(true);
-  erreur = signal<string | null>(null);
+  etat = creerEtatChargement();
 
   modalOuvert = signal(false);
   modeEdition = signal(false);
@@ -60,16 +60,16 @@ export class Budgets implements OnInit {
   }
 
   charger(): void {
-    this.chargement.set(true);
-    this.erreur.set(null);
+    this.etat.chargement.set(true);
+    this.etat.erreur.set(null);
     this.budgetService.listerTous().subscribe({
       next: (liste) => {
         this.budgets.set(liste);
-        this.chargement.set(false);
+        this.etat.chargement.set(false);
       },
       error: () => {
-        this.erreur.set("Impossible de charger les budgets.");
-        this.chargement.set(false);
+        this.etat.erreur.set("Impossible de charger les budgets.");
+        this.etat.chargement.set(false);
       }
     });
   }
@@ -142,7 +142,7 @@ export class Budgets implements OnInit {
 
   enregistrer(): void {
     if (!this.formulaire.montantAlloueBud || !this.formulaire.dateDebutBud || !this.formulaire.dateFinBud || !this.formulaire.departementId) {
-      this.erreur.set('Tous les champs sont obligatoires.');
+      this.etat.erreur.set('Tous les champs sont obligatoires.');
       return;
     }
 
@@ -160,7 +160,7 @@ export class Budgets implements OnInit {
       },
       error: () => {
         this.enregistrementEnCours.set(false);
-        this.erreur.set("L'enregistrement a échoué. Vérifie les champs.");
+        this.etat.erreur.set("L'enregistrement a échoué. Vérifie les champs.");
       }
     });
   }
@@ -186,7 +186,7 @@ export class Budgets implements OnInit {
       },
       error: () => {
         this.suppressionEnCours.set(false);
-        this.erreur.set("La suppression a échoué.");
+        this.etat.erreur.set("La suppression a échoué.");
       }
     });
   }

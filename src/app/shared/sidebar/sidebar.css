@@ -187,14 +187,3 @@
   color: var(--text-3);
   text-transform: capitalize;
 }
-
-@media (max-width: 900px) {
-  .sidebar {
-    flex-direction: row;
-    align-items: center;
-    padding: 14px 18px;
-  }
-  .side-nav, .sidebar-footer {
-    display: none;
-  }
-}

@@ -4,6 +4,7 @@ import { Budget as BudgetService } from '../budget';
 import { Budget as BudgetModel } from '../budget.model';
 import { Auth } from '../../auth/auth';
 import { Sidebar } from '../../shared/sidebar/sidebar';
+import { creerEtatChargement } from '../../shared/etat-chargement';
 
 @Component({
   selector: 'app-mon-budget',
@@ -15,8 +16,7 @@ import { Sidebar } from '../../shared/sidebar/sidebar';
 export class MonBudget implements OnInit {
 
   budgets = signal<BudgetModel[]>([]);
-  chargement = signal(true);
-  erreur = signal<string | null>(null);
+  etat = creerEtatChargement();
 
   constructor(
     private budgetService: BudgetService,
@@ -28,19 +28,19 @@ export class MonBudget implements OnInit {
     const departementId = utilisateur?.departementId; //extrait depart
 
     if (!departementId) { 
-      this.erreur.set("Aucun département associé à votre compte.");
-      this.chargement.set(false);
+      this.etat.erreur.set("Aucun département associé à votre compte.");
+      this.etat.chargement.set(false);
       return;
     }
 
     this.budgetService.listerParDepartement(departementId).subscribe({ //liste budget
       next: (liste) => {
         this.budgets.set(liste);
-        this.chargement.set(false);
+        this.etat.chargement.set(false);
       },
       error: () => {
-        this.erreur.set("Impossible de charger le budget.");
-        this.chargement.set(false);
+        this.etat.erreur.set("Impossible de charger le budget.");
+        this.etat.chargement.set(false);
       }
     });
   }

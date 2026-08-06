@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Budget } from '../budget';
 import { EstimationBudgetResponse } from '../budget.model';
+import { creerEtatChargement } from '../../shared/etat-chargement';
 
 interface Departement {
   idDepart: number;
@@ -24,34 +25,33 @@ export class EstimationIa {
   departementSelectionne: number | null = null;
 
   resultat = signal<EstimationBudgetResponse | null>(null);
-  chargement = signal(false);
-  erreur = signal('');
+  etat = creerEtatChargement(false);
 
   constructor(private http: HttpClient, private budgetService: Budget) {
     this.http.get<Departement[]>(this.departementsUrl).subscribe({
       next: (deps) => this.departements.set(deps),
-      error: () => this.erreur.set('Impossible de charger la liste des départements.')
+      error: () => this.etat.erreur.set('Impossible de charger la liste des départements.')
     });
   }
 
   estimer(): void {
     if (!this.departementSelectionne) {
-      this.erreur.set('Sélectionne un département.');
+      this.etat.erreur.set('Sélectionne un département.');
       return;
     }
 
-    this.erreur.set('');
+    this.etat.erreur.set('');
     this.resultat.set(null);
-    this.chargement.set(true);
+    this.etat.chargement.set(true);
 
     this.budgetService.estimerBudget(this.departementSelectionne).subscribe({
       next: (res) => {
-        this.chargement.set(false);
+        this.etat.chargement.set(false);
         this.resultat.set(res);
       },
       error: (err) => {
-        this.chargement.set(false);
-        this.erreur.set(err.error?.message || "Erreur lors de l'estimation. Vérifie qu'Ollama tourne bien.");
+        this.etat.chargement.set(false);
+        this.etat.erreur.set(err.error?.message || "Erreur lors de l'estimation. Vérifie qu'Ollama tourne bien.");
       }
     });
   }

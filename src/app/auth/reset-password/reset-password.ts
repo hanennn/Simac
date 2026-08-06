@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Auth } from '../auth';
+import { creerEtatChargement } from '../../shared/etat-chargement';
 
 @Component({
   selector: 'app-reset-password',
@@ -16,7 +17,7 @@ export class ResetPassword implements OnInit {
   code: string = '';
   nouveauMotDePasse: string = '';
   message = signal('');
-  chargement = signal(false);
+  etat = creerEtatChargement();
 
   constructor(private authService: Auth, private router: Router) {}
 
@@ -30,12 +31,12 @@ export class ResetPassword implements OnInit {
   }
 
   reinitialiser(): void {
-    this.chargement.set(true);
+    this.etat.chargement.set(true);
     this.message.set('');
 
     this.authService.reinitialiserMotDePasse(this.email, this.code, this.nouveauMotDePasse).subscribe({
       next: (response) => {
-        this.chargement.set(false);
+        this.etat.chargement.set(false);
         this.message.set('Mot de passe réinitialisé ! Redirection...');
 
         setTimeout(() => {
@@ -43,7 +44,7 @@ export class ResetPassword implements OnInit {
         }, 1500);
       },
       error: () => {
-        this.chargement.set(false);
+        this.etat.chargement.set(false);
         this.message.set('Code invalide ou expiré');
       }
     });

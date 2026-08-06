@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Depense as DepenseService } from '../../depenses/depense';
 import { Depense as DepenseModel } from '../depense.model';
 import { Sidebar } from '../../shared/sidebar/sidebar';
+import { creerEtatChargement } from '../../shared/etat-chargement';
 
 @Component({
   selector: 'app-validation-depenses',
@@ -14,8 +15,7 @@ import { Sidebar } from '../../shared/sidebar/sidebar';
 export class ValidationDepenses implements OnInit {
 
   depenses = signal<DepenseModel[]>([]);
-  chargement = signal(true);
-  erreur = signal<string | null>(null);
+  etat = creerEtatChargement();
 
   filtreStatut = signal<'TOUS' | 'EN_ATTENTE' | 'VALIDEE' | 'REJETEE'>('EN_ATTENTE');
 
@@ -34,16 +34,16 @@ export class ValidationDepenses implements OnInit {
   }
 
   charger(): void {
-    this.chargement.set(true);
-    this.erreur.set(null);
+    this.etat.chargement.set(true);
+    this.etat.erreur.set(null);
     this.depenseService.listerTous().subscribe({
       next: (liste) => {
         this.depenses.set(liste);
-        this.chargement.set(false);
+        this.etat.chargement.set(false);
       },
       error: () => {
-        this.erreur.set("Impossible de charger les dépenses.");
-        this.chargement.set(false);
+        this.etat.erreur.set("Impossible de charger les dépenses.");
+        this.etat.chargement.set(false);
       }
     });
   }
@@ -57,7 +57,7 @@ export class ValidationDepenses implements OnInit {
       },
       error: () => {
         this.actionEnCours.set(null);
-        this.erreur.set("La validation a échoué.");
+        this.etat.erreur.set("La validation a échoué.");
       }
     });
   }
@@ -71,7 +71,7 @@ export class ValidationDepenses implements OnInit {
       },
       error: () => {
         this.actionEnCours.set(null);
-        this.erreur.set("Le rejet a échoué.");
+        this.etat.erreur.set("Le rejet a échoué.");
       }
     });
   }

@@ -12,7 +12,7 @@
   </div>
 </div>
 
-<div class="alert-error" *ngIf="erreur()">{{ erreur() }}</div>
+<div class="alert-error" *ngIf="etat.erreur()">{{ etat.erreur() }}</div>
 
 <!-- Bloc selection -->
 <div class="ia-card card">
@@ -28,17 +28,17 @@
       </select>
     </div>
 
-    <button class="ia-btn" (click)="estimer()" [disabled]="chargement()">
-      <svg *ngIf="!chargement()" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <button class="ia-btn" (click)="estimer()" [disabled]="etat.chargement()">
+      <svg *ngIf="!etat.chargement()" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 2a4 4 0 0 1 4 4v1a3 3 0 0 1 2 5.5V16a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4v-3.5A3 3 0 0 1 8 7V6a4 4 0 0 1 4-4Z"/>
       </svg>
-      {{ chargement() ? 'Analyse en cours...' : "Estimer avec l'IA" }}
+      {{ etat.chargement() ? 'Analyse en cours...' : "Estimer avec l'IA" }}
     </button>
   </div>
 </div>
 
 <!-- Etat vide (avant toute estimation) -->
-<div class="ia-empty" *ngIf="!resultat() && !chargement()">
+<div class="ia-empty" *ngIf="!resultat() && !etat.chargement()">
   <div class="ia-empty-icon">
     <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
       <path d="M12 2a4 4 0 0 1 4 4v1a3 3 0 0 1 2 5.5V16a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4v-3.5A3 3 0 0 1 8 7V6a4 4 0 0 1 4-4Z"/>
@@ -50,7 +50,7 @@
 </div>
 
 <!-- Etat chargement -->
-<div class="ia-loading" *ngIf="chargement()">
+<div class="ia-loading" *ngIf="etat.chargement()">
   <div class="ia-loading-row">
     <div class="ia-dot"></div>
     <div class="ia-dot"></div>

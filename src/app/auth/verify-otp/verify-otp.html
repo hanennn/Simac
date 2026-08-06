@@ -78,15 +78,15 @@
           </div>
         </div>
 
-        <div class="erreur-message" *ngIf="erreur()">{{ erreur() }}</div>
+        <div class="erreur-message" *ngIf="etat.erreur()">{{ etat.erreur() }}</div>
 
-        <button type="submit" class="btn-connexion" [disabled]="chargement()">
+        <button type="submit" class="btn-connexion" [disabled]="etat.chargement()">
           <span class="btn-connexion-icon">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M4 12l5 5L20 6"/>
             </svg>
           </span>
-          {{ chargement() ? 'Vérification...' : 'Valider le code' }}
+          {{ etat.chargement() ? 'Vérification...' : 'Valider le code' }}
         </button>
 
         <p class="footer-text">Le code est valide pendant 5 minutes</p>

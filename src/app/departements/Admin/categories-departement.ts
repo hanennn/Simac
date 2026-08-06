@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CategorieDepartService, CategorieDepart, CategorieRequest } from './categorie-departement';
 import { Sidebar } from '../../shared/sidebar/sidebar';
+import { creerEtatChargement } from '../../shared/etat-chargement';
 
 @Component({
   selector: 'app-categories-departement',
@@ -14,8 +15,7 @@ import { Sidebar } from '../../shared/sidebar/sidebar';
 export class CategoriesDepartement implements OnInit {
 
   categories = signal<CategorieDepart[]>([]);
-  chargement = signal(true);
-  erreur = signal<string | null>(null);
+  etat = creerEtatChargement();
 
   modalOuvert = signal(false);
   modeEdition = signal(false);
@@ -33,16 +33,16 @@ export class CategoriesDepartement implements OnInit {
   }
 
   charger(): void {
-    this.chargement.set(true);
-    this.erreur.set(null);
+    this.etat.chargement.set(true);
+    this.etat.erreur.set(null);
     this.categorieService.listerTous().subscribe({
       next: (liste: CategorieDepart[]) => {
         this.categories.set(liste);
-        this.chargement.set(false);
+        this.etat.chargement.set(false);
       },
       error: () => {
-        this.erreur.set("Impossible de charger les catégories.");
-        this.chargement.set(false);
+        this.etat.erreur.set("Impossible de charger les catégories.");
+        this.etat.chargement.set(false);
       }
     });
   }
@@ -67,7 +67,7 @@ export class CategoriesDepartement implements OnInit {
 
   enregistrer(): void {
     if (!this.formulaire.nomCategorie) {
-      this.erreur.set('Le nom est obligatoire.');
+      this.etat.erreur.set('Le nom est obligatoire.');
       return;
     }
 
@@ -85,7 +85,7 @@ export class CategoriesDepartement implements OnInit {
       },
       error: () => {
         this.enregistrementEnCours.set(false);
-        this.erreur.set("L'enregistrement a échoué.");
+        this.etat.erreur.set("L'enregistrement a échoué.");
       }
     });
   }
@@ -111,7 +111,7 @@ export class CategoriesDepartement implements OnInit {
       },
       error: () => {
         this.suppressionEnCours.set(false);
-        this.erreur.set("La suppression a échoué (probablement utilisée par un département).");
+        this.etat.erreur.set("La suppression a échoué (probablement utilisée par un département).");
       }
     });
   }

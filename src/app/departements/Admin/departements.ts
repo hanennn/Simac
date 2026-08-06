@@ -7,6 +7,7 @@ import { CategorieDepartService, CategorieDepart } from './categorie-departement
 import { UtilisateurAdmin as UtilisateurAdminService } from '../../utilisateurs/Admin/utilisateur-admin';
 import { Utilisateur as UtilisateurModel } from '../../utilisateurs/Admin/utilisateur-admin.model';
 import { Sidebar } from '../../shared/sidebar/sidebar';
+import { creerEtatChargement } from '../../shared/etat-chargement';
 
 
 @Component({
@@ -36,8 +37,7 @@ export class Departements implements OnInit {
     );
   });
 
-  chargement = signal(true);
-  erreur = signal<string | null>(null);
+  etat = creerEtatChargement();
 
 
 
@@ -70,16 +70,16 @@ export class Departements implements OnInit {
   }
 
   charger(): void {
-    this.chargement.set(true); //déclenche affichage
-    this.erreur.set(null);
+    this.etat.chargement.set(true); //déclenche affichage
+    this.etat.erreur.set(null);
     this.departementService.listerTous().subscribe({//get departements
       next: (liste) => {
         this.departements.set(liste);
-        this.chargement.set(false);
+        this.etat.chargement.set(false);
       },
       error: () => {
-        this.erreur.set("Impossible de charger les départements.");
-        this.chargement.set(false);
+        this.etat.erreur.set("Impossible de charger les départements.");
+        this.etat.chargement.set(false);
       }
     });
   }
@@ -118,7 +118,7 @@ export class Departements implements OnInit {
 
   enregistrer(): void {
     if (!this.formulaire.nomDepart || !this.formulaire.categorieId) {
-      this.erreur.set('Le nom et la catégorie sont obligatoires.');
+      this.etat.erreur.set('Le nom et la catégorie sont obligatoires.');
       return;
     }
 
@@ -136,7 +136,7 @@ export class Departements implements OnInit {
       },
       error: () => {
         this.enregistrementEnCours.set(false);
-        this.erreur.set("L'enregistrement a échoué. Vérifie les champs et réessaie.");
+        this.etat.erreur.set("L'enregistrement a échoué. Vérifie les champs et réessaie.");
       }
     });
   }
@@ -162,7 +162,7 @@ export class Departements implements OnInit {
       },
       error: () => {
         this.suppressionEnCours.set(false);
-        this.erreur.set("La suppression a échoué.");
+        this.etat.erreur.set("La suppression a échoué.");
       }
     });
   }
