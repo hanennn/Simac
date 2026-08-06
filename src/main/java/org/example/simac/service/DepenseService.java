@@ -72,11 +72,16 @@ public class DepenseService {
         Departement departement = departementRepository.findByCategorieDepart_NomCategorie(request.getX_departement())
                 .orElseThrow(() -> new RuntimeException("Departement introuvable : " + request.getX_departement()));
 
+        // Ne prend que le budget dont la periode contient la date du jour,
+        // au lieu du premier budget trouve pour ce departement (qui pouvait etre expire).
+        LocalDate dateDuJour = LocalDate.now();
+
         Budget budget = budgetRepository.findAll().stream()
                 .filter(b -> b.getDepartement() != null
                         && b.getDepartement().getIdDepart().equals(departement.getIdDepart()))
+                .filter(b -> !b.getDateDebutBud().isAfter(dateDuJour) && !b.getDateFinBud().isBefore(dateDuJour))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Aucun budget disponible pour ce departement"));
+                .orElseThrow(() -> new RuntimeException("Aucun budget actif pour ce departement aujourd'hui"));
 
         String nomCategorieDepense = request.getX_categorie_depense() != null
                 ? request.getX_categorie_depense()

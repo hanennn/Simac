@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.simac.enums.Role;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "utilisateurs")
 @Data
@@ -43,4 +45,10 @@ public class Utilisateur {
     @ManyToOne
     @JoinColumn(name = "departement_id")
     private Departement departement;
+
+    // --- Ajout pour le blocage apres tentatives echouees ---
+    @Column(nullable = false)
+    private int tentativesEchouees = 0;
+
+    private LocalDateTime verrouilleJusqua;
 }

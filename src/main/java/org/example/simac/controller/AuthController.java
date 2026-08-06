@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.example.simac.dto.*;
 import org.example.simac.service.AuthService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
 
 import java.util.Map;
 
@@ -47,5 +49,14 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> reinitialiserMotDePasse(@RequestBody ResetPasswordRequest request) {
         authService.reinitialiserMotDePasse(request);
         return ResponseEntity.ok(Map.of("message", "Mot de passe reinitialise avec succes"));
+    }
+
+    @PostMapping("/verifier-mot-de-passe")
+    public ResponseEntity<Map<String, Boolean>> verifierMotDePasse(@RequestBody VerifierMotDePasseRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName(); // recupere l'email depuis le token deja valide
+
+        boolean valide = authService.verifierMotDePasseActuel(email, request.getMotDePasse());
+        return ResponseEntity.ok(Map.of("valide", valide));
     }
 }
