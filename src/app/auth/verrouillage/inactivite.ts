@@ -2,8 +2,8 @@ import { Injectable, signal, NgZone } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class Inactivite {
-  private readonly DUREE_MS = 5 * 60 * 1000; // 5 minutes
-  private minuteur: ReturnType<typeof setTimeout> | null = null;
+  private readonly DUREE_MS = 1 * 60 * 1000; 
+  private minuteur: ReturnType<typeof setTimeout> | null = null; //stocker la référence du minuteur
 
   verrouille = signal(false);
 
@@ -12,10 +12,10 @@ export class Inactivite {
   demarrerSurveillance(): void {
     this.zone.runOutsideAngular(() => {
       ['click', 'mousemove', 'keydown', 'scroll', 'touchstart'].forEach(evt => {
-        window.addEventListener(evt, () => this.reinitialiser(), { passive: true });
+        window.addEventListener(evt, () => this.reinitialiser(), { passive: true }); //performance
       });
     });
-    this.reinitialiser();
+    this.reinitialiser(); //lance minuteur
   }
 
   private reinitialiser(): void {
@@ -29,6 +29,6 @@ export class Inactivite {
 
   deverrouiller(): void {
     this.verrouille.set(false);
-    this.reinitialiser();
+    this.reinitialiser();//lance minuteur
   }
 }

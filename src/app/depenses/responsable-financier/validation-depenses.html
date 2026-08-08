@@ -48,7 +48,7 @@
                 'badge-validee': dep.statutDepense === 'VALIDEE',
                 'badge-rejetee': dep.statutDepense === 'REJETEE'
                 }">{{ formatStatut(dep.statutDepense) }}</span>
-<span class="dept-badge-neutral" *ngIf="dep.budget?.departement">{{ dep.budget.departement?.categorieDepart }}</span>
+            <span class="dept-badge-neutral" *ngIf="dep.budget?.departement?.categorieDepart">{{ dep.budget.departement?.categorieDepart?.nomCategorie }}</span>
           </div>
           <p class="dept-row-desc">
             {{ dep.descDepense || 'Aucune description.' }}

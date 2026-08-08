@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Auth } from '../auth';
 import { RouterLink } from '@angular/router';
+import { take, takeUntil } from 'rxjs';
 import { creerEtatChargement } from '../../shared/etat-chargement';
 
 @Component({
@@ -16,7 +17,7 @@ import { creerEtatChargement } from '../../shared/etat-chargement';
 export class ForgotPassword {
   email: string = '';
   message = signal('');
-  etat=creerEtatChargement();
+  etat=creerEtatChargement(false);
 
   constructor(private authService: Auth, private router: Router) {}
 
@@ -24,7 +25,7 @@ export class ForgotPassword {
     this.etat.chargement.set(true);
     this.message.set('');
 
-    this.authService.motDePasseOublie(this.email).subscribe({
+    this.authService.motDePasseOublie(this.email).pipe(take(1)).subscribe({
       next: (response) => {
         this.etat.chargement.set(false);
         this.message.set(response.message);

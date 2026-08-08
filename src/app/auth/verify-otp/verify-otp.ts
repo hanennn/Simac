@@ -39,7 +39,7 @@ export class VerifyOtp implements OnInit {
     next: (response) => {
       this.etat.chargement.set(false);
       this.authService.sauvegarderToken(response.token);
-      this.authService.sauvegarderUtilisateur(response);   // ← ligne ajoutée
+      this.authService.sauvegarderUtilisateur(response);   
       this.router.navigate(['/dashboard']);
     },
     error: () => {

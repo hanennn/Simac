@@ -1,6 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Alerte_Service } from './alerte';
+import { take, takeUntil } from 'rxjs';
 import { Alerte } from './alerte.model';
 
 @Component({
@@ -33,7 +34,7 @@ export class AlerteNotification implements OnInit {
   }
 
   marquerCommeLue(idAlerte: number): void {
-    this.alerteService.marquerCommeLue(idAlerte).subscribe({
+    this.alerteService.marquerCommeLue(idAlerte).pipe(take(1)).subscribe({
       next: () => {
         this.alertes.set(this.alertes().filter(a => a.idAlerte !== idAlerte));
       },

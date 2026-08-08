@@ -6,6 +6,7 @@ import { Budget as BudgetModel, BudgetRequest, PredictionDepassementResponse } f
 import { Departement as DepartementService } from '../../departements/Admin/departement';
 import { Departement as DepartementModel } from '../../departements/Admin/departement.model';
 import { Sidebar } from '../../shared/sidebar/sidebar';
+import { take, takeUntil } from 'rxjs';
 import { creerEtatChargement } from '../../shared/etat-chargement';
 
 @Component({
@@ -53,7 +54,7 @@ export class Budgets implements OnInit {
 
   ngOnInit(): void {
     this.charger();
-    this.departementService.listerTous().subscribe({
+    this.departementService.listerTous().pipe(take(1)).subscribe({
       next: (liste) => this.departements.set(liste),
       error: () => {}
     });
@@ -62,7 +63,7 @@ export class Budgets implements OnInit {
   charger(): void {
     this.etat.chargement.set(true);
     this.etat.erreur.set(null);
-    this.budgetService.listerTous().subscribe({
+    this.budgetService.listerTous().pipe(take(1)).subscribe({
       next: (liste) => {
         this.budgets.set(liste);
         this.etat.chargement.set(false);
@@ -99,7 +100,7 @@ export class Budgets implements OnInit {
     this.erreurPrediction.set(null);
     this.predictionEnCours.set(true);
 
-    this.budgetService.predireDepassement(b.idBud).subscribe({
+    this.budgetService.predireDepassement(b.idBud).pipe(take(1)).subscribe({
       next: (res) => {
         this.predictionEnCours.set(false);
         this.predictionResultat.set(res);
@@ -178,7 +179,7 @@ export class Budgets implements OnInit {
     if (!b) { return; }
 
     this.suppressionEnCours.set(true);
-    this.budgetService.supprimer(b.idBud).subscribe({
+    this.budgetService.supprimer(b.idBud).pipe(take(1)).subscribe({
       next: () => {
         this.suppressionEnCours.set(false);
         this.budgetASupprimer.set(null);

@@ -7,6 +7,7 @@ import { CategorieDepartService, CategorieDepart } from './categorie-departement
 import { UtilisateurAdmin as UtilisateurAdminService } from '../../utilisateurs/Admin/utilisateur-admin';
 import { Utilisateur as UtilisateurModel } from '../../utilisateurs/Admin/utilisateur-admin.model';
 import { Sidebar } from '../../shared/sidebar/sidebar';
+import { take, takeUntil } from 'rxjs';
 import { creerEtatChargement } from '../../shared/etat-chargement';
 
 
@@ -59,11 +60,11 @@ export class Departements implements OnInit {
 
   ngOnInit(): void {
     this.charger(); //charger départment
-    this.utilisateurAdminService.listerTous().subscribe({
+    this.utilisateurAdminService.listerTous().pipe(take(1)).subscribe({
       next: (liste) => this.utilisateurs.set(liste),//list users
       error: () => {}
     });
-    this.categorieDepartService.listerTous().subscribe({//list categorie
+    this.categorieDepartService.listerTous().pipe(take(1)).subscribe({//list categorie
       next: (liste: CategorieDepart[]) => this.categories.set(liste),
       error: () => {}
     });
@@ -72,7 +73,7 @@ export class Departements implements OnInit {
   charger(): void {
     this.etat.chargement.set(true); //déclenche affichage
     this.etat.erreur.set(null);
-    this.departementService.listerTous().subscribe({//get departements
+    this.departementService.listerTous().pipe(take(1)).subscribe({//get departements
       next: (liste) => {
         this.departements.set(liste);
         this.etat.chargement.set(false);
@@ -154,7 +155,7 @@ export class Departements implements OnInit {
     if (!dept) { return; }
 
     this.suppressionEnCours.set(true);
-    this.departementService.supprimer(dept.idDepart).subscribe({
+    this.departementService.supprimer(dept.idDepart).pipe(take(1)).subscribe({
       next: () => {
         this.suppressionEnCours.set(false);
         this.departementASupprimer.set(null);

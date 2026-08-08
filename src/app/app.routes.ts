@@ -1,8 +1,4 @@
 import { Routes } from '@angular/router';
-import { Login } from '../login/login';
-import { VerifyOtp } from './auth/verify-otp/verify-otp';
-import { ForgotPassword } from './auth/forgot-password/forgot-password';
-import { ResetPassword } from './auth/reset-password/reset-password';
 import { NotFound } from './not-found/not-found';
 import { Dashboard } from './dashboard/dashboard';
 import { Departements } from './departements/Admin/departements';
@@ -16,13 +12,14 @@ import { CategoriesDepense } from './depenses/responsable-financier/categories-d
 import { FaireAchat } from './produits/chef-departement/faire-achat';
 import { EstimationIa } from './budgets/responsable-financier/estimation-ia';
 
-
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
-  { path: 'login', component: Login },
-  { path: 'verify-otp', component: VerifyOtp },
-  { path: 'forgot-password', component: ForgotPassword },
-  { path: 'reset-password', component: ResetPassword },
+
+  {
+    path: '',
+    loadChildren: () => import('./auth/auth.routes').then(m => m.AUTH_ROUTES)
+  },
+
   { path: 'dashboard', component: Dashboard },
   { path: 'departements', component: Departements },
   { path: 'utilisateurs', component: Utilisateurs },

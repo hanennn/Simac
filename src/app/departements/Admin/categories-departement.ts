@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CategorieDepartService, CategorieDepart, CategorieRequest } from './categorie-departement';
 import { Sidebar } from '../../shared/sidebar/sidebar';
+import { take, takeUntil } from 'rxjs';
 import { creerEtatChargement } from '../../shared/etat-chargement';
 
 @Component({
@@ -35,7 +36,7 @@ export class CategoriesDepartement implements OnInit {
   charger(): void {
     this.etat.chargement.set(true);
     this.etat.erreur.set(null);
-    this.categorieService.listerTous().subscribe({
+    this.categorieService.listerTous().pipe(take(1)).subscribe({
       next: (liste: CategorieDepart[]) => {
         this.categories.set(liste);
         this.etat.chargement.set(false);
@@ -103,7 +104,7 @@ export class CategoriesDepartement implements OnInit {
     if (!cat) { return; }
 
     this.suppressionEnCours.set(true);
-    this.categorieService.supprimer(cat.idCategorie).subscribe({
+    this.categorieService.supprimer(cat.idCategorie).pipe(take(1)).subscribe({
       next: () => {
         this.suppressionEnCours.set(false);
         this.categorieASupprimer.set(null);

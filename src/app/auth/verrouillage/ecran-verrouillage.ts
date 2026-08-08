@@ -17,7 +17,7 @@ export class EcranVerrouillage {
   private readonly apiUrl = 'http://localhost:8081/api/auth';
 
   motDePasse = '';
-  etat = creerEtatChargement();
+  etat = creerEtatChargement(false);
 
   constructor(
     public inactivite: Inactivite,

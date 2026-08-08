@@ -4,6 +4,7 @@ import { Budget as BudgetService } from '../budget';
 import { Budget as BudgetModel } from '../budget.model';
 import { Auth } from '../../auth/auth';
 import { Sidebar } from '../../shared/sidebar/sidebar';
+import { take, takeUntil } from 'rxjs';
 import { creerEtatChargement } from '../../shared/etat-chargement';
 
 @Component({
@@ -33,7 +34,7 @@ export class MonBudget implements OnInit {
       return;
     }
 
-    this.budgetService.listerParDepartement(departementId).subscribe({ //liste budget
+    this.budgetService.listerParDepartement(departementId).pipe(take(1)).subscribe({ //liste budget
       next: (liste) => {
         this.budgets.set(liste);
         this.etat.chargement.set(false);

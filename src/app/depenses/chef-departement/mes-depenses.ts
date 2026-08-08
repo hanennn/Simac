@@ -5,6 +5,7 @@ import { Depense as DepenseModel } from '../depense.model';
 import { Sidebar } from '../../shared/sidebar/sidebar';
 import { AlerteNotification } from '../../alertes/alerte-notification';
 import { creerEtatChargement } from '../../shared/etat-chargement';
+import { take, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-mes-depenses',
@@ -29,7 +30,7 @@ export class MesDepenses implements OnInit {
   charger(): void {
     this.etat.chargement.set(true);
     this.etat.erreur.set(null);
-    this.depenseService.listerMesDepenses().subscribe({ //liste depense
+    this.depenseService.listerMesDepenses().pipe(take(1)).subscribe({ //liste depense
       next: (liste) => {
         this.depenses.set(liste);
         this.etat.chargement.set(false);

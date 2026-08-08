@@ -2,6 +2,7 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Produit_Service } from '../produitService';
 import { Produit } from '../produit.model';
+import { take, takeUntil } from 'rxjs';
 
 interface LignePanier {
   produit: Produit;
@@ -39,7 +40,7 @@ export class FaireAchat implements OnInit {
   charger(): void {
     this.chargement.set(true);
     this.erreur.set(null);
-    this.produitService.listerMesProduits().subscribe({
+    this.produitService.listerMesProduits().pipe(take(1)).subscribe({
       next: (liste) => {
         this.produits.set(liste);
         this.chargement.set(false);
@@ -79,7 +80,7 @@ export class FaireAchat implements OnInit {
     // (à améliorer plus tard pour gérer plusieurs produits en une seule commande)
     const premiereLigne = lignes[0];
 
-    this.produitService.commander(premiereLigne.produit.id, premiereLigne.quantite).subscribe({
+    this.produitService.commander(premiereLigne.produit.id, premiereLigne.quantite).pipe(take(1)).subscribe({
       next: () => {
         this.commandeEnCours.set(false);
         this.commandeReussie.set(true);

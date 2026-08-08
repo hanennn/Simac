@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Auth } from '../auth';
+import { take, takeUntil } from 'rxjs';
 import { creerEtatChargement } from '../../shared/etat-chargement';
 
 @Component({
@@ -17,7 +18,7 @@ export class ResetPassword implements OnInit {
   code: string = '';
   nouveauMotDePasse: string = '';
   message = signal('');
-  etat = creerEtatChargement();
+  etat = creerEtatChargement(false);
 
   constructor(private authService: Auth, private router: Router) {}
 
@@ -34,7 +35,8 @@ export class ResetPassword implements OnInit {
     this.etat.chargement.set(true);
     this.message.set('');
 
-    this.authService.reinitialiserMotDePasse(this.email, this.code, this.nouveauMotDePasse).subscribe({
+    
+    this.authService.reinitialiserMotDePasse(this.email, this.code, this.nouveauMotDePasse).pipe(take(1)).subscribe({
       next: (response) => {
         this.etat.chargement.set(false);
         this.message.set('Mot de passe réinitialisé ! Redirection...');

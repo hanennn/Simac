@@ -7,6 +7,7 @@ import { Departement as DepartementService } from '../../departements/Admin/depa
 import { Departement as DepartementModel } from '../../departements/Admin/departement.model';
 import { Sidebar } from '../../shared/sidebar/sidebar';
 import { Modal } from '../../shared/modal/modal';
+import { take, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-utilisateurs',
@@ -53,7 +54,7 @@ export class Utilisateurs implements OnInit {
 
   ngOnInit(): void {
     this.charger();
-    this.departementService.listerTous().subscribe({
+    this.departementService.listerTous().pipe(take(1)).subscribe({
       next: (liste: DepartementModel[]) => this.departements.set(liste),
       error: () => {}
     });
@@ -62,7 +63,7 @@ export class Utilisateurs implements OnInit {
   charger(): void {
     this.chargement.set(true);
     this.erreur.set(null);
-    this.utilisateurAdminService.listerTous().subscribe({
+    this.utilisateurAdminService.listerTous().pipe(take(1)).subscribe({
       next: (liste) => {
         this.utilisateurs.set(liste);
         this.chargement.set(false);
@@ -149,7 +150,7 @@ export class Utilisateurs implements OnInit {
     if (!u) { return; }
 
     this.suppressionEnCours.set(true);
-    this.utilisateurAdminService.supprimer(u.idUser).subscribe({
+    this.utilisateurAdminService.supprimer(u.idUser).pipe(take(1)).subscribe({
       next: () => {
         this.suppressionEnCours.set(false);
         this.utilisateurASupprimer.set(null);
@@ -163,7 +164,7 @@ export class Utilisateurs implements OnInit {
   }
 
   changerStatut(u: UtilisateurModel): void {
-    this.utilisateurAdminService.changerStatut(u.idUser).subscribe({
+    this.utilisateurAdminService.changerStatut(u.idUser).pipe(take(1)).subscribe({
       next: () => this.charger(),
       error: () => this.erreur.set("Le changement de statut a échoué.")
     });

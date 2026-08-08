@@ -8,6 +8,7 @@ import { Budget } from '../budgets/budget';
 import { UtilisateurAdmin } from '../utilisateurs/Admin/utilisateur-admin';
 import { Depense } from '../depenses/depense';
 import { Theme } from '../services/theme';
+import { take, takeUntil } from 'rxjs';
 import { Sidebar } from '../shared/sidebar/sidebar';
 
 @Component({
@@ -97,7 +98,7 @@ export class Dashboard implements OnInit {
         error: () => this.chargementStats.set(false)
       });
     } else if (role === 'CHEF_DEPARTEMENT') {
-      this.depenseService.listerMesDepenses().subscribe({
+      this.depenseService.listerMesDepenses().pipe(take(1)).subscribe({
         next: (depenses) => {
           const enAttente = depenses.filter((d: any) => d.statutDepense === 'EN_ATTENTE').length;
           this.stats.set({
