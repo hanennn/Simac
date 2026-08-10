@@ -50,7 +50,7 @@ public class AuthController {
         authService.reinitialiserMotDePasse(request);
         return ResponseEntity.ok(Map.of("message", "Mot de passe reinitialise avec succes"));
     }
-
+//verouillage
     @PostMapping("/verifier-mot-de-passe")
     public ResponseEntity<Map<String, Boolean>> verifierMotDePasse(@RequestBody VerifierMotDePasseRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

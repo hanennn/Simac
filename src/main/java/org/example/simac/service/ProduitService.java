@@ -1,6 +1,7 @@
 package org.example.simac.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.simac.dto.ProduitRequest;
 import org.example.simac.entity.Utilisateur;
 import org.example.simac.repository.UtilisateurRepository;
 import org.springframework.security.core.Authentication;
@@ -38,5 +39,34 @@ public class ProduitService {
         Utilisateur utilisateur = utilisateurCourant(authentication);
         String nomCategorie = utilisateur.getDepartement().getCategorieDepart().getNomCategorie();
         return odooClientService.creerCommandeAchat(produitId, quantite, nomCategorie);
+    }
+
+    // --- Ajout pour le Gestionnaire de produits (parametrage des produits) ---
+
+    public Integer creerProduit(ProduitRequest request) throws Exception {
+        return odooClientService.creerProduit(
+                request.getNom(),
+                request.getPrix(),
+                request.getCategorie(),
+                request.getDescription(),
+                request.getCategorieDepense()
+        );
+    }
+
+    public void modifierProduit(Integer produitId, ProduitRequest request) throws Exception {
+        odooClientService.modifierProduit(
+                produitId,
+                request.getNom(),
+                request.getPrix(),
+                request.getDescription()
+        );
+    }
+
+    public void archiverProduit(Integer produitId) throws Exception {
+        odooClientService.archiverProduit(produitId);
+    }
+
+    public List<Map<String, Object>> listerTousProduits() throws Exception {
+        return odooClientService.listerTousProduits();
     }
 }

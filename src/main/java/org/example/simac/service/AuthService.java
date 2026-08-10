@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 public class AuthService {
 
     private static final int MAX_TENTATIVES = 3;
-    private static final int DUREE_BLOCAGE_MINUTES = 10;
+    private static final int DUREE_BLOCAGE_MINUTES = 1;
 
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
@@ -144,11 +144,11 @@ public class AuthService {
         utilisateur.setMotDePasse(passwordEncoder.encode(request.getNouveauMotDePasse()));
         utilisateurRepository.save(utilisateur);
     }
-
+//verrouillage
     public boolean verifierMotDePasseActuel(String email, String motDePasse) {
         Utilisateur utilisateur = utilisateurRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
 
-        return passwordEncoder.matches(motDePasse, utilisateur.getMotDePasse());
+        return passwordEncoder.matches(motDePasse, utilisateur.getMotDePasse());//verif correspondance
     }
 }

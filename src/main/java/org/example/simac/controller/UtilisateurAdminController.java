@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin/utilisateurs")//toute route commence api ........
+@RequestMapping("/api/admin/utilisateurs")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')") //que admin
+@PreAuthorize("hasRole('ADMIN')")
 public class UtilisateurAdminController {
 
     private final UtilisateurAdminService utilisateurAdminService;
@@ -22,6 +22,12 @@ public class UtilisateurAdminController {
     @GetMapping
     public List<Utilisateur> listerTous() {
         return utilisateurAdminService.listerTous();
+    }
+
+    // --- Ajout pour le chargement a la demande, par departement ---
+    @GetMapping("/departement/{departementId}")
+    public List<Utilisateur> listerParDepartement(@PathVariable Long departementId) {
+        return utilisateurAdminService.listerParDepartement(departementId);
     }
 
     @PostMapping

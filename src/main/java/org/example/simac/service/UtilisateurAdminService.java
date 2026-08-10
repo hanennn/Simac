@@ -84,4 +84,10 @@ public class UtilisateurAdminService {
         utilisateur.setActif(!utilisateur.isActif());
         return utilisateurRepository.save(utilisateur);
     }
+
+    public List<Utilisateur> listerParDepartement(Long departementId) {
+        return utilisateurRepository.findByDepartement_IdDepart(departementId);
+    }
+
+
 }

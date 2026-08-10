@@ -70,6 +70,7 @@ public class EstimationBudgetService {
                 ? departement.getCategorieDepart().getNomCategorie()
                 : "Non definie";
 
+        //prompt
         String promptTexte = """
         Tu es un expert financier specialise dans la gestion budgetaire d'entreprise.
         Ta mission est d'estimer le budget a allouer a un departement pour la prochaine periode,

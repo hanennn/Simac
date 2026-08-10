@@ -25,6 +25,7 @@ public class AlerteService {
             return; // évite les doublons si déjà alerté et pas encore lu
         }
 
+        //creation
         Alerte alerte = new Alerte();
         alerte.setBudget(budget);
         alerte.setMessage("Le budget du département " + budget.getDepartement().getNomDepart() + " est dépassé.");
@@ -33,10 +34,12 @@ public class AlerteService {
         alerteRepository.save(alerte);
     }
 
+
+    //renvoyer les alertes non lues
     public List<Alerte> listerMesAlertesNonLues(Authentication authentication) {
         Utilisateur utilisateur = utilisateurCourant(authentication);
-        if (utilisateur.getDepartement() == null) {
-            return List.of();  // <-- si pas de département (Admin, Responsable Financier), retourne une liste vide
+        if (utilisateur.getDepartement() == null) {//si user n'a pas de département
+            return List.of();  // retourne une liste vide
         }
         return alerteRepository.findByBudgetDepartementIdDepartAndLueFalse(utilisateur.getDepartement().getIdDepart());
     }
@@ -50,8 +53,8 @@ public class AlerteService {
     }
 
     private Utilisateur utilisateurCourant(Authentication authentication) {
-        String email = authentication.getName();
-        return utilisateurRepository.findByEmail(email)
+        String email = authentication.getName();//extrait mail
+        return utilisateurRepository.findByEmail(email)//récupérer user
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
     }
 }
