@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Inactivite } from './inactivite';
-import { Auth } from '../auth';
+import { Auth } from '../authService';
 import { creerEtatChargement } from '../../shared/etat-chargement';
 
 @Component({

@@ -2,7 +2,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Budget as BudgetService } from '../budget';
 import { Budget as BudgetModel } from '../budget.model';
-import { Auth } from '../../auth/auth';
+import { Auth } from '../../auth/authService';
 import { Sidebar } from '../../shared/sidebar/sidebar';
 import { take, takeUntil } from 'rxjs';
 import { creerEtatChargement } from '../../shared/etat-chargement';

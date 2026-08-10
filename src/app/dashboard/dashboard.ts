@@ -2,7 +2,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs';
-import { Auth } from '../auth/auth';
+import { Auth } from '../auth/authService';
 import { Departement } from '../departements/Admin/departement';
 import { Budget } from '../budgets/budget';
 import { UtilisateurAdmin } from '../utilisateurs/Admin/utilisateur-admin';

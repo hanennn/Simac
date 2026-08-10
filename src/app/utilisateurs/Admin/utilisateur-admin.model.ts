@@ -16,4 +16,4 @@ export interface UtilisateurRequest {
   departementId: number | null;
 }
 
-export const ROLES_UTILISATEUR: string[] = ['ADMIN', 'CHEF_DEPARTEMENT', 'RESPONSABLE_FINANCIER'];
+export const ROLES_UTILISATEUR: string[] = ['ADMIN', 'CHEF_DEPARTEMENT', 'RESPONSABLE_FINANCIER', 'GESTIONNAIRE_PRODUITS'];

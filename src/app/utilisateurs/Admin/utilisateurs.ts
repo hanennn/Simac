@@ -174,7 +174,8 @@ export class Utilisateurs implements OnInit {
     const labels: Record<string, string> = {
       'ADMIN': 'Administrateur',
       'CHEF_DEPARTEMENT': 'Chef de département',
-      'RESPONSABLE_FINANCIER': 'Responsable financier'
+      'RESPONSABLE_FINANCIER': 'Responsable financier',
+      'GESTIONNAIRE_PRODUITS': 'Gestionnaire de produits'
     };
     return labels[role] || role;
   }

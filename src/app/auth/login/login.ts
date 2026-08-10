@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Auth } from '../auth';
+import { Auth } from '../authService';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { take, takeUntil } from 'rxjs';

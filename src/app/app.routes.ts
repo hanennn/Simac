@@ -31,5 +31,6 @@ export const routes: Routes = [
   { path: 'categories-depense', component: CategoriesDepense },
   { path: 'faire-achat', component: FaireAchat },
   { path: 'estimation-ia', component: EstimationIa },
+  { path: 'gestion-produits', loadComponent: () => import('./produits/gestionnaire/gestion-produits').then(m => m.GestionProduits) },
   { path: '**', component: NotFound }
 ];

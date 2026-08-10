@@ -28,4 +28,8 @@ export class UtilisateurAdmin {
   changerStatut(id: number): Observable<UtilisateurModel> {
     return this.http.patch<UtilisateurModel>(`${this.apiUrl}/${id}/statut`, {});
   }
+
+  listerParDepartement(departementId: number): Observable<UtilisateurModel[]> {
+  return this.http.get<UtilisateurModel[]>(`${this.apiUrl}/departement/${departementId}`);
+}
 }

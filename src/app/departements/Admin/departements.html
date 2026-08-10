@@ -1,6 +1,4 @@
-
-
-    <div class="page-head">
+<div class="page-head">
       <div class="page-head-icon">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <rect x="4" y="3" width="9" height="18"/>
@@ -66,7 +64,6 @@
             <div class="dept-row-head">
               <h3 class="dept-row-title">{{ dept.nomDepart }}</h3>
               <span class="dept-badge-neutral">{{ dept.categorieDepart.nomCategorie }}</span>
-              <span class="dept-user-count">{{ utilisateursDuDepartement(dept.idDepart).length }} utilisateur(s)</span>
             </div>
             <p class="dept-row-desc">{{ dept.descDepart || 'Aucune description.' }}</p>
           </div>
@@ -91,7 +88,10 @@
         </div>
 
         <div class="dept-users-panel" *ngIf="departementOuvert() === dept.idDepart">
-          <div class="dept-users-empty" *ngIf="utilisateursDuDepartement(dept.idDepart).length === 0">
+          <div class="dept-users-loading" *ngIf="chargementUtilisateursDe(dept.idDepart)">
+            Chargement des utilisateurs...
+          </div>
+          <div class="dept-users-empty" *ngIf="!chargementUtilisateursDe(dept.idDepart) && utilisateursDuDepartement(dept.idDepart).length === 0">
             Aucun utilisateur dans ce département.
           </div>
           <div class="dept-user-chip" *ngFor="let u of utilisateursDuDepartement(dept.idDepart)">
@@ -162,4 +162,3 @@
       </div>
     </div>
   </div>
-

@@ -21,12 +21,13 @@ import { creerEtatChargement } from '../../shared/etat-chargement';
 export class Departements implements OnInit {
 
   departements = signal<DepartementModel[]>([]);
-  utilisateurs = signal<UtilisateurModel[]>([]);
   categories = signal<CategorieDepart[]>([]);
-  departementOuvert = signal<number | null>(null); //l'ID du département selectionné
+  departementOuvert = signal<number | null>(null);
 
+  // --- Chargement a la demande : une Map departementId -> liste d'utilisateurs ---
+  usersParDepartement = signal<Map<number, UtilisateurModel[]>>(new Map());
+  departementsEnChargement = signal<Set<number>>(new Set());
 
-  //recherche
   rechercheTerme = signal('');
   departementsFiltres = computed(() => {
     const terme = this.rechercheTerme().toLowerCase().trim();
@@ -40,9 +41,6 @@ export class Departements implements OnInit {
 
   etat = creerEtatChargement();
 
-
-
-//au départ les formulaire sont fermés
   modalOuvert = signal(false);
   modeEdition = signal(false);
   enregistrementEnCours = signal(false);
@@ -59,21 +57,17 @@ export class Departements implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.charger(); //charger départment
-    this.utilisateurAdminService.listerTous().pipe(take(1)).subscribe({
-      next: (liste) => this.utilisateurs.set(liste),//list users
-      error: () => {}
-    });
-    this.categorieDepartService.listerTous().pipe(take(1)).subscribe({//list categorie
+    this.charger();
+    this.categorieDepartService.listerTous().pipe(take(1)).subscribe({
       next: (liste: CategorieDepart[]) => this.categories.set(liste),
       error: () => {}
     });
   }
 
   charger(): void {
-    this.etat.chargement.set(true); //déclenche affichage
+    this.etat.chargement.set(true);
     this.etat.erreur.set(null);
-    this.departementService.listerTous().pipe(take(1)).subscribe({//get departements
+    this.departementService.listerTous().pipe(take(1)).subscribe({
       next: (liste) => {
         this.departements.set(liste);
         this.etat.chargement.set(false);
@@ -85,13 +79,46 @@ export class Departements implements OnInit {
     });
   }
 
-  utilisateursDuDepartement(idDepart: number): UtilisateurModel[] { //user lié au département
-    return this.utilisateurs().filter(u => u.departement && u.departement.idDepart === idDepart);
+  utilisateursDuDepartement(idDepart: number): UtilisateurModel[] {
+    return this.usersParDepartement().get(idDepart) || [];
   }
 
-//ouverture/fermeture
+  chargementUtilisateursDe(idDepart: number): boolean {
+    return this.departementsEnChargement().has(idDepart);
+  }
+
+  // --- Ouverture/fermeture avec chargement a la demande ---
   toggleDepartement(idDepart: number): void {
-    this.departementOuvert.set(this.departementOuvert() === idDepart ? null : idDepart);
+    const dejaOuvert = this.departementOuvert() === idDepart;
+    this.departementOuvert.set(dejaOuvert ? null : idDepart);
+
+    if (!dejaOuvert && !this.usersParDepartement().has(idDepart)) {
+      this.chargerUtilisateursDuDepartement(idDepart);
+    }
+  }
+
+  private chargerUtilisateursDuDepartement(idDepart: number): void {
+    const enChargement = new Set(this.departementsEnChargement());
+    enChargement.add(idDepart);
+    this.departementsEnChargement.set(enChargement);
+
+    this.utilisateurAdminService.listerParDepartement(idDepart).pipe(take(1)).subscribe({
+      next: (liste) => {
+        const map = new Map(this.usersParDepartement());
+        map.set(idDepart, liste);
+        this.usersParDepartement.set(map);
+
+        const enChargementApres = new Set(this.departementsEnChargement());
+        enChargementApres.delete(idDepart);
+        this.departementsEnChargement.set(enChargementApres);
+      },
+      error: () => {
+        const enChargementApres = new Set(this.departementsEnChargement());
+        enChargementApres.delete(idDepart);
+        this.departementsEnChargement.set(enChargementApres);
+        this.etat.erreur.set("Impossible de charger les utilisateurs de ce département.");
+      }
+    });
   }
 
   ouvrirCreation(): void {
@@ -112,7 +139,6 @@ export class Departements implements OnInit {
     this.modalOuvert.set(true);
   }
 
-  //ferme le pop-up (formulaire de création/modification d'un département)
   fermerModal(): void {
     this.modalOuvert.set(false);
   }

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { Auth } from '../../auth/auth';
+import { Auth } from '../../auth/authService';
 import { AlerteNotification } from '../../alertes/alerte-notification';
 
 

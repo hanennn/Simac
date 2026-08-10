@@ -2,7 +2,7 @@ import { Injectable, signal, NgZone } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class Inactivite {
-  private readonly DUREE_MS = 1 * 60 * 1000; 
+  private readonly DUREE_MS = 5 * 60 * 1000; 
   private minuteur: ReturnType<typeof setTimeout> | null = null; //stocker la référence du minuteur
 
   verrouille = signal(false);

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { Sidebar } from './shared/sidebar/sidebar';
 import { AlerteNotification } from './alertes/alerte-notification';
-import { Auth } from './auth/auth';
+import { Auth } from './auth/authService';
 import { Inactivite } from './auth/verrouillage/inactivite';
 import { EcranVerrouillage } from './auth/verrouillage/ecran-verrouillage';
 import { filter } from 'rxjs/operators';
