@@ -69,4 +69,12 @@ public class ProduitService {
     public List<Map<String, Object>> listerTousProduits() throws Exception {
         return odooClientService.listerTousProduits();
     }
+
+    public List<Map<String, Object>> listerProduitsArchives() throws Exception {
+        return odooClientService.listerProduitsArchives();
+    }
+
+    public void restaurerProduit(Integer produitId) throws Exception {
+        odooClientService.restaurerProduit(produitId);
+    }
 }

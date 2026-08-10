@@ -18,7 +18,6 @@ public class EstimationBudget {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Une seule estimation par departement : relation OneToOne, contrainte unique
     @OneToOne
     @JoinColumn(name = "departement_id", nullable = false, unique = true)
     private Departement departement;

@@ -246,4 +246,36 @@ public class OdooClientService {
                 .map(item -> (Map<String, Object>) item)
                 .collect(Collectors.toList());
     }
+
+    public List<Map<String, Object>> listerProduitsArchives() throws Exception {
+        Integer userId = authentifier();
+        XmlRpcClient client = obtenirClientObjet();
+
+        List<Object> domaine = Arrays.asList(
+                Arrays.asList("active", "=", false)
+        );
+
+        Map<String, Object> options = Map.of("fields", Arrays.asList("id", "name", "list_price", "categ_id", "x_categorie_depense"));
+
+        Object[] result = (Object[]) client.execute("execute_kw", Arrays.asList(
+                odooDb, userId, odooPassword,
+                "product.product", "search_read",
+                Arrays.asList(domaine), options
+        ));
+
+        return Arrays.stream(result)
+                .map(item -> (Map<String, Object>) item)
+                .collect(Collectors.toList());
+    }
+
+    public void restaurerProduit(Integer produitId) throws Exception {
+        Integer userId = authentifier();
+        XmlRpcClient client = obtenirClientObjet();
+
+        client.execute("execute_kw", Arrays.asList(
+                odooDb, userId, odooPassword,
+                "product.product", "write",
+                Arrays.asList(Arrays.asList(produitId), Map.of("active", true))
+        ));
+    }
 }

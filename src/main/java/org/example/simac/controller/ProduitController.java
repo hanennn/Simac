@@ -63,4 +63,18 @@ public class ProduitController {
         List<Map<String, Object>> produits = produitService.listerTousProduits();
         return ResponseEntity.ok(produits);
     }
+
+    @GetMapping("/archives")
+    @PreAuthorize("hasRole('GESTIONNAIRE_PRODUITS')")
+    public ResponseEntity<?> listerProduitsArchives() throws Exception {
+        List<Map<String, Object>> produits = produitService.listerProduitsArchives();
+        return ResponseEntity.ok(produits);
+    }
+
+    @PatchMapping("/{id}/restaurer")
+    @PreAuthorize("hasRole('GESTIONNAIRE_PRODUITS')")
+    public ResponseEntity<?> restaurer(@PathVariable Integer id) throws Exception {
+        produitService.restaurerProduit(id);
+        return ResponseEntity.ok(Map.of("message", "Produit restauré avec succès"));
+    }
 }
