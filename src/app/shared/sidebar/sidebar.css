@@ -6,7 +6,10 @@
   flex-direction: column;
   gap: 26px;
   border-right: 1px solid var(--line);
-  height: 100%;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow: hidden;
 }
 
 .sidebar-brand {
@@ -14,6 +17,7 @@
   align-items: center;
   gap: 12px;
   padding: 0 6px;
+  flex-shrink: 0;
 }
 
 .sidebar-seal {
@@ -58,7 +62,8 @@
   flex-direction: column;
   gap: 2px;
   flex: 1;
-  overflow: hidden;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .side-eyebrow {
@@ -93,6 +98,7 @@
   text-align: left;
   font-family: inherit;
   transition: background 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
 }
 
 .side-link svg {
@@ -143,6 +149,7 @@
   gap: 10px;
   padding-top: 16px;
   border-top: 1px solid var(--line);
+  flex-shrink: 0;
 }
 
 .user-chip-mini {

@@ -34,4 +34,12 @@ export class Produit_Service {
   listerTousProduits(): Observable<any[]> {
   return this.http.get<any[]>(this.apiUrl);
 }
+
+listerProduitsArchives(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/archives`);
+}
+
+restaurerProduit(id: number): Observable<any> {
+  return this.http.patch(`${this.apiUrl}/${id}/restaurer`, {});
+}
 }

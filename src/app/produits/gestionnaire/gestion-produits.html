@@ -18,21 +18,33 @@
   </button>
 </div>
 
-<div class="page-search">
-  <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="11" cy="11" r="7"/>
-    <path d="M21 21l-4.3-4.3"/>
-  </svg>
-  <input type="text" placeholder="Rechercher un produit..."
-         [ngModel]="rechercheTerme()" (ngModelChange)="rechercheTerme.set($event)">
+<div class="page-toolbar">
+  <div class="page-search">
+    <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="7"/>
+      <path d="M21 21l-4.3-4.3"/>
+    </svg>
+    <input type="text" placeholder="Rechercher un produit..."
+           [ngModel]="rechercheTerme()" (ngModelChange)="rechercheTerme.set($event)">
+  </div>
+
+  <div class="vue-toggle">
+    <button class="toggle-btn" [class.active]="!vueArchives()" type="button" (click)="vueArchives.set(false)">
+      Produits actifs
+    </button>
+    <button class="toggle-btn" [class.active]="vueArchives()" type="button" (click)="basculerVue()">
+      Produits archivés
+    </button>
+  </div>
 </div>
 
 <div class="alert-error" *ngIf="erreur()">{{ erreur() }}</div>
 <div class="alert-succes" *ngIf="messageSucces()">{{ messageSucces() }}</div>
 
-<div class="loading-state" *ngIf="chargementListe()">Chargement des produits...</div>
+<!-- Vue : produits actifs -->
+<div class="loading-state" *ngIf="!vueArchives() && chargementListe()">Chargement des produits...</div>
 
-<div class="empty-state" *ngIf="!chargementListe() && produitsFiltres().length === 0">
+<div class="empty-state" *ngIf="!vueArchives() && !chargementListe() && produitsFiltres().length === 0">
   <div class="empty-state-icon">
     <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="9" cy="21" r="1"/>
@@ -44,7 +56,7 @@
   <button class="btn btn-outline-gold" type="button" (click)="ouvrirCreation()">Créer le premier produit</button>
 </div>
 
-<div class="produits-grid" *ngIf="!chargementListe() && produitsFiltres().length > 0">
+<div class="produits-grid" *ngIf="!vueArchives() && !chargementListe() && produitsFiltres().length > 0">
   <div class="card produit-card" *ngFor="let p of produitsFiltres()">
     <div class="produit-card-top">
       <div class="produit-avatar">{{ initiales(p) }}</div>
@@ -74,30 +86,38 @@
       <span class="produit-prix-label">Prix</span>
       <span class="produit-prix">{{ p.list_price | number:'1.0-2' }} <span class="produit-prix-unite">DT</span></span>
     </div>
-  
+  </div>
+</div>
 
+<!-- Vue : produits archives -->
+<div class="loading-state" *ngIf="vueArchives() && chargementArchives()">Chargement des produits archivés...</div>
 
-    <div class="dept-row-info">
-      <div class="dept-row-head">
-        <h3 class="dept-row-title">{{ p.name }}</h3>
-        <span class="dept-badge-neutral">{{ nomCategorieProduit(p) }}</span>
-        <span class="dept-badge-neutral" *ngIf="p.x_categorie_depense">{{ p.x_categorie_depense }}</span>
-      </div>
-      <p class="dept-row-desc">{{ p.list_price | number:'1.0-2' }} DT</p>
+<div class="empty-state" *ngIf="vueArchives() && !chargementArchives() && produitsArchives().length === 0">
+  <p>Aucun produit archivé.</p>
+</div>
+
+<div class="produits-grid" *ngIf="vueArchives() && !chargementArchives() && produitsArchives().length > 0">
+  <div class="card produit-card produit-card-archive" *ngFor="let p of produitsArchives()">
+    <div class="produit-card-top">
+      <div class="produit-avatar produit-avatar-archive">{{ initiales(p) }}</div>
+      <button class="icon-btn" type="button" title="Restaurer" aria-label="Restaurer" (click)="restaurerProduit(p)">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12a9 9 0 1 0 3-6.7"/>
+          <path d="M3 3v5h5"/>
+        </svg>
+      </button>
     </div>
 
-    <div class="dept-actions">
-      <button class="icon-btn" type="button" title="Modifier" aria-label="Modifier" (click)="ouvrirEdition(p)">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 20h9"/>
-          <path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/>
-        </svg>
-      </button>
-      <button class="icon-btn icon-btn-danger" type="button" title="Archiver" aria-label="Archiver" (click)="demanderArchivage(p)">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
-        </svg>
-      </button>
+    <h3 class="produit-nom">{{ p.name }}</h3>
+
+    <div class="produit-badges">
+      <span class="dept-badge-neutral">{{ nomCategorieProduit(p) }}</span>
+      <span class="produit-badge-depense" *ngIf="p.x_categorie_depense">{{ p.x_categorie_depense }}</span>
+    </div>
+
+    <div class="produit-prix-zone">
+      <span class="produit-prix-label">Prix</span>
+      <span class="produit-prix">{{ p.list_price | number:'1.0-2' }} <span class="produit-prix-unite">DT</span></span>
     </div>
   </div>
 </div>
@@ -175,7 +195,7 @@
 <!-- Pop-up : confirmation d'archivage -->
 <app-modal *ngIf="produitASupprimer() as p" titre="Archiver ce produit ?" [petit]="true" (fermer)="annulerArchivage()">
   <p class="card-text">
-    « {{ p.name }} » sera archivé et n'apparaîtra plus dans les achats. Cette action peut être annulée depuis Odoo.
+    « {{ p.name }} » sera archivé et n'apparaîtra plus dans les achats. Tu pourras le restaurer depuis l'onglet "Produits archivés".
   </p>
   <div class="modal-actions">
     <button class="btn btn-secondary" type="button" (click)="annulerArchivage()">Annuler</button>

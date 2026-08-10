@@ -199,4 +199,43 @@ export class GestionProduits implements OnInit {
       }
     });
   }
+
+
+  vueArchives = signal(false);
+produitsArchives = signal<ProduitOdoo[]>([]);
+chargementArchives = signal(false);
+
+basculerVue(): void {
+  this.vueArchives.set(!this.vueArchives());
+  if (this.vueArchives() && this.produitsArchives().length === 0) {
+    this.chargerProduitsArchives();
+  }
+}
+
+chargerProduitsArchives(): void {
+  this.chargementArchives.set(true);
+  this.produitService.listerProduitsArchives().pipe(take(1)).subscribe({
+    next: (liste) => {
+      this.produitsArchives.set(liste);
+      this.chargementArchives.set(false);
+    },
+    error: () => {
+      this.erreur.set('Impossible de charger les produits archivés.');
+      this.chargementArchives.set(false);
+    }
+  });
+}
+
+restaurerProduit(p: ProduitOdoo): void {
+  this.produitService.restaurerProduit(p.id).subscribe({
+    next: () => {
+      this.messageSucces.set(`Produit "${p.name}" restauré.`);
+      this.produitsArchives.set(this.produitsArchives().filter(pr => pr.id !== p.id));
+      this.chargerProduits(); // recharge la liste active pour qu'il y reapparaisse
+    },
+    error: (err) => {
+      this.erreur.set(err.error?.message || "La restauration a échoué.");
+    }
+  });
+}
 }
