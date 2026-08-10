@@ -3,9 +3,11 @@ package org.example.simac.service;
 import org.example.simac.dto.EstimationBudgetResponse;
 import org.example.simac.entity.Budget;
 import org.example.simac.entity.Departement;
+import org.example.simac.entity.EstimationBudget;
 import org.example.simac.repository.BudgetRepository;
 import org.example.simac.repository.DepartementRepository;
 import org.example.simac.repository.DepenseRepository;
+import org.example.simac.repository.EstimationBudgetRepository;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -15,6 +17,7 @@ import org.springframework.ai.ollama.api.OllamaChatOptions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -25,9 +28,8 @@ public class EstimationBudgetService {
     private final BudgetRepository budgetRepository;
     private final DepenseRepository depenseRepository;
     private final DepartementRepository departementRepository;
+    private final EstimationBudgetRepository estimationBudgetRepository;
     private final OllamaChatModel chatModel;
-
-    //traducteur JSON/obj Java
     private final BeanOutputConverter<EstimationBudgetResponse> outputConverter =
             new BeanOutputConverter<>(EstimationBudgetResponse.class);
 
@@ -37,30 +39,33 @@ public class EstimationBudgetService {
     public EstimationBudgetService(BudgetRepository budgetRepository,
                                    DepenseRepository depenseRepository,
                                    DepartementRepository departementRepository,
+                                   EstimationBudgetRepository estimationBudgetRepository,
                                    OllamaChatModel chatModel) {
         this.budgetRepository = budgetRepository;
         this.depenseRepository = depenseRepository;
         this.departementRepository = departementRepository;
+        this.estimationBudgetRepository = estimationBudgetRepository;
         this.chatModel = chatModel;
     }
 
     public EstimationBudgetResponse estimerBudget(Long departementId) {
-        //recupere departement
         Departement departement = departementRepository.findById(departementId)
                 .orElseThrow(() -> new NoSuchElementException("Departement introuvable"));
-        //recupere budget
+
         List<Budget> budgets = budgetRepository.findByDepartementIdDepart(departementId).stream()
                 .sorted(Comparator.comparing(Budget::getDateDebutBud))
                 .toList();
 
         if (budgets.isEmpty()) {
-            return new EstimationBudgetResponse(
+            EstimationBudgetResponse reponseVide = new EstimationBudgetResponse(
                     0,
                     "Aucun historique de budget disponible pour ce departement.",
                     "FAIBLE"
             );
+            sauvegarderEstimation(departement, reponseVide);
+            return reponseVide;
         }
-//recup historique
+
         String historique = budgets.stream()
                 .map(b -> "- Periode %s a %s : alloue %.2f DT, consomme %.2f DT".formatted(
                         b.getDateDebutBud(), b.getDateFinBud(), b.getMontantAlloueBud(), b.getMontantConsommeBud()))
@@ -70,47 +75,69 @@ public class EstimationBudgetService {
                 ? departement.getCategorieDepart().getNomCategorie()
                 : "Non definie";
 
-        //prompt
         String promptTexte = """
-        Tu es un expert financier specialise dans la gestion budgetaire d'entreprise.
-        Ta mission est d'estimer le budget a allouer a un departement pour la prochaine periode,
-        en te basant UNIQUEMENT sur son historique reel de budgets fourni ci-dessous.
+                Tu es un expert financier. Analyse l'historique de budgets de ce departement
+                et estime toi-meme le montant a allouer pour la prochaine periode.
 
-        Departement : %s
-        Categorie : %s
+                Departement : %s
+                Categorie : %s
 
-        Historique des budgets (du plus ancien au plus recent) :
-        %s
+                Historique des budgets :
+                %s
 
-        Consignes pour ton analyse :
-        1. Observe la tendance generale de consommation d'un budget a l'autre (croissante, stable, decroissante).
-        2. Accorde plus d'importance aux budgets les plus recents qu'aux plus anciens,
-           car ils refletent mieux le comportement actuel du departement.
-        3. Ne recopie jamais un montant existant tel quel : ton estimation doit resulter
-           d'un veritable raisonnement sur l'ensemble des donnees fournies.
-        4. Le montant estime doit toujours etre un nombre positif et realiste,
-           coherent avec l'ordre de grandeur des montants observes dans l'historique.
-        5. Determine un niveau de confiance qui reflete honnetement la qualite des donnees :
-           - FAIBLE si tu as peu de budgets historiques ou des montants tres irreguliers,
-           - MOYEN si les donnees sont raisonnablement coherentes,
-           - ELEVE si tu as plusieurs budgets avec une tendance claire et stable.
-        6. Redige une justification precise (2 a 3 phrases) qui explique concretement
-           comment tu es arrive a ce montant, en citant les chiffres de l'historique.
+                Consignes pour ton analyse :
+                1. Observe la tendance generale de consommation d'un budget a l'autre.
+                2. Accorde plus d'importance aux budgets les plus recents.
+                3. Ne recopie jamais un montant existant tel quel : raisonne sur l'ensemble des donnees.
+                4. Le montant estime doit toujours etre un nombre positif et realiste.
+                5. Determine un niveau de confiance honnete (FAIBLE, MOYEN ou ELEVE) selon la
+                   quantite et la coherence des donnees disponibles.
+                6. Redige une justification precise (2 a 3 phrases) citant les chiffres.
 
-        Reponds maintenant avec ton montant estime, ta justification, et ton niveau de confiance.
-        """.formatted(departement.getNomDepart(), nomCategorie, historique);
+                Reponds maintenant avec ton montant estime, ta justification, et ton niveau de confiance.
+                """.formatted(departement.getNomDepart(), nomCategorie, historique);
 
         Prompt prompt = new Prompt(
                 new UserMessage(promptTexte),
                 OllamaChatOptions.builder()
-                        .model(nomModele)//modele utilisé
+                        .model(nomModele)
                         .outputSchema(outputConverter.getJsonSchema())
                         .build()
         );
 
-        ChatResponse response = chatModel.call(prompt);//appel
-        String texte = response.getResult().getOutput().getText(); //reponse
+        ChatResponse response = chatModel.call(prompt);
+        String texte = response.getResult().getOutput().getText();
+        EstimationBudgetResponse resultat = outputConverter.convert(texte);
 
-        return outputConverter.convert(texte);
+        sauvegarderEstimation(departement, resultat);
+
+        return resultat;
+    }
+
+    // Enregistre l'estimation, en ecrasant la precedente pour ce departement s'il y en a une
+    private void sauvegarderEstimation(Departement departement, EstimationBudgetResponse resultat) {
+        EstimationBudget entite = estimationBudgetRepository
+                .findByDepartementIdDepart(departement.getIdDepart())
+                .orElse(new EstimationBudget());
+
+        entite.setDepartement(departement);
+        entite.setMontantEstime(resultat.montantEstime());
+        entite.setJustification(resultat.justification());
+        entite.setNiveauConfiance(resultat.niveauConfiance());
+        entite.setDateEstimation(LocalDateTime.now());
+
+        estimationBudgetRepository.save(entite);
+    }
+
+    // Recupere la derniere estimation deja calculee, sans rappeler le modele IA
+    public EstimationBudgetResponse recupererDerniereEstimation(Long departementId) {
+        EstimationBudget entite = estimationBudgetRepository.findByDepartementIdDepart(departementId)
+                .orElseThrow(() -> new NoSuchElementException("Aucune estimation enregistree pour ce departement"));
+
+        return new EstimationBudgetResponse(
+                entite.getMontantEstime(),
+                entite.getJustification(),
+                entite.getNiveauConfiance()
+        );
     }
 }

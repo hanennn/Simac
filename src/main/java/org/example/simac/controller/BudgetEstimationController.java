@@ -16,10 +16,17 @@ public class BudgetEstimationController {
 
     private final EstimationBudgetService estimationBudgetService;
 
-    // Reserve au responsable financier : c'est lui qui doit decider du budget a allouer
+    // Recalcule via le modele IA, et enregistre (ecrase la precedente pour ce departement)
     @GetMapping("/{departementId}")
     @PreAuthorize("hasRole('RESPONSABLE_FINANCIER')")
     public EstimationBudgetResponse estimer(@PathVariable Long departementId) {
         return estimationBudgetService.estimerBudget(departementId);
+    }
+
+    // Recupere la derniere estimation deja enregistree, sans rappeler l'IA
+    @GetMapping("/{departementId}/derniere")
+    @PreAuthorize("hasRole('RESPONSABLE_FINANCIER')")
+    public EstimationBudgetResponse derniereEstimation(@PathVariable Long departementId) {
+        return estimationBudgetService.recupererDerniereEstimation(departementId);
     }
 }
