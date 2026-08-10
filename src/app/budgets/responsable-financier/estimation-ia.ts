@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Budget } from '../budget';
-import { take, takeUntil } from 'rxjs';
+import { take } from 'rxjs';
 import { EstimationBudgetResponse } from '../budget.model';
 import { creerEtatChargement } from '../../shared/etat-chargement';
 
@@ -22,21 +22,46 @@ interface Departement {
 export class EstimationIa {
   private readonly departementsUrl = 'http://localhost:8081/api/departements/';
 
-  departements = signal<Departement[]>([]); //liste departement
-  departementSelectionne: number | null = null; //departement précis
+  departements = signal<Departement[]>([]);
+  departementSelectionne: number | null = null;
 
   resultat = signal<EstimationBudgetResponse | null>(null);
   etat = creerEtatChargement(false);
 
+  // Chargement silencieux de la derniere estimation enregistree
+  chargementAuto = signal(false);
+
   constructor(private http: HttpClient, private budgetService: Budget) {
-    this.http.get<Departement[]>(this.departementsUrl).pipe(take(1)).subscribe({//recup departement
-      next: (deps) => this.departements.set(deps), //stock liste
+    this.http.get<Departement[]>(this.departementsUrl).pipe(take(1)).subscribe({
+      next: (deps) => this.departements.set(deps),
       error: () => this.etat.erreur.set('Impossible de charger la liste des départements.')
     });
   }
 
+  //user choisit un departement 
+  onDepartementChange(): void {
+    this.resultat.set(null); //efface s'ily a un affichage pour un autre departement
+    this.etat.erreur.set(''); //affichage propre si select nv departement
+
+    if (!this.departementSelectionne) {
+      return;
+    }
+
+    this.chargementAuto.set(true);
+
+    this.budgetService.recupererDerniereEstimation(this.departementSelectionne).pipe(take(1)).subscribe({
+      next: (res) => {
+        this.chargementAuto.set(false);
+        this.resultat.set(res);
+      },
+      // Pas d'estimation enregistree
+      error: () => {
+        this.chargementAuto.set(false);
+      }
+    });
+  }
+
   estimer(): void {
-    //verif departement selectionné
     if (!this.departementSelectionne) {
       this.etat.erreur.set('Sélectionne un département.');
       return;
@@ -46,7 +71,6 @@ export class EstimationIa {
     this.resultat.set(null);
     this.etat.chargement.set(true);
 
-    //appel meth 
     this.budgetService.estimerBudget(this.departementSelectionne).pipe(take(1)).subscribe({
       next: (res) => {
         this.etat.chargement.set(false);

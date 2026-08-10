@@ -40,5 +40,10 @@ export class Budget {
   predireDepassement(budgetId: number): Observable<PredictionDepassementResponse> {
     return this.http.get<PredictionDepassementResponse>(`${this.apiUrl}/${budgetId}/prediction`);
   }
+
+
+  recupererDerniereEstimation(departementId: number): Observable<EstimationBudgetResponse> {
+  return this.http.get<EstimationBudgetResponse>(`${this.apiUrl}/estimation/${departementId}/derniere`);
+}
   
 }
