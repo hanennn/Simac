@@ -2,10 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Departement as DepartementModel, DepartementRequest } from './departement.model';
+import { environment } from '../../../environments/environment';
+
 //service
 @Injectable({ providedIn: 'root' })
 export class Departement {
-  private apiUrl = 'http://localhost:8081/api/departements';
+  private apiUrl = '${environment.apiUrl}/api/departements';
 
   constructor(private http: HttpClient) {}
 

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface CategorieDepart {
   idCategorie: number;
@@ -13,7 +14,7 @@ export interface CategorieRequest {
 
 @Injectable({ providedIn: 'root' })
 export class CategorieDepartService {
-  private apiUrl = 'http://localhost:8081/api/categories-departement';
+  private apiUrl = '${environment.apiUrl}/api/categories-departement';
 
   constructor(private http: HttpClient) {}
 

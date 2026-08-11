@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Depense as DepenseModel, DepenseRequest } from './depense.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class Depense {
-  private apiUrl = 'http://localhost:8081/api/depenses';
+  private apiUrl = '${environment.apiUrl}/api/depenses';
 
   constructor(private http: HttpClient) {}
 

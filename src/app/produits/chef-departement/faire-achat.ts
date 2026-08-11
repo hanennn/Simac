@@ -76,8 +76,6 @@ export class FaireAchat implements OnInit {
     this.erreur.set(null);
     this.commandeReussie.set(false);
 
-    // Version simple : on commande le premier produit du panier
-    // (à améliorer plus tard pour gérer plusieurs produits en une seule commande)
     const premiereLigne = lignes[0];
 
     this.produitService.commander(premiereLigne.produit.id, premiereLigne.quantite).pipe(take(1)).subscribe({

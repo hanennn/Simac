@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { Inactivite } from './inactivite';
 import { Auth } from '../authService';
 import { creerEtatChargement } from '../../shared/etat-chargement';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-ecran-verrouillage',
@@ -14,7 +15,7 @@ import { creerEtatChargement } from '../../shared/etat-chargement';
   styleUrl: './ecran-verrouillage.css'
 })
 export class EcranVerrouillage {
-  private readonly apiUrl = 'http://localhost:8081/api/auth';
+  private readonly apiUrl = ' ${environment.apiUrl}/api/auth';
 
   motDePasse = '';
   etat = creerEtatChargement(false);
