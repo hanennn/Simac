@@ -1,6 +1,7 @@
 package org.example.simac.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,20 +19,24 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.example.simac.service.CustomUserDetailsService;
 
 @Configuration
-@EnableWebSecurity //active securite
+@EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
     private final JwtAuthFilter jwtAuthFilter;
 
+    // Liste des origines autorisees, configurable sans recompiler (via variable d'environnement Render)
+    @Value("${cors.allowed-origins:http://localhost:4200}")
+    private String allowedOrigins;
+
     @Bean
-    public PasswordEncoder passwordEncoder() { //hashage
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider() {//verif mdp (hashé =mdp)
+    public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
@@ -41,14 +46,14 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
-//
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())//désactive session
+                .csrf(csrf -> csrf.disable())
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))//mode stateless ne crée pas session
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
@@ -62,11 +67,14 @@ public class SecurityConfig {
 
         return http.build();
     }
-//autorise angular à envoyer req vers backend
+
     @Bean
     public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
         org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
-        configuration.setAllowedOrigins(java.util.List.of("http://localhost:4200"));
+
+        // Decoupe la liste des origines separees par des virgules (locale + Vercel)
+        configuration.setAllowedOrigins(java.util.Arrays.asList(allowedOrigins.split(",")));
+
         configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(java.util.List.of("*"));
         configuration.setAllowCredentials(true);
