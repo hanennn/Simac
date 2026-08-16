@@ -14,6 +14,7 @@ import org.example.simac.repository.CategorieDepenseRepository;
 import org.example.simac.repository.DepenseRepository;
 import org.example.simac.repository.DepartementRepository;
 import org.example.simac.repository.UtilisateurRepository;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +32,7 @@ public class DepenseService {
     private final DepartementRepository departementRepository;
     private final NotificationEmailService notificationEmailService;
     private final AlerteService alerteService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     public List<Depense> listerTous() {
         return depenseRepository.findAll();
@@ -72,8 +74,6 @@ public class DepenseService {
         Departement departement = departementRepository.findByCategorieDepart_NomCategorie(request.getX_departement())
                 .orElseThrow(() -> new RuntimeException("Departement introuvable : " + request.getX_departement()));
 
-        // Ne prend que le budget dont la periode contient la date du jour,
-        // au lieu du premier budget trouve pour ce departement (qui pouvait etre expire).
         LocalDate dateDuJour = LocalDate.now();
 
         Budget budget = budgetRepository.findAll().stream()
@@ -128,6 +128,10 @@ public class DepenseService {
 
         Depense sauvegardee = depenseRepository.save(depense);
         envoyerNotificationStatut(sauvegardee, "validée");
+
+        // Prevenir en temps reel les dashboards des responsables financiers ouverts
+        messagingTemplate.convertAndSend("/topic/dashboard/responsable", "maj");
+
         return sauvegardee;
     }
 
@@ -137,6 +141,9 @@ public class DepenseService {
 
         Depense sauvegardee = depenseRepository.save(depense);
         envoyerNotificationStatut(sauvegardee, "rejetée");
+
+        messagingTemplate.convertAndSend("/topic/dashboard/responsable", "maj");
+
         return sauvegardee;
     }
 

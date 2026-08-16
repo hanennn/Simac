@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -26,7 +27,6 @@ public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final JwtAuthFilter jwtAuthFilter;
 
-    // Liste des origines autorisees, configurable sans recompiler (via variable d'environnement Render)
     @Value("${cors.allowed-origins:http://localhost:4200}")
     private String allowedOrigins;
 
@@ -37,50 +37,128 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+
+        DaoAuthenticationProvider provider =
+                new DaoAuthenticationProvider(userDetailsService);
+
         provider.setPasswordEncoder(passwordEncoder());
+
         return provider;
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration config) throws Exception {
+
         return config.getAuthenticationManager();
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
+                .cors(cors ->
+                        cors.configurationSource(corsConfigurationSource())
+                )
+
+                .csrf(csrf ->
+                        csrf.disable()
+                )
+
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        session.sessionCreationPolicy(
+                                SessionCreationPolicy.STATELESS
+                        )
+                )
+
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/depenses/test-odoo").permitAll()
-                        .requestMatchers("/api/depenses/test-produits").permitAll()
-                        .requestMatchers("/api/depenses/webhook-odoo").permitAll()
+
+                        // OPTIONS / CORS
+                        .requestMatchers(
+                                HttpMethod.OPTIONS,
+                                "/**"
+                        ).permitAll()
+
+                        // Authentification
+                        .requestMatchers(
+                                "/api/auth/**"
+                        ).permitAll()
+
+                        // =========================================
+                        // IMPORTANT : WEBSOCKET / SOCKJS
+                        // =========================================
+                        .requestMatchers(
+                                "/ws",
+                                "/ws/**"
+                        ).permitAll()
+
+                        // Tests Odoo
+                        .requestMatchers(
+                                "/api/depenses/test-odoo"
+                        ).permitAll()
+
+                        .requestMatchers(
+                                "/api/depenses/test-produits"
+                        ).permitAll()
+
+                        .requestMatchers(
+                                "/api/depenses/webhook-odoo"
+                        ).permitAll()
+
+                        // Tout le reste nécessite JWT
                         .anyRequest().authenticated()
                 )
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+                .authenticationProvider(
+                        authenticationProvider()
+                )
+
+                .addFilterBefore(
+                        jwtAuthFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                );
 
         return http.build();
     }
 
     @Bean
-    public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
-        org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
+    public org.springframework.web.cors.CorsConfigurationSource
+    corsConfigurationSource() {
 
-        // Decoupe la liste des origines separees par des virgules (locale + Vercel)
-        configuration.setAllowedOrigins(java.util.Arrays.asList(allowedOrigins.split(",")));
+        org.springframework.web.cors.CorsConfiguration configuration =
+                new org.springframework.web.cors.CorsConfiguration();
 
-        configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowedHeaders(java.util.List.of("*"));
+        configuration.setAllowedOrigins(
+                java.util.Arrays.asList(
+                        allowedOrigins.split(",")
+                )
+        );
+
+        configuration.setAllowedMethods(
+                java.util.List.of(
+                        "GET",
+                        "POST",
+                        "PUT",
+                        "DELETE",
+                        "PATCH",
+                        "OPTIONS"
+                )
+        );
+
+        configuration.setAllowedHeaders(
+                java.util.List.of("*")
+        );
+
         configuration.setAllowCredentials(true);
 
-        org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        org.springframework.web.cors.UrlBasedCorsConfigurationSource source =
+                new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration(
+                "/**",
+                configuration
+        );
+
         return source;
     }
 }
