@@ -1,6 +1,4 @@
-
-
-    <div class="page-header-row">
+<div class="page-header-row">
       <div class="page-header-text">
         <h1 class="page-header-title">Bonjour, {{ utilisateur().prenom }} <span class="wave">👋</span></h1>
         <p class="page-header-sub">Voici l'état de votre espace {{ formatRole() | lowercase }} aujourd'hui.</p>
@@ -87,6 +85,20 @@
 
     <div class="loading-stats" *ngIf="chargementStats()">Chargement des statistiques...</div>
 
+    <div class="graphiques-grid" *ngIf="!chargementStats() && utilisateur().role === 'RESPONSABLE_FINANCIER'">
+      <div class="card graphique-card">
+        <canvas #graphiqueBudgets></canvas>
+      </div>
+
+      <div class="card graphique-card">
+        <canvas #graphiqueConsommation></canvas>
+      </div>
+
+      <div class="card graphique-card graphique-card-large">
+        <canvas #graphiqueStatuts></canvas>
+      </div>
+    </div>
+
     <div class="cards-grid">
 
       <a class="card mgmt-card" *ngIf="utilisateur().role === 'RESPONSABLE_FINANCIER'">
@@ -153,4 +165,3 @@
       </a>
 
     </div>
-  

@@ -285,3 +285,23 @@
     grid-template-columns: 1fr;
   }
 }
+
+.graphiques-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+  margin: 24px 0;
+}
+
+.graphique-card {
+  padding: 20px;
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.graphique-card-large {
+  max-width: 400px;
+  margin: 0 auto;
+}

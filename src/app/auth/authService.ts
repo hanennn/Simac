@@ -37,6 +37,10 @@ export class Auth {
     localStorage.setItem('token', token);
   }
 
+  recupererToken(): string | null {
+  return localStorage.getItem('token');
+}
+
   sauvegarderEmailTemporaire(email: string): void {
     sessionStorage.setItem('emailEnAttente', email);
   }

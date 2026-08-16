@@ -15,7 +15,7 @@ import { environment } from '../../../environments/environment';
   styleUrl: './ecran-verrouillage.css'
 })
 export class EcranVerrouillage {
-  private readonly apiUrl = ' ${environment.apiUrl}/api/auth';
+  private readonly apiUrl = `${environment.apiUrl}/api/auth`;
 
   motDePasse = '';
   etat = creerEtatChargement(false);

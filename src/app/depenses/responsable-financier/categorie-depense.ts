@@ -14,7 +14,7 @@ export interface CategorieRequest {
 
 @Injectable({ providedIn: 'root' })
 export class CategorieDepenseService {
-  private apiUrl = '${environment.apiUrl}/api/categories-depense';
+  private apiUrl = `${environment.apiUrl}/api/categories-depense`;
 
   constructor(private http: HttpClient) {}
 
