@@ -6,6 +6,7 @@ import { Budget } from '../budget';
 import { take } from 'rxjs';
 import { EstimationBudgetResponse } from '../budget.model';
 import { creerEtatChargement } from '../../shared/etat-chargement';
+import { environment } from '../../../environments/environment';
 
 interface Departement {
   idDepart: number;
@@ -20,7 +21,7 @@ interface Departement {
   styleUrl: './estimation-ia.css'
 })
 export class EstimationIa {
-  private readonly departementsUrl = 'http://localhost:8081/api/departements/';
+  private apiUrl = `${environment.apiUrl}/api/departements/`;
 
   departements = signal<Departement[]>([]);
   departementSelectionne: number | null = null;
@@ -32,7 +33,7 @@ export class EstimationIa {
   chargementAuto = signal(false);
 
   constructor(private http: HttpClient, private budgetService: Budget) {
-    this.http.get<Departement[]>(this.departementsUrl).pipe(take(1)).subscribe({
+    this.http.get<Departement[]>(this.apiUrl).pipe(take(1)).subscribe({
       next: (deps) => this.departements.set(deps),
       error: () => this.etat.erreur.set('Impossible de charger la liste des départements.')
     });

@@ -1,16 +1,14 @@
 import { Component, OnInit, OnDestroy, signal, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { forkJoin, Subscription } from 'rxjs';
+import { forkJoin, Subscription, take } from 'rxjs';
 import { Auth } from '../auth/authService';
 import { Departement } from '../departements/Admin/departement';
 import { Budget } from '../budgets/budget';
 import { UtilisateurAdmin } from '../utilisateurs/Admin/utilisateur-admin';
 import { Depense } from '../depenses/depense';
 import { Theme } from '../services/theme';
-import { take } from 'rxjs';
 import { DashboardWebsocket } from './dashboard-websocket';
-import { Sidebar } from '../shared/sidebar/sidebar';
 import Chart from 'chart.js/auto';
 
 @Component({
@@ -33,9 +31,12 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     depensesEnAttente: 0
   });
 
+  // Noms de variables DEDIES, aucun partage entre responsable et chef
   @ViewChild('graphiqueBudgets') graphiqueBudgetsRef?: ElementRef<HTMLCanvasElement>;
   @ViewChild('graphiqueConsommation') graphiqueConsommationRef?: ElementRef<HTMLCanvasElement>;
   @ViewChild('graphiqueStatuts') graphiqueStatutsRef?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('graphiqueStatutsChef') graphiqueStatutsChefRef?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('graphiqueCategoriesChef') graphiqueCategoriesChefRef?: ElementRef<HTMLCanvasElement>;
 
   private budgetsData: any[] = [];
   private depensesData: any[] = [];
@@ -69,7 +70,8 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     this.utilisateur.set(this.authService.recupererUtilisateur());
     this.chargerStatistiques();
 
-    if (this.utilisateur()?.role === 'RESPONSABLE_FINANCIER') {
+    const role = this.utilisateur()?.role;
+    if (role === 'RESPONSABLE_FINANCIER' || role === 'CHEF_DEPARTEMENT') {
       this.dashboardWs.connect();
       this.wsSubscription = this.dashboardWs.dashboard$.subscribe((message) => {
         if (message) {
@@ -143,7 +145,11 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
             budgetTotal: 0,
             depensesEnAttente: enAttente
           });
+
+          this.depensesData = depenses;
+
           this.chargementStats.set(false);
+          this.tenterAfficherGraphiques();
         },
         error: () => this.chargementStats.set(false)
       });
@@ -154,14 +160,21 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
 
   private tenterAfficherGraphiques(): void {
     if (!this.vueGraphiquesPrete) return;
-    if (this.utilisateur()?.role !== 'RESPONSABLE_FINANCIER') return;
-    if (this.budgetsData.length === 0 && this.depensesData.length === 0) return;
 
-    setTimeout(() => {
-      this.afficherGraphiqueBudgets();
-      this.afficherGraphiqueConsommation();
-      this.afficherGraphiqueStatuts();
-    });
+    const role = this.utilisateur()?.role;
+
+    if (role === 'RESPONSABLE_FINANCIER' && (this.budgetsData.length || this.depensesData.length)) {
+      setTimeout(() => {
+        this.afficherGraphiqueBudgets();
+        this.afficherGraphiqueConsommation();
+        this.afficherGraphiqueStatuts();
+      });
+    } else if (role === 'CHEF_DEPARTEMENT' && this.depensesData.length) {
+      setTimeout(() => {
+        this.afficherGraphiqueStatutsChef();
+        this.afficherGraphiqueCategoriesChef();
+      });
+    }
   }
 
   private afficherGraphiqueBudgets(): void {
@@ -249,6 +262,64 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
         plugins: {
           legend: { position: 'bottom' },
           title: { display: true, text: 'Dépenses par statut' }
+        }
+      }
+    });
+  }
+
+  // --- Nouvelles methodes pour le chef, calquees a l'identique sur celles du responsable ---
+
+  private afficherGraphiqueStatutsChef(): void {
+    const canvas = this.graphiqueStatutsChefRef?.nativeElement;
+    if (!canvas || this.depensesData.length === 0) return;
+
+    const enAttente = this.depensesData.filter((d: any) => d.statutDepense === 'EN_ATTENTE').length;
+    const validees = this.depensesData.filter((d: any) => d.statutDepense === 'VALIDEE').length;
+    const rejetees = this.depensesData.filter((d: any) => d.statutDepense === 'REJETEE').length;
+
+    new Chart(canvas, {
+      type: 'doughnut',
+      data: {
+        labels: ['En attente', 'Validées', 'Rejetées'],
+        datasets: [{
+          data: [enAttente, validees, rejetees],
+          backgroundColor: ['#d4a017', '#2e7d32', '#c0392b']
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom' },
+          title: { display: true, text: 'Mes dépenses par statut' }
+        }
+      }
+    });
+  }
+
+  private afficherGraphiqueCategoriesChef(): void {
+    const canvas = this.graphiqueCategoriesChefRef?.nativeElement;
+    if (!canvas || this.depensesData.length === 0) return;
+
+    const parCategorie = new Map<string, number>();
+    for (const d of this.depensesData) {
+      const nom = d.categorieDepense?.nomCategorie || 'Non défini';
+      parCategorie.set(nom, (parCategorie.get(nom) || 0) + 1);
+    }
+
+    new Chart(canvas, {
+      type: 'pie',
+      data: {
+        labels: Array.from(parCategorie.keys()),
+        datasets: [{
+          data: Array.from(parCategorie.values()),
+          backgroundColor: ['#1c3350', '#3a578a', '#85b7eb', '#ef9f27', '#c0392b', '#2e7d32']
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom' },
+          title: { display: true, text: 'Nombre de mes dépenses par catégorie' }
         }
       }
     });

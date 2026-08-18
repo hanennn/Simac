@@ -69,25 +69,25 @@ export class FaireAchat implements OnInit {
   }
 
   validerCommande(): void {
-    const lignes = this.panier();
-    if (lignes.length === 0) { return; }
+  const lignes = this.panier();
+  if (lignes.length === 0) { return; }
 
-    this.commandeEnCours.set(true);
-    this.erreur.set(null);
-    this.commandeReussie.set(false);
+  this.commandeEnCours.set(true);
+  this.erreur.set(null);
+  this.commandeReussie.set(false);
 
-    const premiereLigne = lignes[0];
+  const payload = lignes.map(l => ({ produitId: l.produit.id, quantite: l.quantite }));
 
-    this.produitService.commander(premiereLigne.produit.id, premiereLigne.quantite).pipe(take(1)).subscribe({
-      next: () => {
-        this.commandeEnCours.set(false);
-        this.commandeReussie.set(true);
-        this.panier.set([]);
-      },
-      error: () => {
-        this.commandeEnCours.set(false);
-        this.erreur.set("La commande a échoué. Réessayez.");
-      }
-    });
-  }
+  this.produitService.commander(payload).subscribe({
+    next: () => {
+      this.commandeEnCours.set(false);
+      this.commandeReussie.set(true);
+      this.panier.set([]);
+    },
+    error: () => {
+      this.commandeEnCours.set(false);
+      this.erreur.set("La commande a échoué. Réessayez.");
+    }
+  });
+}
 }

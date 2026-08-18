@@ -28,7 +28,7 @@ export class DashboardWebsocket {
       reconnectDelay: 5000,
       onConnect: () => {
         console.log('WebSocket connecté');
-        this.client?.subscribe('/topic/dashboard/responsable', (message: IMessage) => {
+        this.client?.subscribe('/topic/dashboard/maj', (message: IMessage) => {
           this.dashboardSubject.next(message.body);
         });
       },

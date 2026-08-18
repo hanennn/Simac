@@ -115,12 +115,25 @@
   </nav>
 
   <div class="sidebar-footer">
-    <a class="side-link" (click)="seDeconnecter()">
+    <a class="side-link" (click)="demanderDeconnexion()">
       <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
         <path d="M16 17l5-5-5-5M21 12H9"/>
       </svg>
       <span>Déconnexion</span>
     </a>
+  </div>
+
+  <div class="modal-overlay" *ngIf="confirmationOuverte()">
+    <div class="modal modal-sm">
+      <h2>Se déconnecter ?</h2>
+      <p class="card-text">
+        Es-tu sûr de vouloir te déconnecter ?
+      </p>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" type="button" (click)="annulerDeconnexion()">Annuler</button>
+        <button class="btn btn-danger" type="button" (click)="confirmerDeconnexion()">Se déconnecter</button>
+      </div>
+    </div>
   </div>
 </aside>

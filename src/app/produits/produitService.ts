@@ -14,9 +14,9 @@ export class Produit_Service {
     return this.http.get<Produit[]>(`${this.apiUrl}/mes-produits`);
   }
 
-  commander(produitId: number, quantite: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/commander`, { produitId, quantite });
-  }
+  commander(lignes: { produitId: number; quantite: number }[]): Observable<any> {
+  return this.http.post(`${this.apiUrl}/commander`, { lignes });
+}
 
   // --- Ajout pour le Gestionnaire de produits (parametrage des produits) ---
 

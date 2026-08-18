@@ -99,6 +99,15 @@
       </div>
     </div>
 
+    <div class="graphiques-grid" *ngIf="!chargementStats() && utilisateur().role === 'CHEF_DEPARTEMENT'">
+      <div class="card graphique-card">
+        <canvas #graphiqueStatutsChef></canvas>
+      </div>
+      <div class="card graphique-card">
+        <canvas #graphiqueCategoriesChef></canvas>
+      </div>
+    </div>
+
     <div class="cards-grid">
 
       <a class="card mgmt-card" *ngIf="utilisateur().role === 'RESPONSABLE_FINANCIER'">
