@@ -4,6 +4,8 @@ import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.example.simac.dto.LigneAchatRequest;
+import java.util.ArrayList;
 
 import java.net.URL;
 import java.util.*;
@@ -53,35 +55,40 @@ public class OdooClientService {
         return client;
     }
 
+    // Republie standard_price (cout d'achat, le vrai champ pertinent pour SIMAC)
+    // sous la cle "list_price" attendue par le frontend Angular, sans avoir a le modifier
+    private Map<String, Object> renommerPrixAchat(Map<String, Object> produit) {
+        Map<String, Object> copie = new HashMap<>(produit);
+        Object prixAchat = copie.remove("standard_price");
+        copie.put("list_price", prixAchat != null ? prixAchat : 0);
+        return copie;
+    }
+
     //interroger Odoo pour récupérer la liste des produits
     public List<Map<String, Object>> listerProduitsParCategorie(String nomCategorie) throws Exception {
-        Integer userId = authentifier(); //se connecter
+        Integer userId = authentifier();
         XmlRpcClient client = obtenirClientObjet();
 
-        // Filtre : produit par catégorie
+        // Le produit doit soit appartenir a la categorie du departement, soit etre dans "All" (visible partout)
         List<Object> domaine = Arrays.asList(
-                Arrays.asList("categ_id.name", "=", nomCategorie),
+                Arrays.asList("categ_id.name", "in", Arrays.asList(nomCategorie, "All")),
                 Arrays.asList("purchase_ok", "=", true)
         );
 
-        //récupérer pour chaque produit trouvé
-        Map<String, Object> options = Map.of("fields", Arrays.asList("id", "name", "list_price", "categ_id"));
+        Map<String, Object> options = Map.of("fields", Arrays.asList("id", "name", "standard_price", "categ_id"));
 
-        //data envoyés à odoo
         Object[] result = (Object[]) client.execute("execute_kw", Arrays.asList(
                 odooDb, userId, odooPassword,
-                //modele + action
                 "product.product", "search_read",
                 Arrays.asList(domaine), options
         ));
 
         return Arrays.stream(result)
                 .map(item -> (Map<String, Object>) item)
+                .map(this::renommerPrixAchat)
                 .collect(Collectors.toList());
     }
-
-
-    public Integer creerCommandeAchat(Integer produitId, Integer quantite, String nomCategorie) throws Exception {
+    public Integer creerCommandeAchat(List<LigneAchatRequest> lignes, String nomCategorie) throws Exception {
         Integer userId = authentifier();
         XmlRpcClient client = obtenirClientObjet();
 
@@ -94,15 +101,21 @@ public class OdooClientService {
         Object[] companyField = (Object[]) userInfo.get("company_id");
         Integer companyId = (Integer) companyField[0];
 
-        // Lire la categorie de depense associee au produit (ajoutee lors de sa creation)
-        Object[] produitData = (Object[]) client.execute("execute_kw", Arrays.asList(
-                odooDb, userId, odooPassword,
-                "product.product", "read",
-                Arrays.asList(Arrays.asList(produitId), Arrays.asList("x_categorie_depense"))
-        ));
-        Map<String, Object> produitInfo = (Map<String, Object>) produitData[0];
-        Object categorieDepenseValeur = produitInfo.get("x_categorie_depense");
-        String categorieDepense = (categorieDepenseValeur instanceof String) ? (String) categorieDepenseValeur : null;
+        // Categorie de depense : on prend celle du premier produit qui en a une
+        // (simplification si le panier melange plusieurs categories de depense)
+        String categorieDepense = null;
+        for (LigneAchatRequest ligne : lignes) {
+            Object[] produitData = (Object[]) client.execute("execute_kw", Arrays.asList(
+                    odooDb, userId, odooPassword,
+                    "product.product", "read",
+                    Arrays.asList(Arrays.asList(ligne.getProduitId()), Arrays.asList("x_categorie_depense"))
+            ));
+            Map<String, Object> produitInfo = (Map<String, Object>) produitData[0];
+            Object valeur = produitInfo.get("x_categorie_depense");
+            if (valeur instanceof String && categorieDepense == null) {
+                categorieDepense = (String) valeur;
+            }
+        }
 
         Object[] fournisseurs = (Object[]) client.execute("execute_kw", Arrays.asList(
                 odooDb, userId, odooPassword,
@@ -116,10 +129,15 @@ public class OdooClientService {
         }
         Integer fournisseurId = (Integer) fournisseurs[0];
 
-        Map<String, Object> ligneCommande = new HashMap<>();
-        ligneCommande.put("product_id", produitId);
-        ligneCommande.put("product_qty", quantite);
-        ligneCommande.put("name", "Achat via SIMAC");
+        // Une ligne de commande par produit du panier
+        List<Object> lignesCommande = new ArrayList<>();
+        for (LigneAchatRequest ligne : lignes) {
+            Map<String, Object> ligneCommande = new HashMap<>();
+            ligneCommande.put("product_id", ligne.getProduitId());
+            ligneCommande.put("product_qty", ligne.getQuantite());
+            ligneCommande.put("name", "Achat via SIMAC");
+            lignesCommande.add(Arrays.asList(0, 0, ligneCommande));
+        }
 
         Map<String, Object> commande = new HashMap<>();
         commande.put("partner_id", fournisseurId);
@@ -128,7 +146,7 @@ public class OdooClientService {
         if (categorieDepense != null) {
             commande.put("x_categorie_depense", categorieDepense);
         }
-        commande.put("order_line", Arrays.asList(Arrays.asList(0, 0, ligneCommande)));
+        commande.put("order_line", lignesCommande);
 
         Object resultat = client.execute("execute_kw", Arrays.asList(
                 odooDb, userId, odooPassword,
@@ -152,6 +170,12 @@ public class OdooClientService {
         return commandeId;
     }
 
+
+
+
+
+
+
     // --- Ajout pour le Gestionnaire de produits (parametrage des produits) ---
 
     public Integer creerProduit(String nom, double prix, String nomCategorie, String description, String categorieDepense) throws Exception {
@@ -172,7 +196,7 @@ public class OdooClientService {
 
         Map<String, Object> produit = new HashMap<>();
         produit.put("name", nom);
-        produit.put("list_price", prix);
+        produit.put("standard_price", prix);
         produit.put("categ_id", categorieId);
         produit.put("purchase_ok", true);
         if (description != null && !description.isBlank()) {
@@ -204,7 +228,7 @@ public class OdooClientService {
 
         Map<String, Object> valeurs = new HashMap<>();
         if (nom != null) valeurs.put("name", nom);
-        valeurs.put("list_price", prix);
+        valeurs.put("standard_price", prix);
         if (description != null) valeurs.put("description", description);
 
         client.execute("execute_kw", Arrays.asList(
@@ -234,7 +258,7 @@ public class OdooClientService {
                 Arrays.asList("purchase_ok", "=", true)
         );
 
-        Map<String, Object> options = Map.of("fields", Arrays.asList("id", "name", "list_price", "categ_id", "x_categorie_depense", "active"));
+        Map<String, Object> options = Map.of("fields", Arrays.asList("id", "name", "standard_price", "categ_id", "x_categorie_depense", "active"));
 
         Object[] result = (Object[]) client.execute("execute_kw", Arrays.asList(
                 odooDb, userId, odooPassword,
@@ -244,6 +268,7 @@ public class OdooClientService {
 
         return Arrays.stream(result)
                 .map(item -> (Map<String, Object>) item)
+                .map(this::renommerPrixAchat)
                 .collect(Collectors.toList());
     }
 
@@ -255,7 +280,7 @@ public class OdooClientService {
                 Arrays.asList("active", "=", false)
         );
 
-        Map<String, Object> options = Map.of("fields", Arrays.asList("id", "name", "list_price", "categ_id", "x_categorie_depense"));
+        Map<String, Object> options = Map.of("fields", Arrays.asList("id", "name", "standard_price", "categ_id", "x_categorie_depense"));
 
         Object[] result = (Object[]) client.execute("execute_kw", Arrays.asList(
                 odooDb, userId, odooPassword,
@@ -265,6 +290,7 @@ public class OdooClientService {
 
         return Arrays.stream(result)
                 .map(item -> (Map<String, Object>) item)
+                .map(this::renommerPrixAchat)
                 .collect(Collectors.toList());
     }
 

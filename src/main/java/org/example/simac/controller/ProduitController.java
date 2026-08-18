@@ -1,6 +1,7 @@
 package org.example.simac.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.example.simac.dto.CommanderRequest;
 import org.example.simac.dto.ProduitRequest;
 import org.example.simac.service.ProduitService;
 import org.springframework.http.ResponseEntity;
@@ -27,10 +28,8 @@ public class ProduitController {
 
     @PostMapping("/commander")
     @PreAuthorize("hasRole('CHEF_DEPARTEMENT')")
-    public ResponseEntity<?> commander(@RequestBody Map<String, Integer> body, Authentication authentication) throws Exception {
-        Integer produitId = body.get("produitId");
-        Integer quantite = body.get("quantite");
-        Integer commandeId = produitService.commander(produitId, quantite, authentication);
+    public ResponseEntity<?> commander(@RequestBody CommanderRequest request, Authentication authentication) throws Exception {
+        Integer commandeId = produitService.commander(request.getLignes(), authentication);
         return ResponseEntity.ok(Map.of("commandeId", commandeId, "message", "Commande créée avec succès"));
     }
 

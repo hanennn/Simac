@@ -1,6 +1,7 @@
 package org.example.simac.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.simac.dto.LigneAchatRequest;
 import org.example.simac.dto.ProduitRequest;
 import org.example.simac.entity.Utilisateur;
 import org.example.simac.repository.UtilisateurRepository;
@@ -35,10 +36,10 @@ public class ProduitService {
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
     }
 
-    public Integer commander(Integer produitId, Integer quantite, Authentication authentication) throws Exception {
+    public Integer commander(List<LigneAchatRequest> lignes, Authentication authentication) throws Exception {
         Utilisateur utilisateur = utilisateurCourant(authentication);
         String nomCategorie = utilisateur.getDepartement().getCategorieDepart().getNomCategorie();
-        return odooClientService.creerCommandeAchat(produitId, quantite, nomCategorie);
+        return odooClientService.creerCommandeAchat(lignes, nomCategorie);
     }
 
     // --- Ajout pour le Gestionnaire de produits (parametrage des produits) ---
