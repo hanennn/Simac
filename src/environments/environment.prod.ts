@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'PLACEHOLDER_A_REMPLACER_ETAPE_8'
+  apiUrl: 'https://simac.onrender.com'
 };

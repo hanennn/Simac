@@ -136,12 +136,13 @@
     </div>
 
     <div class="form-group">
-      <label class="form-label" for="categorie">Catégorie</label>
-      <select class="form-input" id="categorie" name="categorie" [(ngModel)]="formulaire.categorie" required>
-        <option value="" disabled>Choisir une catégorie</option>
-        <option *ngFor="let c of categories()" [value]="c.nomCategorie">{{ c.nomCategorie }}</option>
-      </select>
-    </div>
+  <label class="form-label" for="categorie">Catégorie</label>
+  <select class="form-input" id="categorie" name="categorie" [(ngModel)]="formulaire.categorie" required>
+    <option value="" disabled>Choisir une catégorie</option>
+    <option value="All">Tous les départements</option>
+    <option *ngFor="let c of categories()" [value]="c.nomCategorie">{{ c.nomCategorie }}</option>
+  </select>
+</div>
 
     <div class="form-group">
       <label class="form-label" for="categorieDepense">Catégorie dépense</label>
