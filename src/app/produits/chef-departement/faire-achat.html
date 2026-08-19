@@ -12,10 +12,10 @@
   </div>
 </div>
 
-<div class="alert-error" *ngIf="erreur()">{{ erreur() }}</div>
-<div class="loading-state" *ngIf="chargement()">Chargement des produits...</div>
+<div class="alert-error" *ngIf="etat.erreur()">{{ etat.erreur() }}</div>
+<div class="loading-state" *ngIf="etat.chargement()">Chargement des produits...</div>
 
-<div class="produits-grid" *ngIf="!chargement() && produits().length > 0">
+<div class="produits-grid" *ngIf="!etat.chargement() && produits().length > 0">
   <div class="card produit-card" *ngFor="let p of produits()">
     <h3>{{ p.name }}</h3>
     <p>{{ p.list_price | number:'1.0-2' }} DT</p>
@@ -32,7 +32,7 @@
   </div>
   <p><strong>Total : {{ totalPanier() | number:'1.0-2' }} DT</strong></p>
 
-  <div class="alert-error" *ngIf="erreur()">{{ erreur() }}</div>
+  <div class="alert-error" *ngIf="etat.erreur()">{{ etat.erreur() }}</div>
 
   <button class="btn btn-primary" (click)="validerCommande()" [disabled]="commandeEnCours()">
     {{ commandeEnCours() ? 'Envoi en cours...' : 'Valider la commande' }}

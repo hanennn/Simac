@@ -5,6 +5,7 @@ import { Depense as DepenseModel } from '../depense.model';
 import { Sidebar } from '../../shared/sidebar/sidebar';
 import { take, takeUntil } from 'rxjs';
 import { creerEtatChargement } from '../../shared/etat-chargement';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-validation-depenses',
@@ -85,4 +86,23 @@ export class ValidationDepenses implements OnInit {
     };
     return labels[statut] || statut;
   }
+
+  exporterExcel(): void {
+  const donnees = this.depensesFiltrees().map(dep => ({
+    'Date': dep.dateDepense || '',
+    'Catégorie': dep.categorieDepense?.nomCategorie || '',
+    'Description': dep.descDepense || '',
+    'Montant (DT)': dep.montant,
+    'Statut': this.formatStatut(dep.statutDepense),
+    'Département': dep.budget?.departement?.nomDepart || '',
+    'Soumis par': `${dep.utilisateur?.prenomUser || ''} ${dep.utilisateur?.nomUser || ''}`.trim()
+  }));
+
+  const feuille = XLSX.utils.json_to_sheet(donnees);
+  const classeur = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(classeur, feuille, 'Dépenses');
+
+  const dateExport = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(classeur, `depenses_simac_${dateExport}.xlsx`);
+}
 }

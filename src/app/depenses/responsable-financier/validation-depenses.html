@@ -15,6 +15,14 @@
       <button class="filtre-btn" [class.active]="filtreStatut() === 'VALIDEE'" (click)="filtreStatut.set('VALIDEE')">Validées</button>
       <button class="filtre-btn" [class.active]="filtreStatut() === 'REJETEE'" (click)="filtreStatut.set('REJETEE')">Rejetées</button>
       <button class="filtre-btn" [class.active]="filtreStatut() === 'TOUS'" (click)="filtreStatut.set('TOUS')">Toutes</button>
+      <button class="btn btn-secondary" type="button" (click)="exporterExcel()">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+        <path d="M7 10l5 5 5-5"/>
+        <path d="M12 15V3"/>
+      </svg>
+      Exporter en Excel
+    </button>
     </div>
 
     <div class="alert-error" *ngIf="etat.erreur()">{{ etat.erreur() }}</div>

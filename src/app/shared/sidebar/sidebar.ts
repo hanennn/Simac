@@ -1,9 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, TemplateRef, ViewChild, ViewContainerRef, EmbeddedViewRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Auth } from '../../auth/authService';
-import { AlerteNotification } from '../../alertes/alerte-notification';
-
 
 @Component({
   selector: 'app-sidebar',
@@ -16,7 +14,14 @@ export class Sidebar {
 
   confirmationOuverte = signal(false);
 
-  constructor(private authService: Auth, private router: Router) {}
+  @ViewChild('popupTemplate') popupTemplate!: TemplateRef<any>;
+  private vueInjectee?: EmbeddedViewRef<any>;
+
+  constructor(
+    private authService: Auth,
+    private router: Router,
+    private viewContainerRef: ViewContainerRef
+  ) {}
 
   utilisateur() {
     return this.authService.recupererUtilisateur();
@@ -24,14 +29,26 @@ export class Sidebar {
 
   demanderDeconnexion(): void {
     this.confirmationOuverte.set(true);
+
+    // Injecte la pop-up directement dans <body>, hors du sidebar,
+    // pour eviter le bug de positionnement cause par "position: sticky" sur .sidebar
+    this.vueInjectee = this.viewContainerRef.createEmbeddedView(this.popupTemplate);
+    this.vueInjectee.rootNodes.forEach(node => document.body.appendChild(node));
   }
 
   annulerDeconnexion(): void {
-    this.confirmationOuverte.set(false);
+    this.fermerPopup();
   }
 
   confirmerDeconnexion(): void {
+    this.fermerPopup();
     this.authService.deconnexion();
     this.router.navigate(['/login']);
+  }
+
+  private fermerPopup(): void {
+    this.confirmationOuverte.set(false);
+    this.vueInjectee?.destroy();
+    this.vueInjectee = undefined;
   }
 }

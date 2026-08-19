@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Auth } from '../authService';
-import { take, takeUntil } from 'rxjs';
+import { take } from 'rxjs';
 import { creerEtatChargement } from '../../shared/etat-chargement';
 
 @Component({
@@ -13,7 +13,7 @@ import { creerEtatChargement } from '../../shared/etat-chargement';
   templateUrl: './verify-otp.html',
   styleUrl: './verify-otp.css'
 })
-export class VerifyOtp implements OnInit {                                                    
+export class VerifyOtp implements OnInit {
   email: string = '';
   code: string = '';
   etat = creerEtatChargement(false);
@@ -29,27 +29,33 @@ export class VerifyOtp implements OnInit {
     this.email = emailEnAttente;
   }
 
-  verifier(): void {                                                     
-  this.etat.erreur.set('');
-  this.etat.chargement.set(true);
+  verifier(): void {
+    this.etat.erreur.set('');
+    this.etat.chargement.set(true);
 
-  this.authService.verifyOtp(this.email, this.code)
-  .pipe(take(1))
-  .subscribe({
-    next: (response) => {
-      this.etat.chargement.set(false);
-      this.authService.sauvegarderToken(response.token);
-      this.authService.sauvegarderUtilisateur(response);   
-      this.router.navigate(['/dashboard']);
-    },
-    error: () => {
-      this.etat.chargement.set(false);
-      this.etat.erreur.set('Code invalide ou expiré. Redirection vers la connexion...');
-      setTimeout(() => {
-        this.router.navigate(['/login']);
-      }, 2000);
-    }
-  });
-}
-    
+    this.authService.verifyOtp(this.email, this.code)
+      .pipe(take(1))
+      .subscribe({
+        next: (response) => {
+          this.etat.chargement.set(false);
+          this.authService.sauvegarderToken(response.token);
+          this.authService.sauvegarderUtilisateur(response);
+          this.router.navigate(['/dashboard']);
+        },
+        error: (err) => {
+          this.etat.chargement.set(false);
+
+          const messageBackend = err.error?.message || 'Code invalide. Réessayez.';
+          this.etat.erreur.set(messageBackend);
+
+          const fautReconnecter = messageBackend.toLowerCase().includes('reconnecter');
+
+          if (fautReconnecter) {
+            setTimeout(() => {
+              this.router.navigate(['/login']);
+            }, 2500);
+          }
+        }
+      });
   }
+}

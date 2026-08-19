@@ -207,38 +207,59 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private afficherGraphiqueConsommation(): void {
-    const canvas = this.graphiqueConsommationRef?.nativeElement;
-    if (!canvas || this.budgetsData.length === 0) return;
+  const canvas = this.graphiqueConsommationRef?.nativeElement;
+  if (!canvas || this.budgetsData.length === 0) return;
 
-    const labels = this.budgetsData.map(b => b.departement?.nomDepart || 'Non defini');
-    const taux = this.budgetsData.map(b =>
-      b.montantAlloueBud > 0 ? Math.round((b.montantConsommeBud / b.montantAlloueBud) * 100) : 0
-    );
-    const couleurs = taux.map(t => t >= 100 ? '#c0392b' : t >= 60 ? '#d4a017' : '#2e7d32');
+  const aujourdHui = new Date().toISOString().slice(0, 10);
 
-    new Chart(canvas, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [{
-          label: 'Taux de consommation (%)',
-          data: taux,
-          backgroundColor: couleurs
-        }]
+  // Un seul budget par departement : celui dont la periode couvre aujourd'hui
+  const budgetsActifs = this.budgetsData.filter(b =>
+    b.dateDebutBud <= aujourdHui && aujourdHui <= b.dateFinBud
+  );
+
+  if (budgetsActifs.length === 0) return;
+
+  const labels = budgetsActifs.map(b => b.departement?.nomDepart || 'Non defini');
+  const taux = budgetsActifs.map(b =>
+    b.montantAlloueBud > 0 ? Math.round((b.montantConsommeBud / b.montantAlloueBud) * 100) : 0
+  );
+  const tauxAffiche = taux.map(t => Math.min(t, 150));
+  const couleurs = taux.map(t => t >= 100 ? '#c0392b' : t >= 60 ? '#d4a017' : '#2e7d32');
+
+  new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Taux de consommation (%)',
+        data: tauxAffiche,
+        backgroundColor: couleurs
+      }]
+    },
+    options: {
+      responsive: true,
+      indexAxis: 'y',
+      plugins: {
+        legend: { display: false },
+        title: { display: true, text: 'Taux de consommation par département' },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${taux[ctx.dataIndex]}%`
+          }
+        }
       },
-      options: {
-        responsive: true,
-        indexAxis: 'y',
-        plugins: {
-          legend: { display: false },
-          title: { display: true, text: 'Taux de consommation par département' }
-        },
-        scales: {
-          x: { beginAtZero: true }
+      scales: {
+        x: {
+          beginAtZero: true,
+          max: 150,
+          ticks: {
+            callback: (value) => `${value}%`
+          }
         }
       }
-    });
-  }
+    }
+  });
+}
 
   private afficherGraphiqueStatuts(): void {
     const canvas = this.graphiqueStatutsRef?.nativeElement;

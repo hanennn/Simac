@@ -2,7 +2,8 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Produit_Service } from '../produitService';
 import { Produit } from '../produit.model';
-import { take, takeUntil } from 'rxjs';
+import { take } from 'rxjs';
+import { creerEtatChargement } from '../../shared/etat-chargement';
 
 interface LignePanier {
   produit: Produit;
@@ -19,8 +20,7 @@ interface LignePanier {
 export class FaireAchat implements OnInit {
 
   produits = signal<Produit[]>([]);
-  chargement = signal(true);
-  erreur = signal<string | null>(null);
+  etat = creerEtatChargement();
 
   panier = signal<LignePanier[]>([]);
 
@@ -38,16 +38,16 @@ export class FaireAchat implements OnInit {
   }
 
   charger(): void {
-    this.chargement.set(true);
-    this.erreur.set(null);
+    this.etat.chargement.set(true);
+    this.etat.erreur.set(null);
     this.produitService.listerMesProduits().pipe(take(1)).subscribe({
       next: (liste) => {
         this.produits.set(liste);
-        this.chargement.set(false);
+        this.etat.chargement.set(false);
       },
       error: () => {
-        this.erreur.set("Impossible de charger les produits.");
-        this.chargement.set(false);
+        this.etat.erreur.set("Impossible de charger les produits.");
+        this.etat.chargement.set(false);
       }
     });
   }
@@ -69,25 +69,25 @@ export class FaireAchat implements OnInit {
   }
 
   validerCommande(): void {
-  const lignes = this.panier();
-  if (lignes.length === 0) { return; }
+    const lignes = this.panier();
+    if (lignes.length === 0) { return; }
 
-  this.commandeEnCours.set(true);
-  this.erreur.set(null);
-  this.commandeReussie.set(false);
+    this.commandeEnCours.set(true);
+    this.etat.erreur.set(null);
+    this.commandeReussie.set(false);
 
-  const payload = lignes.map(l => ({ produitId: l.produit.id, quantite: l.quantite }));
+    const payload = lignes.map(l => ({ produitId: l.produit.id, quantite: l.quantite }));
 
-  this.produitService.commander(payload).subscribe({
-    next: () => {
-      this.commandeEnCours.set(false);
-      this.commandeReussie.set(true);
-      this.panier.set([]);
-    },
-    error: () => {
-      this.commandeEnCours.set(false);
-      this.erreur.set("La commande a échoué. Réessayez.");
-    }
-  });
-}
+    this.produitService.commander(payload).subscribe({
+      next: () => {
+        this.commandeEnCours.set(false);
+        this.commandeReussie.set(true);
+        this.panier.set([]);
+      },
+      error: () => {
+        this.commandeEnCours.set(false);
+        this.etat.erreur.set("La commande a échoué. Réessayez.");
+      }
+    });
+  }
 }

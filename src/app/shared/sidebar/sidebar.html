@@ -124,16 +124,18 @@
     </a>
   </div>
 
-  <div class="modal-overlay" *ngIf="confirmationOuverte()">
-    <div class="modal modal-sm">
-      <h2>Se déconnecter ?</h2>
-      <p class="card-text">
-        Es-tu sûr de vouloir te déconnecter ?
-      </p>
-      <div class="modal-actions">
-        <button class="btn btn-secondary" type="button" (click)="annulerDeconnexion()">Annuler</button>
-        <button class="btn btn-danger" type="button" (click)="confirmerDeconnexion()">Se déconnecter</button>
+  <ng-template #popupTemplate>
+    <div class="modal-overlay-deconnexion">
+      <div class="modal modal-sm">
+        <h2>Se déconnecter ?</h2>
+        <p class="card-text">
+          Es-tu sûr de vouloir te déconnecter ?
+        </p>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" type="button" (click)="annulerDeconnexion()">Annuler</button>
+          <button class="btn btn-danger" type="button" (click)="confirmerDeconnexion()">Se déconnecter</button>
+        </div>
       </div>
     </div>
-  </div>
+  </ng-template>
 </aside>
