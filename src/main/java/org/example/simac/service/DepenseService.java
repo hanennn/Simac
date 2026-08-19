@@ -19,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -35,12 +36,16 @@ public class DepenseService {
     private final SimpMessagingTemplate messagingTemplate;
 
     public List<Depense> listerTous() {
-        return depenseRepository.findAll();
+        List<Depense> depenses = depenseRepository.findAll();
+        depenses.sort((d1, d2) -> d2.getIdDepense().compareTo(d1.getIdDepense()));
+        return depenses;
     }
 
     public List<Depense> listerMesDepenses(Authentication authentication) {
         Utilisateur utilisateur = utilisateurCourant(authentication);
-        return depenseRepository.findByUtilisateurIdUser(utilisateur.getIdUser());
+        List<Depense> depenses = depenseRepository.findByUtilisateurIdUser(utilisateur.getIdUser());
+        depenses.sort((d1, d2) -> d2.getIdDepense().compareTo(d1.getIdDepense()));
+        return depenses;
     }
 
     public Depense trouverParId(Long id) {

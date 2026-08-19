@@ -47,7 +47,6 @@ public class AuthService {
             throw new RuntimeException("Ce compte a ete desactive. Contactez un administrateur.");
         }
 
-        // Si le compte est actuellement verrouille, on bloque avant meme de verifier le mot de passe
         if (utilisateur.getVerrouilleJusqua() != null
                 && utilisateur.getVerrouilleJusqua().isAfter(LocalDateTime.now())) {
 
@@ -69,7 +68,6 @@ public class AuthService {
             throw e;
         }
 
-        // Connexion reussie : on remet le compteur a zero
         if (utilisateur.getTentativesEchouees() > 0 || utilisateur.getVerrouilleJusqua() != null) {
             utilisateur.setTentativesEchouees(0);
             utilisateur.setVerrouilleJusqua(null);
@@ -94,11 +92,7 @@ public class AuthService {
     }
 
     public LoginResponse verifyOtp(VerifyOtpRequest request) {
-        boolean valide = otpService.verifierOtp(request.getEmail(), request.getCode());
-
-        if (!valide) {
-            throw new RuntimeException("Code invalide ou expire");
-        }
+        otpService.verifierOtp(request.getEmail(), request.getCode());
 
         Utilisateur utilisateur = utilisateurRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
@@ -132,11 +126,7 @@ public class AuthService {
     }
 
     public void reinitialiserMotDePasse(ResetPasswordRequest request) {
-        boolean codeValide = otpService.verifierOtp(request.getEmail(), request.getCode());
-
-        if (!codeValide) {
-            throw new RuntimeException("Code invalide ou expire");
-        }
+        otpService.verifierOtp(request.getEmail(), request.getCode());
 
         Utilisateur utilisateur = utilisateurRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
@@ -144,11 +134,11 @@ public class AuthService {
         utilisateur.setMotDePasse(passwordEncoder.encode(request.getNouveauMotDePasse()));
         utilisateurRepository.save(utilisateur);
     }
-//verrouillage
+
     public boolean verifierMotDePasseActuel(String email, String motDePasse) {
         Utilisateur utilisateur = utilisateurRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
 
-        return passwordEncoder.matches(motDePasse, utilisateur.getMotDePasse());//verif correspondance
+        return passwordEncoder.matches(motDePasse, utilisateur.getMotDePasse());
     }
 }

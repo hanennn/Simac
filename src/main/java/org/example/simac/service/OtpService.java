@@ -13,6 +13,8 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class OtpService {
 
+    private static final int MAX_TENTATIVES_OTP = 3;
+
     private final CodeOtpRepository codeOtpRepository;
     private final NotificationEmailService notificationEmailService;
     private final PasswordEncoder passwordEncoder;
@@ -22,30 +24,49 @@ public class OtpService {
 
         CodeOtp otp = new CodeOtp();
         otp.setEmail(email);
-        otp.setCode(passwordEncoder.encode(code)); // stock hash
+        otp.setCode(passwordEncoder.encode(code));
         otp.setDateExpiration(LocalDateTime.now().plusMinutes(5));
         otp.setUtilise(false);
+        otp.setTentatives(0);
         codeOtpRepository.save(otp);
-        System.out.println("code "+code);
-        //envoi code
+        System.out.println("code " + code);
+
         notificationEmailService.envoyerEmailOtp(email, code);
     }
 
-    public boolean verifierOtp(String email, String codeSaisi) {
-        var otp = codeOtpRepository
-                .findTopByEmailAndUtiliseFalseOrderByDateExpirationDesc(email)
-                .orElseThrow(() -> new IllegalArgumentException("Le code de connexion est invalide"));
+    // Lance une exception avec le bon message selon le cas
+    public void verifierOtp(String email, String codeSaisi) {
+        var otpOptionnel = codeOtpRepository
+                .findTopByEmailAndUtiliseFalseOrderByDateExpirationDesc(email);
+
+        if (otpOptionnel.isEmpty()) {
+            throw new RuntimeException("Aucun code actif pour cet email. Veuillez vous reconnecter.");
+        }
+
+        CodeOtp otp = otpOptionnel.get();
 
         if (otp.getDateExpiration().isBefore(LocalDateTime.now())) {
-            return false; // code expire
+            otp.setUtilise(true);
+            codeOtpRepository.save(otp);
+            throw new RuntimeException("Le code a expire. Veuillez vous reconnecter.");
         }
 
         if (!passwordEncoder.matches(codeSaisi, otp.getCode())) {
-            return false; // code incorrect
+            int nouvellesTentatives = otp.getTentatives() + 1;
+            otp.setTentatives(nouvellesTentatives);
+
+            if (nouvellesTentatives >= MAX_TENTATIVES_OTP) {
+                otp.setUtilise(true);
+                codeOtpRepository.save(otp);
+                throw new RuntimeException("Trop de tentatives incorrectes. Veuillez vous reconnecter.");
+            }
+
+            codeOtpRepository.save(otp);
+            int tentativesRestantes = MAX_TENTATIVES_OTP - nouvellesTentatives;
+            throw new RuntimeException("Code incorrect. Il vous reste " + tentativesRestantes + " tentative(s).");
         }
 
         otp.setUtilise(true);
         codeOtpRepository.save(otp);
-        return true;
     }
 }

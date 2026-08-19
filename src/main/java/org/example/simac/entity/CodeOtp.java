@@ -29,4 +29,7 @@ public class CodeOtp {
 
     @Column(nullable = false)
     private boolean utilise = false;
+
+    @Column(nullable = false)
+    private int tentatives = 0;
 }
