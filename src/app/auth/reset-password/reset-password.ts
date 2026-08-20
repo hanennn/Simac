@@ -1,15 +1,15 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Auth } from '../authService';
-import { take, takeUntil } from 'rxjs';
+import { take } from 'rxjs';
 import { creerEtatChargement } from '../../shared/etat-chargement';
 
 @Component({
   selector: 'app-reset-password',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, RouterLink],
   templateUrl: './reset-password.html',
   styleUrl: './reset-password.css'
 })
@@ -35,9 +35,8 @@ export class ResetPassword implements OnInit {
     this.etat.chargement.set(true);
     this.message.set('');
 
-    
     this.authService.reinitialiserMotDePasse(this.email, this.code, this.nouveauMotDePasse).pipe(take(1)).subscribe({
-      next: (response) => {
+      next: () => {
         this.etat.chargement.set(false);
         this.message.set('Mot de passe réinitialisé ! Redirection...');
 

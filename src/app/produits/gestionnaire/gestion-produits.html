@@ -166,7 +166,6 @@
   </form>
 </app-modal>
 
-<!-- Pop-up : edition -->
 <app-modal *ngIf="modalEditionOuvert()" titre="Modifier le produit" (fermer)="fermerEdition()">
   <form (ngSubmit)="enregistrerModification()">
     <div class="form-group">
@@ -177,6 +176,23 @@
     <div class="form-group">
       <label class="form-label" for="prixEdition">Prix (DT)</label>
       <input class="form-input" id="prixEdition" type="number" name="prixEdition" min="0" step="0.01" [(ngModel)]="formulaireEdition.prix" required>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="categorieEdition">Catégorie</label>
+      <select class="form-input" id="categorieEdition" name="categorieEdition" [(ngModel)]="formulaireEdition.categorie" required>
+        <option value="" disabled>Choisir une catégorie</option>
+        <option value="All">Tous les départements</option>
+        <option *ngFor="let c of categories()" [value]="c.nomCategorie">{{ c.nomCategorie }}</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="categorieDepenseEdition">Catégorie dépense</label>
+      <select class="form-input" id="categorieDepenseEdition" name="categorieDepenseEdition" [(ngModel)]="formulaireEdition.categorieDepense">
+        <option value="">Aucune (par défaut : Fourniture)</option>
+        <option *ngFor="let c of categoriesDepense()" [value]="c.nomCategorie">{{ c.nomCategorie }}</option>
+      </select>
     </div>
 
     <div class="form-group">
