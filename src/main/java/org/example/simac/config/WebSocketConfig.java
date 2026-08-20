@@ -17,15 +17,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-
         config.enableSimpleBroker("/topic");
-
         config.setApplicationDestinationPrefixes("/app");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-
         registry
                 .addEndpoint("/ws")
                 .setAllowedOriginPatterns("*")
@@ -33,11 +30,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     }
 
     @Override
-    public void configureClientInboundChannel(
-            ChannelRegistration registration) {
-
-        registration.interceptors(
-                jwtChannelInterceptor
-        );
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(jwtChannelInterceptor);
     }
 }

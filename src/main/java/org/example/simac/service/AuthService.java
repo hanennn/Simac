@@ -84,8 +84,6 @@ public class AuthService {
         if (nouvellesTentatives >= MAX_TENTATIVES) {
             utilisateur.setVerrouilleJusqua(LocalDateTime.now().plusMinutes(DUREE_BLOCAGE_MINUTES));
             utilisateur.setTentativesEchouees(0);
-            System.out.println("[AUTH] Compte " + utilisateur.getEmail() + " verrouille pour "
-                    + DUREE_BLOCAGE_MINUTES + " minutes apres " + MAX_TENTATIVES + " echecs.");
         }
 
         utilisateurRepository.save(utilisateur);

@@ -197,6 +197,7 @@ public class OdooClientService {
         Map<String, Object> produit = new HashMap<>();
         produit.put("name", nom);
         produit.put("standard_price", prix);
+        produit.put("list_price", 0);
         produit.put("categ_id", categorieId);
         produit.put("purchase_ok", true);
         if (description != null && !description.isBlank()) {
@@ -222,14 +223,32 @@ public class OdooClientService {
         return produitId;
     }
 
-    public void modifierProduit(Integer produitId, String nom, double prix, String description) throws Exception {
+    public void modifierProduit(Integer produitId, String nom, double prix, String description, String nomCategorie, String categorieDepense) throws Exception {
         Integer userId = authentifier();
         XmlRpcClient client = obtenirClientObjet();
 
         Map<String, Object> valeurs = new HashMap<>();
         if (nom != null) valeurs.put("name", nom);
         valeurs.put("standard_price", prix);
+        valeurs.put("list_price", 0);
         if (description != null) valeurs.put("description", description);
+
+        if (nomCategorie != null && !nomCategorie.isBlank()) {
+            Object[] categories = (Object[]) client.execute("execute_kw", Arrays.asList(
+                    odooDb, userId, odooPassword,
+                    "product.category", "search",
+                    Arrays.asList(Arrays.asList(Arrays.asList("name", "=", nomCategorie))),
+                    Map.of("limit", 1)
+            ));
+            if (categories.length == 0) {
+                throw new RuntimeException("Categorie Odoo introuvable : " + nomCategorie);
+            }
+            valeurs.put("categ_id", categories[0]);
+        }
+
+        if (categorieDepense != null) {
+            valeurs.put("x_categorie_depense", categorieDepense);
+        }
 
         client.execute("execute_kw", Arrays.asList(
                 odooDb, userId, odooPassword,

@@ -59,10 +59,11 @@ public class ProduitService {
                 produitId,
                 request.getNom(),
                 request.getPrix(),
-                request.getDescription()
+                request.getDescription(),
+                request.getCategorie(),
+                request.getCategorieDepense()
         );
     }
-
     public void archiverProduit(Integer produitId) throws Exception {
         odooClientService.archiverProduit(produitId);
     }

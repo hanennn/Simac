@@ -1,31 +1,22 @@
 package org.example.simac.service;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class NotificationEmailService {
 
-    @Value("${resend.api-key}")
-    private String resendApiKey;
-
-    @Value("${resend.from-email:onboarding@resend.dev}")
-    private String fromEmail;
-
-    private final RestClient restClient = RestClient.create("https://api.resend.com");
+    private final JavaMailSender mailSender;
 
     public void envoyerEmail(String destinataire, String sujet, String contenu) {
         String html = chargerTemplate("base.html").replace("{{CONTENU}}", "<p style=\"margin:0;\">" + contenu + "</p>");
@@ -49,27 +40,16 @@ public class NotificationEmailService {
         envoyerEmailHtml(destinataire, "Votre code de connexion SIMAC", html);
     }
 
-    // Envoie l'email via l'API HTTP de Resend, au lieu du protocole SMTP
-    // (SMTP est bloque par Render en offre gratuite, contrairement aux requetes HTTP classiques)
     private void envoyerEmailHtml(String destinataire, String sujet, String contenuHtml) {
         try {
-            Map<String, Object> corps = Map.of(
-                    "from", fromEmail,
-                    "to", List.of(destinataire),
-                    "subject", sujet,
-                    "html", contenuHtml
-            );
-
-            restClient.post()
-                    .uri("/emails")
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + resendApiKey)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(corps)
-                    .retrieve()
-                    .toBodilessEntity();
-
-        } catch (Exception e) {
-            throw new RuntimeException("Erreur lors de l'envoi de l'email via Resend", e);
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setTo(destinataire);
+            helper.setSubject(sujet);
+            helper.setText(contenuHtml, true);
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            throw new RuntimeException("Erreur lors de l'envoi de l'email", e);
         }
     }
 
