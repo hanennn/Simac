@@ -24,7 +24,7 @@ public class ProduitService {
         if (utilisateur.getDepartement() == null || utilisateur.getDepartement().getCategorieDepart() == null) {
             throw new RuntimeException("Aucun département/catégorie associé à votre compte.");
         }
-
+        //Récupère le nom de catégorie départ
         String nomCategorie = utilisateur.getDepartement().getCategorieDepart().getNomCategorie();
 
         return odooClientService.listerProduitsParCategorie(nomCategorie);
