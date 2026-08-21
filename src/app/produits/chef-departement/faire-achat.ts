@@ -78,7 +78,7 @@ export class FaireAchat implements OnInit {
 
     const payload = lignes.map(l => ({ produitId: l.produit.id, quantite: l.quantite }));
 
-    this.produitService.commander(payload).subscribe({
+    this.produitService.commander(payload).pipe(take(1)).subscribe({
       next: () => {
         this.commandeEnCours.set(false);
         this.commandeReussie.set(true);

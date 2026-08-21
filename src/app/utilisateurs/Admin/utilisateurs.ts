@@ -124,7 +124,7 @@ export class Utilisateurs implements OnInit {
       ? this.utilisateurAdminService.modifier(this.idEnCoursDeModification, this.formulaire)
       : this.utilisateurAdminService.creer(this.formulaire);
 
-    operation.subscribe({
+    operation.pipe(take(1)).subscribe({
       next: () => {
         this.enregistrementEnCours.set(false);
         this.modalOuvert.set(false);

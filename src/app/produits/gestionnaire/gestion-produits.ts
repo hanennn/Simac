@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Produit_Service } from '../produitService';
@@ -6,6 +6,7 @@ import { ProduitRequest } from '../produit.model';
 import { CategorieDepartService, CategorieDepart } from '../../departements/Admin/categorie-departement';
 import { CategorieDepenseService, CategorieDepense } from '../../depenses/responsable-financier/categorie-depense';
 import { Modal } from '../../shared/modal/modal';
+import { ToastService } from '../../shared/toast.service';
 import { take } from 'rxjs';
 
 interface ProduitOdoo {
@@ -27,14 +28,14 @@ const FORMULAIRE_VIDE: ProduitRequest = { nom: '', prix: 0, categorie: '', descr
 })
 export class GestionProduits implements OnInit {
 
+  private toast = inject(ToastService);
+
   categories = signal<CategorieDepart[]>([]);
   categoriesDepense = signal<CategorieDepense[]>([]);
   produits = signal<ProduitOdoo[]>([]);
   chargementListe = signal(true);
   rechercheTerme = signal('');
 
-  messageSucces = signal('');
-  erreur = signal('');
   enregistrementEnCours = signal(false);
 
   modalCreationOuvert = signal(false);
@@ -56,12 +57,12 @@ export class GestionProduits implements OnInit {
   ngOnInit(): void {
     this.categorieDepartService.listerTous().pipe(take(1)).subscribe({
       next: (liste) => this.categories.set(liste),
-      error: () => this.erreur.set('Impossible de charger les catégories département.')
+      error: () => this.toast.erreur('Impossible de charger les catégories département.')
     });
 
     this.categorieDepenseService.listerTous().pipe(take(1)).subscribe({
       next: (liste) => this.categoriesDepense.set(liste),
-      error: () => this.erreur.set('Impossible de charger les catégories dépense.')
+      error: () => this.toast.erreur('Impossible de charger les catégories dépense.')
     });
 
     this.chargerProduits();
@@ -75,7 +76,7 @@ export class GestionProduits implements OnInit {
         this.chargementListe.set(false);
       },
       error: () => {
-        this.erreur.set('Impossible de charger la liste des produits.');
+        this.toast.erreur('Impossible de charger la liste des produits.');
         this.chargementListe.set(false);
       }
     });
@@ -98,11 +99,8 @@ export class GestionProduits implements OnInit {
     return p.name?.trim().charAt(0).toUpperCase() || '?';
   }
 
-  // --- Creation ---
-
   ouvrirCreation(): void {
     this.formulaire = { ...FORMULAIRE_VIDE };
-    this.erreur.set('');
     this.modalCreationOuvert.set(true);
   }
 
@@ -112,28 +110,25 @@ export class GestionProduits implements OnInit {
 
   creerProduit(): void {
     if (!this.formulaire.nom || !this.formulaire.prix || !this.formulaire.categorie) {
-      this.erreur.set('Nom, prix et catégorie sont obligatoires.');
+      this.toast.erreur('Nom, prix et catégorie sont obligatoires.');
       return;
     }
 
-    this.erreur.set('');
     this.enregistrementEnCours.set(true);
 
-    this.produitService.creerProduit(this.formulaire).subscribe({
+    this.produitService.creerProduit(this.formulaire).pipe(take(1)).subscribe({
       next: () => {
         this.enregistrementEnCours.set(false);
-        this.messageSucces.set(`Produit "${this.formulaire.nom}" créé avec succès dans Odoo.`);
+        this.toast.succes(`Produit "${this.formulaire.nom}" créé avec succès dans Odoo.`);
         this.modalCreationOuvert.set(false);
         this.chargerProduits();
       },
       error: (err) => {
         this.enregistrementEnCours.set(false);
-        this.erreur.set(err.error?.message || "La création du produit a échoué.");
+        this.toast.erreur(err.error?.message || "La création du produit a échoué.");
       }
     });
   }
-
-  // --- Edition ---
 
   ouvrirEdition(p: ProduitOdoo): void {
     this.produitEnEdition = p;
@@ -144,7 +139,6 @@ export class GestionProduits implements OnInit {
       description: '',
       categorieDepense: p.x_categorie_depense || ''
     };
-    this.erreur.set('');
     this.modalEditionOuvert.set(true);
   }
 
@@ -157,21 +151,19 @@ export class GestionProduits implements OnInit {
     if (!this.produitEnEdition) return;
 
     this.enregistrementEnCours.set(true);
-    this.produitService.modifierProduit(this.produitEnEdition.id, this.formulaireEdition).subscribe({
+    this.produitService.modifierProduit(this.produitEnEdition.id, this.formulaireEdition).pipe(take(1)).subscribe({
       next: () => {
         this.enregistrementEnCours.set(false);
-        this.messageSucces.set('Produit modifié avec succès.');
+        this.toast.succes('Produit modifié avec succès.');
         this.fermerEdition();
         this.chargerProduits();
       },
       error: (err) => {
         this.enregistrementEnCours.set(false);
-        this.erreur.set(err.error?.message || "La modification a échoué.");
+        this.toast.erreur(err.error?.message || "La modification a échoué.");
       }
     });
   }
-
-  // --- Archivage ---
 
   demanderArchivage(p: ProduitOdoo): void {
     this.produitASupprimer.set(p);
@@ -186,56 +178,55 @@ export class GestionProduits implements OnInit {
     if (!p) return;
 
     this.suppressionEnCours.set(true);
-    this.produitService.archiverProduit(p.id).subscribe({
+    this.produitService.archiverProduit(p.id).pipe(take(1)).subscribe({
       next: () => {
         this.suppressionEnCours.set(false);
-        this.messageSucces.set(`Produit "${p.name}" archivé.`);
+        this.toast.succes(`Produit "${p.name}" archivé.`);
         this.produitASupprimer.set(null);
         this.chargerProduits();
       },
       error: (err) => {
         this.suppressionEnCours.set(false);
-        this.erreur.set(err.error?.message || "L'archivage a échoué.");
+        this.toast.erreur(err.error?.message || "L'archivage a échoué.");
       }
     });
   }
 
-
   vueArchives = signal(false);
-produitsArchives = signal<ProduitOdoo[]>([]);
-chargementArchives = signal(false);
+  produitsArchives = signal<ProduitOdoo[]>([]);
+  chargementArchives = signal(false);
 
-basculerVue(): void {
-  this.vueArchives.set(!this.vueArchives());
-  if (this.vueArchives() && this.produitsArchives().length === 0) {
-    this.chargerProduitsArchives();
+  basculerVue(): void {
+    this.vueArchives.set(!this.vueArchives());
+    if (this.vueArchives() && this.produitsArchives().length === 0) {
+      this.chargerProduitsArchives();
+    }
   }
-}
 
-chargerProduitsArchives(): void {
-  this.chargementArchives.set(true);
-  this.produitService.listerProduitsArchives().pipe(take(1)).subscribe({
-    next: (liste) => {
-      this.produitsArchives.set(liste);
-      this.chargementArchives.set(false);
-    },
-    error: () => {
-      this.erreur.set('Impossible de charger les produits archivés.');
-      this.chargementArchives.set(false);
-    }
-  });
-}
+  chargerProduitsArchives(): void {
+    this.chargementArchives.set(true);
+    this.produitService.listerProduitsArchives().pipe(take(1)).subscribe({
+      next: (liste) => {
+        this.produitsArchives.set(liste);
+        this.chargementArchives.set(false);
+      },
+      error: () => {
+        this.toast.erreur('Impossible de charger les produits archivés.');
+        this.chargementArchives.set(false);
+      }
+    });
+  }
 
-restaurerProduit(p: ProduitOdoo): void {
-  this.produitService.restaurerProduit(p.id).subscribe({
-    next: () => {
-      this.messageSucces.set(`Produit "${p.name}" restauré.`);
-      this.produitsArchives.set(this.produitsArchives().filter(pr => pr.id !== p.id));
-      this.chargerProduits(); // recharge la liste active pour qu'il y reapparaisse
-    },
-    error: (err) => {
-      this.erreur.set(err.error?.message || "La restauration a échoué.");
-    }
-  });
-}
+  restaurerProduit(p: ProduitOdoo): void {
+    this.produitService.restaurerProduit(p.id).pipe(take(1)).subscribe({
+      next: () => {
+        this.toast.succes(`Produit "${p.name}" restauré.`);
+        this.produitsArchives.set(this.produitsArchives().filter(pr => pr.id !== p.id));
+        this.chargerProduits();
+      },
+      error: (err) => {
+        this.toast.erreur(err.error?.message || "La restauration a échoué.");
+      }
+    });
+  }
 }

@@ -4,13 +4,16 @@ import SockJS from 'sockjs-client';
 import { BehaviorSubject } from 'rxjs';
 import { Auth } from '../auth/authService';
 import { environment } from '../../environments/environment';
+import { take } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DashboardWebsocket {
 
+  //pas encore connecté
   private client: Client | null = null;
+ // Stock connex WebSocket
   private dashboardSubject = new BehaviorSubject<any>(null);
 
   dashboard$ = this.dashboardSubject.asObservable();

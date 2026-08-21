@@ -23,7 +23,7 @@ export class AlerteNotification implements OnInit {
   }
 
   chargerAlertes(): void {
-    this.alerteService.listerMesAlertes().subscribe({
+    this.alerteService.listerMesAlertes().pipe(take(1)).subscribe({
       next: (liste) => this.alertes.set(liste),
       error: () => {}
     });

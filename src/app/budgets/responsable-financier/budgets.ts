@@ -153,7 +153,7 @@ export class Budgets implements OnInit {
       ? this.budgetService.modifier(this.idEnCoursDeModification, this.formulaire)
       : this.budgetService.creer(this.formulaire);
 
-    operation.subscribe({
+    operation.pipe(take(1)).subscribe({
       next: () => {
         this.enregistrementEnCours.set(false);
         this.modalOuvert.set(false);

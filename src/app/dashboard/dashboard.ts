@@ -73,7 +73,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     const role = this.utilisateur()?.role;
     if (role === 'RESPONSABLE_FINANCIER' || role === 'CHEF_DEPARTEMENT') {
       this.dashboardWs.connect();
-      this.wsSubscription = this.dashboardWs.dashboard$.subscribe((message) => {
+      this.wsSubscription = this.dashboardWs.dashboard$.pipe(take(1)).subscribe((message) => {
         if (message) {
           this.chargerStatistiques();
         }
@@ -91,72 +91,71 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     this.dashboardWs.disconnect();
   }
 
-  chargerStatistiques(): void {
-    const role = this.utilisateur()?.role;
+ chargerStatistiques(): void {
+  const role = this.utilisateur()?.role;
 
-    if (role === 'ADMIN') {
-      forkJoin({
-        departements: this.departementService.listerTous(),
-        utilisateurs: this.utilisateurAdminService.listerTous(),
-        budgets: this.budgetService.listerTous()
-      }).subscribe({
-        next: (res) => {
-          const budgetTotal = res.budgets.reduce((somme, b) => somme + b.montantAlloueBud, 0);
-          this.stats.set({
-            departements: res.departements.length,
-            utilisateurs: res.utilisateurs.length,
-            budgetTotal: budgetTotal,
-            depensesEnAttente: 0
-          });
-          this.chargementStats.set(false);
-        },
-        error: () => this.chargementStats.set(false)
-      });
-    } else if (role === 'RESPONSABLE_FINANCIER') {
-      forkJoin({
-        budgets: this.budgetService.listerTous(),
-        depenses: this.depenseService.listerTous()
-      }).subscribe({
-        next: (res) => {
-          const budgetTotal = res.budgets.reduce((somme, b) => somme + b.montantAlloueBud, 0);
-          const enAttente = res.depenses.filter((d: any) => d.statutDepense === 'EN_ATTENTE').length;
-          this.stats.set({
-            departements: 0,
-            utilisateurs: 0,
-            budgetTotal: budgetTotal,
-            depensesEnAttente: enAttente
-          });
+  if (role === 'ADMIN') {
+    //lance 2 req en //
+    forkJoin({
+      departements: this.departementService.listerTous(),
+      utilisateurs: this.utilisateurAdminService.listerTous()
+    }).pipe(take(1)).subscribe({
+      next: (res) => {
+        this.stats.set({
+          departements: res.departements.length,
+          utilisateurs: res.utilisateurs.length,
+          budgetTotal: 0,
+          depensesEnAttente: 0
+        });
+        this.chargementStats.set(false);
+      },
+      error: () => this.chargementStats.set(false)
+    });
+  } else if (role === 'RESPONSABLE_FINANCIER') {
+    forkJoin({
+      budgets: this.budgetService.listerTous(),
+      depenses: this.depenseService.listerTous()
+    }).pipe(take(1)).subscribe({
+      next: (res) => {
+        const budgetTotal = res.budgets.reduce((somme, b) => somme + b.montantAlloueBud, 0);
+        const enAttente = res.depenses.filter((d: any) => d.statutDepense === 'EN_ATTENTE').length;
+        this.stats.set({
+          departements: 0,
+          utilisateurs: 0,
+          budgetTotal: budgetTotal,
+          depensesEnAttente: enAttente
+        });
 
-          this.budgetsData = res.budgets;
-          this.depensesData = res.depenses;
+        this.budgetsData = res.budgets;
+        this.depensesData = res.depenses;
 
-          this.chargementStats.set(false);
-          this.tenterAfficherGraphiques();
-        },
-        error: () => this.chargementStats.set(false)
-      });
-    } else if (role === 'CHEF_DEPARTEMENT') {
-      this.depenseService.listerMesDepenses().pipe(take(1)).subscribe({
-        next: (depenses) => {
-          const enAttente = depenses.filter((d: any) => d.statutDepense === 'EN_ATTENTE').length;
-          this.stats.set({
-            departements: 0,
-            utilisateurs: 0,
-            budgetTotal: 0,
-            depensesEnAttente: enAttente
-          });
+        this.chargementStats.set(false);
+        this.tenterAfficherGraphiques();
+      },
+      error: () => this.chargementStats.set(false)
+    });
+  } else if (role === 'CHEF_DEPARTEMENT') {
+    this.depenseService.listerMesDepenses().pipe(take(1)).subscribe({
+      next: (depenses) => {
+        const enAttente = depenses.filter((d: any) => d.statutDepense === 'EN_ATTENTE').length;
+        this.stats.set({
+          departements: 0,
+          utilisateurs: 0,
+          budgetTotal: 0,
+          depensesEnAttente: enAttente
+        });
 
-          this.depensesData = depenses;
+        this.depensesData = depenses;
 
-          this.chargementStats.set(false);
-          this.tenterAfficherGraphiques();
-        },
-        error: () => this.chargementStats.set(false)
-      });
-    } else {
-      this.chargementStats.set(false);
-    }
+        this.chargementStats.set(false);
+        this.tenterAfficherGraphiques();
+      },
+      error: () => this.chargementStats.set(false)
+    });
+  } else {
+    this.chargementStats.set(false);
   }
+}
 
   private tenterAfficherGraphiques(): void {
     if (!this.vueGraphiquesPrete) return;
@@ -178,6 +177,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private afficherGraphiqueBudgets(): void {
+    //récup élément HTML <canvas>
     const canvas = this.graphiqueBudgetsRef?.nativeElement;
     if (!canvas || this.budgetsData.length === 0) return;
 
@@ -212,7 +212,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
 
   const aujourdHui = new Date().toISOString().slice(0, 10);
 
-  // Un seul budget par departement : celui dont la periode couvre aujourd'hui
+  // Un seul budget par departement 
   const budgetsActifs = this.budgetsData.filter(b =>
     b.dateDebutBud <= aujourdHui && aujourdHui <= b.dateFinBud
   );
@@ -287,8 +287,6 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
       }
     });
   }
-
-  // --- Nouvelles methodes pour le chef, calquees a l'identique sur celles du responsable ---
 
   private afficherGraphiqueStatutsChef(): void {
     const canvas = this.graphiqueStatutsChefRef?.nativeElement;

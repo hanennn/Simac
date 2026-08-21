@@ -155,7 +155,7 @@ export class Departements implements OnInit {
       ? this.departementService.modifier(this.idEnCoursDeModification, this.formulaire)
       : this.departementService.creer(this.formulaire);
 
-    operation.subscribe({
+    operation.pipe(take(1)).subscribe({
       next: () => {
         this.enregistrementEnCours.set(false);
         this.modalOuvert.set(false);

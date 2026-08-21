@@ -78,7 +78,7 @@ export class CategoriesDepense implements OnInit {
       ? this.categorieService.modifier(this.idEnCoursDeModification, this.formulaire)
       : this.categorieService.creer(this.formulaire);
 
-    operation.subscribe({
+    operation.pipe(take(1)).subscribe({
       next: () => {
         this.enregistrementEnCours.set(false);
         this.modalOuvert.set(false);

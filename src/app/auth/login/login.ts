@@ -64,7 +64,7 @@ export class Login {
 
     this.chargement.set(true);
 
-    this.authService.login(this.email, this.motDePasse).subscribe({
+    this.authService.login(this.email, this.motDePasse).pipe(take(1)).subscribe({
       next: () => {
         this.chargement.set(false);
         this.authService.sauvegarderEmailTemporaire(this.email);

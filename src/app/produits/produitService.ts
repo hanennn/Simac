@@ -18,8 +18,6 @@ export class Produit_Service {
   return this.http.post(`${this.apiUrl}/commander`, { lignes });
 }
 
-  // --- Ajout pour le Gestionnaire de produits (parametrage des produits) ---
-
   creerProduit(produit: ProduitRequest): Observable<any> {
     return this.http.post(this.apiUrl, produit);
   }

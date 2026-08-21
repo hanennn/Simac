@@ -6,6 +6,7 @@ import { Inactivite } from './inactivite';
 import { Auth } from '../authService';
 import { creerEtatChargement } from '../../shared/etat-chargement';
 import { environment } from '../../../environments/environment';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-ecran-verrouillage',
@@ -41,7 +42,7 @@ export class EcranVerrouillage {
 
     this.http.post<{ valide: boolean }>(`${this.apiUrl}/verifier-mot-de-passe`, {
       motDePasse: this.motDePasse
-    }).subscribe({
+    }).pipe(take(1)).subscribe({
       next: (res) => {
         this.etat.chargement.set(false);
         if (res.valide) {
