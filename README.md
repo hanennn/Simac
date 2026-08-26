@@ -7,12 +7,19 @@ Au-delà du simple suivi financier, SIMAC va plus loin en intégrant directement
 Le projet a été développé dans le cadre d'un projet de stage, avec une attention particulière portée à la sécurité, à l'expérience utilisateur et à une architecture propre, pensée pour être maintenable et évolutive
 
 **Fonctionnalités**
+
 **Authentification et sécurité.** Connexion en deux étapes (mot de passe puis code OTP par email), verrouillage du compte après plusieurs tentatives échouées, et verrouillage automatique de session en cas d'inactivité.
+
 **Gestion multi-rôles.** Quatre profils avec des permissions dédiées : Administrateur (utilisateurs, départements), Responsable financier (budgets, validation des dépenses), Chef de département (dépenses, achats) et Gestionnaire de produits (catalogue Odoo).
+
 **Suivi budgétaire.** Budgets définis par département et par période, avec montant alloué et consommé mis à jour automatiquement, et alertes en cas de dépassement.
+
 **Circuit de validation des dépenses.** Chaque dépense passe par un statut "en attente" jusqu'à validation ou rejet par un responsable financier, avec notification par email au chef de département concerné.
+
 **Estimation budgétaire par IA.** Un modèle Qwen2.5 exécuté localement (via Ollama) propose une estimation de budget et une prédiction de dépassement, basées sur l'historique réel des dépenses.
+
 **Intégration ERP Odoo.** Catalogue produits et commandes d'achat gérés directement via Odoo (XML-RPC), avec synchronisation automatique des dépenses correspondantes.
+
 **Tableau de bord temps réel.** Graphiques mis à jour automatiquement via WebSocket, sans rechargement de page, dès qu'une dépense change de statut.
 
 **Architecture**
@@ -20,6 +27,7 @@ L'application suit une architecture client-serveur en trois couches principales.
 Le backend centralise toute la logique métier et la sécurité. Il persiste ses propres données — utilisateurs, départements, budgets, dépenses, codes de vérification — dans une base PostgreSQL via Spring Data JPA et Hibernate. Pour tout ce qui concerne les produits et les achats, il ne stocke rien localement : chaque requête est traduite en appel XML-RPC vers une instance Odoo externe, qui reste la source de vérité unique pour le catalogue. Pour les fonctionnalités d'intelligence artificielle, le backend prépare et transmet les données pertinentes à un modèle Qwen2.5 exécuté localement via Ollama.
 La sécurité repose sur des jetons JWT pour authentifier chaque requête après la connexion initiale, avec un intercepteur dédié qui valide également ces jetons lors de l'établissement des connexions WebSocket.
 En production, cette architecture se répartit sur trois plateformes distinctes : le backend tourne dans un conteneur Docker sur Render, le frontend est servi statiquement par Vercel, et la base de données PostgreSQL est hébergée sur Neon.
+
 
 **Installation**
 Prérequis
