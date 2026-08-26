@@ -9,6 +9,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -41,7 +42,7 @@ public class AuthService {
 
     public void login(LoginRequest request) {
         Utilisateur utilisateur = utilisateurRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Email ou mot de passe incorrect"));
+                .orElseThrow(() -> new UsernameNotFoundException("Email ou mot de passe incorrect"));
 
         if (!utilisateur.isActif()) {
             throw new RuntimeException("Ce compte a ete desactive. Contactez un administrateur.");

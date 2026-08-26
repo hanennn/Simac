@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, String>> handleRuntimeException(RuntimeException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", ex.getMessage()));
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(Map.of("message", ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)

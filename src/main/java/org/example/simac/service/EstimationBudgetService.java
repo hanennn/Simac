@@ -107,6 +107,7 @@ public class EstimationBudgetService {
 
         ChatResponse response = chatModel.call(prompt);
         String texte = response.getResult().getOutput().getText();
+        System.out.println("texte "+texte);
         EstimationBudgetResponse resultat = outputConverter.convert(texte);
 
         sauvegarderEstimation(departement, resultat);
