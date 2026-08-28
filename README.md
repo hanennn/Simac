@@ -8,9 +8,13 @@ Au-delà du simple suivi financier, SIMAC va plus loin en intégrant directement
 
 **Objectifs**
 -Centraliser le suivi budgétaire par département, avec une visibilité en temps réel sur les montants alloués et consommés.
+
 -Mettre en place un circuit de validation des dépenses clair, de la saisie jusqu'à la validation finale.
+
 -Fournir une estimation budgétaire assistée par intelligence artificielle, basée sur l'historique réel plutôt que sur de simples intuitions.
+
 -Unifier la gestion des achats et des dépenses via une intégration directe avec l'ERP Odoo, sans double saisie.
+
 -Garantir un niveau de sécurité adapté à la sensibilité des données manipulées.
 
   
