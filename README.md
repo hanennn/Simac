@@ -7,11 +7,11 @@ SIMAC est une plateforme web de gestion budgétaire par département, développ�
 Au-delà du simple suivi financier, SIMAC va plus loin en intégrant directement un ERP (Odoo) pour la gestion des achats : un chef de département peut parcourir un catalogue de produits, passer commande, et voir automatiquement la dépense correspondante remonter dans son suivi budgétaire.
 
 **Objectifs**
-- Centraliser le suivi budgétaire par département, avec une visibilité en temps réel sur les montants alloués et consommés.
-- Mettre en place un circuit de validation des dépenses clair, de la saisie jusqu'à la validation finale.
-- Fournir une estimation budgétaire assistée par intelligence artificielle, basée sur l'historique réel plutôt que sur de simples intuitions.
-- Unifier la gestion des achats et des dépenses via une intégration directe avec l'ERP Odoo, sans double saisie.
-- Garantir un niveau de sécurité adapté à la sensibilité des données manipulées.
+-Centraliser le suivi budgétaire par département, avec une visibilité en temps réel sur les montants alloués et consommés.
+-Mettre en place un circuit de validation des dépenses clair, de la saisie jusqu'à la validation finale.
+-Fournir une estimation budgétaire assistée par intelligence artificielle, basée sur l'historique réel plutôt que sur de simples intuitions.
+-Unifier la gestion des achats et des dépenses via une intégration directe avec l'ERP Odoo, sans double saisie.
+-Garantir un niveau de sécurité adapté à la sensibilité des données manipulées.
 
   
 **Fonctionnalités**
