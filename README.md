@@ -43,35 +43,60 @@ En production, cette architecture se répartit sur trois plateformes distinctes 
 Backend (Spring Boot) :
 
 simac-backend/
+
 ├── src/main/java/org/example/simac/
+
 │   ├── config/          # Sécurité, JWT, WebSocket, exceptions globales
+
 │   ├── controller/       # Points d'entrée REST (Auth, Budget, Depense, Utilisateur...)
+
 │   ├── dto/              # Objets de transfert (Request/Response)
+
 │   ├── entity/           # Entités JPA (Utilisateur, Budget, Depense, Departement...)
+
 │   ├── repository/       # Interfaces Spring Data JPA
+
 │   ├── service/          # Logique métier (AuthService, OdooClientService, OtpService...)
+
 │   └── SimacApplication.java
+
 ├── src/main/resources/
+
 │   ├── application.properties
+
 │   └── email-templates/  # Templates HTML des emails envoyés
+
 ├── Dockerfile
+
 └── pom.xml
 
 Frontend (Angular) :
 
 simac-frontend/
+
 ├── src/app/
 │   ├── auth/              # Login, OTP, mot de passe oublié, verrouillage
+
 │   ├── budgets/           # Gestion des budgets (par rôle)
+
 │   ├── depenses/          # Gestion et validation des dépenses
+
 │   ├── departements/      # Gestion des départements et catégories
+
 │   ├── utilisateurs/      # Gestion des utilisateurs
+
 │   ├── produits/          # Catalogue produits et achats (Odoo)
+
 │   ├── dashboard/         # Tableau de bord temps réel
+
 │   ├── shared/            # Composants et services partagés
+
 │   └── layout/            # Structure générale de l'application
+
 ├── Dockerfile
+
 ├── nginx.conf
+
 └── package.json
 
 
@@ -250,7 +275,6 @@ En production, la base de données est hébergée sur Neon (PostgreSQL managé),
 **Déploiement**
 
 Le backend est packagé sous forme d'image Docker et déployé sur Render, le frontend est compilé puis hébergé sur Vercel, et la base de données PostgreSQL tourne sur Neon. Pour l'envoi d'emails en production, le projet bascule de SMTP vers l'API de Resend, la plupart des hébergeurs gratuits bloquant par défaut les connexions SMTP sortantes.
-
 Odoo et Ollama ne sont pas déployés et continuent de tourner exclusivement en local. Pour rendre les fonctionnalités qui en dépendent accessibles depuis la version déployée, il faut exposer temporairement ces services via un tunnel comme ngrok.
 
 
