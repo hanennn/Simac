@@ -7,6 +7,7 @@ SIMAC est une plateforme web de gestion budgétaire par département, développ�
 Au-delà du simple suivi financier, SIMAC va plus loin en intégrant directement un ERP (Odoo) pour la gestion des achats : un chef de département peut parcourir un catalogue de produits, passer commande, et voir automatiquement la dépense correspondante remonter dans son suivi budgétaire.
 
 **Objectifs**
+
 -Centraliser le suivi budgétaire par département, avec une visibilité en temps réel sur les montants alloués et consommés.
 
 -Mettre en place un circuit de validation des dépenses clair, de la saisie jusqu'à la validation finale.
@@ -36,11 +37,14 @@ Au-delà du simple suivi financier, SIMAC va plus loin en intégrant directement
 
 **Technologies utilisées**
 
-- L'application suit une architecture client-serveur en trois couches principales. Le frontend, développé en Angular avec des composants standalone et des signals pour la gestion d'état, communique avec le backend Spring Boot par des appels REST pour l'ensemble des opérations métier, et maintient une connexion WebSocket persistante pour les mises à jour du tableau de bord en temps réel.
-- Le backend centralise toute la logique métier et la sécurité. Il persiste ses propres données — utilisateurs, départements, budgets, dépenses, codes de vérification — dans une base PostgreSQL via Spring Data JPA et Hibernate. Pour tout ce qui concerne les produits et les achats, il ne stocke rien localement : chaque requête est traduite en appel XML-RPC vers une instance Odoo externe, qui reste la source de vérité unique pour le catalogue. Pour les fonctionnalités d'intelligence artificielle, le backend prépare et transmet les données pertinentes à un modèle Qwen2.5 exécuté localement via Ollama.
-- La sécurité repose sur des jetons JWT pour authentifier chaque requête après la connexion initiale, avec un intercepteur dédié qui valide également ces jetons lors de l'établissement des connexions WebSocket.
+-L'application suit une architecture client-serveur en trois couches principales. Le frontend, développé en Angular avec des composants standalone et des signals pour la gestion d'état, communique avec le backend Spring Boot par des appels REST pour l'ensemble des opérations métier, et maintient une connexion WebSocket persistante pour les mises à jour du tableau de bord en temps réel.
+
+-Le backend centralise toute la logique métier et la sécurité. Il persiste ses propres données — utilisateurs, départements, budgets, dépenses, codes de vérification — dans une base PostgreSQL via Spring Data JPA et Hibernate. Pour tout ce qui concerne les produits et les achats, il ne stocke rien localement : chaque requête est traduite en appel XML-RPC vers une instance Odoo externe, qui reste la source de vérité unique pour le catalogue. Pour les fonctionnalités d'intelligence artificielle, le backend prépare et transmet les données pertinentes à un modèle Qwen2.5 exécuté localement via Ollama.
+
+-La sécurité repose sur des jetons JWT pour authentifier chaque requête après la connexion initiale, avec un intercepteur dédié qui valide également ces jetons lors de l'établissement des connexions WebSocket.
+
 En production, cette architecture se répartit sur trois plateformes distinctes : le backend tourne dans un conteneur Docker sur Render, le frontend est servi statiquement par Vercel, et la base de données PostgreSQL est hébergée sur Neon.
-- Stack : Java 17 · Spring Boot · Spring Security · Spring Data JPA · WebSocket (STOMP) · Angular · TypeScript · Chart.js · PostgreSQL · Odoo (XML-RPC) · Ollama / Qwen2.5 · Docker · Render · Vercel · Neon · Resend
+Stack : Java 17 · Spring Boot · Spring Security · Spring Data JPA · WebSocket (STOMP) · Angular · TypeScript · Chart.js · PostgreSQL · Odoo (XML-RPC) · Ollama / Qwen2.5 · Docker · Render · Vercel · Neon · Resend
 
 **Structure du projet**
 
