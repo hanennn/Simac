@@ -135,101 +135,9 @@ L'interface Odoo devient accessible sur http://localhost:8069. Il faut y configu
 
 Le projet backend contient un Dockerfile, qui construit l'image de l'application Spring Boot :
 
-dockerfile
-FROM maven:3.9-eclipse-temurin-17 AS build
-WORKDIR /app
-COPY pom.xml .
-COPY src ./src
-RUN mvn clean package -DskipTests
-
-FROM eclipse-temurin:17-jre
-WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
-EXPOSE 8081
-ENTRYPOINT ["java", "-jar", "app.jar"]
-
 Ainsi qu'un docker-compose.yml, qui orchestre l'ensemble des services (backend, PostgreSQL, Odoo et sa base). Ce dernier n'est pas versionné sur le dépôt car il contient des identifiants sensibles.
 
-yaml
-services:
 
-  postgres:
-    image: postgres:15-alpine
-    container_name: simac-postgres
-    environment:
-      POSTGRES_DB: db_Simac
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 123456789
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: simac-backend
-    depends_on:
-      postgres:
-        condition: service_healthy
-      odoo:
-        condition: service_started
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/db_Simac
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: "123456789"
-      JWT_SECRET: "ZmFrZUtleUZvckRldkVudmlyb25tZW50T25seU5vdEZvclByb2R1Y3Rpb25Vc2FnZQ=="
-      SPRING_MAIL_USERNAME: hanen.bennaceur@esprit.tn
-      SPRING_MAIL_PASSWORD: "etrj ocsw ltkb hpwq"
-      ODOO_URL: http://odoo:8069
-      ODOO_DB: simac
-      ODOO_USERNAME: hanenbennaceur115@gmail.com
-      ODOO_PASSWORD: "123456789"
-      SPRING_AI_OLLAMA_BASE_URL: "http://host.docker.internal:11434"
-      CORS_ALLOWED_ORIGINS: http://localhost:4200
-    ports:
-      - "8081:8081"
-
-  odoo-db:
-    image: postgres:15-alpine
-    container_name: odoo-db
-    environment:
-      POSTGRES_DB: postgres
-      POSTGRES_USER: odoo
-      POSTGRES_PASSWORD: odoo
-    volumes:
-      - odoo_db_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U odoo"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  odoo:
-    image: odoo:17
-    container_name: odoo-simac
-    depends_on:
-      odoo-db:
-        condition: service_healthy
-    environment:
-      HOST: odoo-db
-      USER: odoo
-      PASSWORD: odoo
-    ports:
-      - "8069:8069"
-    volumes:
-      - odoo_data:/var/lib/odoo
-
-volumes:
-  postgres_data:
-  odoo_db_data:
-  odoo_data:
 
 Lancement de l'ensemble des services :docker-compose up --build
 
@@ -249,6 +157,7 @@ Ollama expose ensuite ce modèle sur http://localhost:11434, sans configuration 
 Installer les dépendances puis lancer le serveur de développement :
 
 npm install
+
 ng serve
 
 Le frontend devient accessible sur http://localhost:4200.
@@ -275,14 +184,16 @@ Les principales tables générées correspondent aux entités du projet : utilis
 Pour la configuration de la connexion, renseigne dans application.properties :
 
 spring.datasource.url=jdbc:postgresql://localhost:5432/db_Simac
+
 spring.datasource.username=postgres
+
 spring.datasource.password=123456789
 
-En production, la base de données est hébergée sur Neon (PostgreSQL managé), avec une chaîne de connexion fournie automatiquement par la plateforme.
+En production, la base de données est hébergée sur Neon (PostgreSQL), avec une chaîne de connexion fournie automatiquement par la plateforme.
 
 **Déploiement**
 
-Le backend est packagé sous forme d'image Docker et déployé sur Render, le frontend est compilé puis hébergé sur Vercel, et la base de données PostgreSQL tourne sur Neon. Pour l'envoi d'emails en production, le projet bascule de SMTP vers l'API de Resend, la plupart des hébergeurs gratuits bloquant par défaut les connexions SMTP sortantes.
+Le backend est  déployé sur Render, le frontend est compilé puis hébergé sur Vercel, et la base de données PostgreSQL tourne sur Neon. Pour l'envoi d'emails en production, le projet bascule de SMTP vers l'API de Resend, la plupart des hébergeurs gratuits bloquant par défaut les connexions SMTP sortantes.
 Odoo et Ollama ne sont pas déployés et continuent de tourner exclusivement en local. Pour rendre les fonctionnalités qui en dépendent accessibles depuis la version déployée, il faut exposer temporairement ces services via un tunnel comme ngrok.
 
 
