@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 public class AuthService {
 
     private static final int MAX_TENTATIVES = 3;
-    private static final int DUREE_BLOCAGE_MINUTES = 1;
+    private static final int DUREE_BLOCAGE_MINUTES = 5;
 
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;

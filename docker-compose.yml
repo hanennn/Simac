@@ -43,6 +43,16 @@ services:
     ports:
       - "8081:8081"
 
+  frontend:
+    build:
+      context: C:/dev/simac-frontend
+      dockerfile: Dockerfile
+    container_name: simac-frontend
+    depends_on:
+      - backend
+    ports:
+      - "4200:80"
+
   odoo-db:
     image: postgres:15-alpine
     container_name: odoo-db
