@@ -1,200 +1,162 @@
-**Description**
+# SIMAC
 
-SIMAC est une plateforme web de gestion budgétaire par département, développée dans le cadre d'un projet de stage.
+Application web de gestion budgétaire par département, développée dans le cadre d'un stage d'immersion en entreprise chez SIMAC Tunisie.
 
- Le projet propose une solution centralisée, où chaque département dispose de son propre budget suivi en temps réel, où chaque dépense passe par un circuit de validation clair, et où les décisions budgétaires peuvent s'appuyer sur une estimation assistée par intelligence artificielle plutôt que sur de simples intuitions.
+## Table des matières
 
-Au-delà du simple suivi financier, SIMAC va plus loin en intégrant directement un ERP (Odoo) pour la gestion des achats : un chef de département peut parcourir un catalogue de produits, passer commande, et voir automatiquement la dépense correspondante remonter dans son suivi budgétaire.
+- [Fonctionnalités principales](#fonctionnalités-principales)
+- [Stack technique](#stack-technique)
+- [Prérequis](#prérequis)
+- [Cloner le projet](#cloner-le-projet)
+- [Configuration des variables d'environnement](#configuration-des-variables-denvironnement)
+- [Lancer le projet en local (sans Docker)](#lancer-le-projet-en-local-sans-docker)
+- [Lancer le projet avec Docker](#lancer-le-projet-avec-docker)
+- [Déploiement](#déploiement)
+- [Limitation connue](#limitation-connue)
+- [Auteur](#auteur)
 
-**Objectifs**
+## Fonctionnalités principales
 
--Centraliser le suivi budgétaire par département, avec une visibilité en temps réel sur les montants alloués et consommés.
+- Authentification sécurisée avec vérification en deux étapes (OTP par email)
+- Gestion des départements, budgets, dépenses et catégories
+- Circuit de validation des dépenses (validation / rejet) avec notification par email
+- Estimation budgétaire et prédiction de risque de dépassement assistées par intelligence artificielle
+- Intégration avec un ERP pour la gestion du catalogue produits et des commandes d'achat
+- Tableau de bord en temps réel (WebSocket)
 
--Mettre en place un circuit de validation des dépenses clair, de la saisie jusqu'à la validation finale.
+## Stack technique
 
--Fournir une estimation budgétaire assistée par intelligence artificielle, basée sur l'historique réel plutôt que sur de simples intuitions.
+| Composant | Technologie |
+|---|---|
+| Backend | Spring Boot (Java) |
+| Frontend | Angular |
+| Base de données | PostgreSQL |
+| Intelligence artificielle | Ollama (modèle Qwen2.5) via Spring AI |
+| ERP | Intégration via WebServices |
+| Envoi d'emails | SMTP (local) / Resend (production) |
+| Conteneurisation | Docker |
 
--Unifier la gestion des achats et des dépenses via une intégration directe avec l'ERP Odoo, sans double saisie.
+## Prérequis
 
--Garantir un niveau de sécurité adapté à la sensibilité des données manipulées.
+Avant de lancer le projet, assure-toi d'avoir installé :
 
-  
-**Fonctionnalités**
+- **Java 17** ou supérieur
+- **Maven** (ou utilise le wrapper `./mvnw` inclus dans le projet)
+- **Node.js** (version 18 ou supérieure) et **npm**
+- **PostgreSQL** (version 14 ou supérieure)
+- **Docker** et **Docker Compose** (si tu préfères lancer le projet en conteneurs)
+- **Ollama**, avec le modèle `qwen2.5` téléchargé (pour les fonctionnalités d'IA)
 
- **- Authentification et sécurité:** Connexion en deux étapes (mot de passe puis code OTP par email), verrouillage du compte après plusieurs tentatives échouées, et verrouillage automatique de session en cas d'inactivité.
+## Cloner le projet
 
-**- Gestion multi-rôles:** Quatre profils avec des permissions dédiées : Administrateur (utilisateurs, départements), Responsable financier (budgets, validation des dépenses), Chef de département (dépenses, achats) et Gestionnaire de produits (catalogue Odoo).
+```bash
+git clone https://github.com/<ton-nom-utilisateur>/SIMAC.git
+cd SIMAC
+```
 
-**- Suivi budgétaire:** Budgets définis par département et par période, avec montant alloué et consommé mis à jour automatiquement, et alertes en cas de dépassement.
+## Configuration des variables d'environnement
 
-**- Circuit de validation des dépenses:** Chaque dépense passe par un statut "en attente" jusqu'à validation ou rejet par un responsable financier, avec notification par email au chef de département concerné.
+Le backend nécessite les variables d'environnement suivantes. Crée un fichier `.env` (ou configure-les directement dans ton environnement / IDE) à la racine du dossier backend :
 
-**- Estimation budgétaire par IA:** Un modèle Qwen2.5 exécuté localement (via Ollama) propose une estimation de budget et une prédiction de dépassement, basées sur l'historique réel des dépenses.
+```
+SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/simac
+SPRING_DATASOURCE_USERNAME=<ton_utilisateur_postgres>
+SPRING_DATASOURCE_PASSWORD=<ton_mot_de_passe_postgres>
 
-**- Intégration ERP Odoo:** Catalogue produits et commandes d'achat gérés directement via Odoo (XML-RPC), avec synchronisation automatique des dépenses correspondantes.
+JWT_SECRET=<une_cle_secrete_longue_et_aleatoire>
 
-**- Tableau de bord temps réel:** Graphiques mis à jour automatiquement via WebSocket, sans rechargement de page, dès qu'une dépense change de statut.
+SPRING_MAIL_USERNAME=<ton_adresse_email>
+SPRING_MAIL_PASSWORD=<mot_de_passe_application_email>
 
-**Technologies utilisées**
+ODOO_URL=<url_de_ton_instance_odoo>
+ODOO_DB=<nom_de_la_base_odoo>
+ODOO_USERNAME=<compte_technique_odoo>
+ODOO_PASSWORD=<mot_de_passe_compte_technique_odoo>
 
--L'application suit une architecture client-serveur en trois couches principales. Le frontend, développé en Angular avec des composants standalone et des signals pour la gestion d'état, communique avec le backend Spring Boot par des appels REST pour l'ensemble des opérations métier, et maintient une connexion WebSocket persistante pour les mises à jour du tableau de bord en temps réel.
+SPRING_AI_OLLAMA_BASE_URL=http://localhost:11434
 
--Le backend centralise toute la logique métier et la sécurité. Il persiste ses propres données — utilisateurs, départements, budgets, dépenses, codes de vérification — dans une base PostgreSQL via Spring Data JPA et Hibernate. Pour tout ce qui concerne les produits et les achats, il ne stocke rien localement : chaque requête est traduite en appel XML-RPC vers une instance Odoo externe, qui reste la source de vérité unique pour le catalogue. Pour les fonctionnalités d'intelligence artificielle, le backend prépare et transmet les données pertinentes à un modèle Qwen2.5 exécuté localement via Ollama.
+CORS_ALLOWED_ORIGINS=http://localhost:4200
+```
 
--La sécurité repose sur des jetons JWT pour authentifier chaque requête après la connexion initiale, avec un intercepteur dédié qui valide également ces jetons lors de l'établissement des connexions WebSocket.
+⚠️ Ne commite jamais ce fichier `.env` — il est déjà exclu via `.gitignore`.
 
-En production, cette architecture se répartit sur trois plateformes distinctes : le backend tourne dans un conteneur Docker sur Render, le frontend est servi statiquement par Vercel, et la base de données PostgreSQL est hébergée sur Neon.
-Stack : Java 17 · Spring Boot · Spring Security · Spring Data JPA · WebSocket (STOMP) · Angular · TypeScript · Chart.js · PostgreSQL · Odoo (XML-RPC) · Ollama / Qwen2.5 · Docker · Render · Vercel · Neon · Resend
+## Lancer le projet en local (sans Docker)
 
-**Structure du projet**
+### 1. Créer la base de données PostgreSQL
 
-Backend (Spring Boot) :
+```bash
+psql -U postgres
+CREATE DATABASE simac;
+\q
+```
 
-simac-backend/
+### 2. Lancer Ollama et télécharger le modèle
 
-├── src/main/java/org/example/simac/
+```bash
+ollama serve
+ollama pull qwen2.5
+```
 
-│   ├── config/          # Sécurité, JWT, WebSocket, exceptions globales
+### 3. Lancer le backend
 
-│   ├── controller/       # Points d'entrée REST (Auth, Budget, Depense, Utilisateur...)
+Depuis la racine du projet backend :
 
-│   ├── dto/              # Objets de transfert (Request/Response)
+```bash
+./mvnw clean install
+./mvnw spring-boot:run
+```
 
-│   ├── entity/           # Entités JPA (Utilisateur, Budget, Depense, Departement...)
+Le backend démarre par défaut sur **http://localhost:8080**.
 
-│   ├── repository/       # Interfaces Spring Data JPA
+### 4. Lancer le frontend
 
-│   ├── service/          # Logique métier (AuthService, OdooClientService, OtpService...)
+Dans un nouveau terminal, depuis la racine du projet frontend :
 
-│   └── SimacApplication.java
-
-├── src/main/resources/
-
-│   ├── application.properties
-
-│   └── email-templates/  # Templates HTML des emails envoyés
-
-├── Dockerfile
-
-└── pom.xml
-
-Frontend (Angular) :
-
-simac-frontend/
-
-├── src/app/
-│   ├── auth/              # Login, OTP, mot de passe oublié, verrouillage
-
-│   ├── budgets/           # Gestion des budgets (par rôle)
-
-│   ├── depenses/          # Gestion et validation des dépenses
-
-│   ├── departements/      # Gestion des départements et catégories
-
-│   ├── utilisateurs/      # Gestion des utilisateurs
-
-│   ├── produits/          # Catalogue produits et achats (Odoo)
-
-│   ├── dashboard/         # Tableau de bord temps réel
-
-│   ├── shared/            # Composants et services partagés
-
-│   └── layout/            # Structure générale de l'application
-
-├── Dockerfile
-
-├── nginx.conf
-
-└── package.json
-
-
-**Installation**
-
-**Prérequis**
-
-Le projet nécessite Java 17 avec Maven pour le backend, Node.js 20 ou supérieur pour le frontend, une instance PostgreSQL 15 ou supérieure, Docker Desktop pour faire tourner Odoo localement, et Ollama pour exécuter le modèle d'intelligence artificielle.
-
-**Backend**
-
-Configure src/main/resources/application.properties avec tes propres identifiants (base de données, JWT, email, Odoo, IA, CORS).
-
-Lancer le backend depuis la racine du projet : mvn spring-boot:run
-
-Un compte Administrateur est créé automatiquement au tout premier lancement.
-
-**ERP Odoo**
-
-Odoo tourne dans deux conteneurs Docker distincts :
-
-docker start odoo-simac
-docker start odoo-db
-
-L'interface Odoo devient accessible sur http://localhost:8069. Il faut y configurer au préalable une base nommée simac, un utilisateur administrateur correspondant aux identifiants renseignés côté backend, des groupes pour les utilisateurs, des catégories de produits alignées avec les départements SIMAC, une catégorie supplémentaire nommée All pour les produits partagés, au moins un fournisseur, et un champ personnalisé x_categorie_depense sur le modèle produit.
-
-**Lancement avec Docker Compose**
-
-Le projet backend contient un Dockerfile, qui construit l'image de l'application Spring Boot :
-
-Ainsi qu'un docker-compose.yml, qui orchestre l'ensemble des services (backend, PostgreSQL, Odoo et sa base). Ce dernier n'est pas versionné sur le dépôt car il contient des identifiants sensibles.
-
-
-
-Lancement de l'ensemble des services :docker-compose up --build
-
-Cette commande construit l'image du backend et démarre tous les services : le backend sur http://localhost:8081, la base de données SIMAC, ainsi qu'Odoo sur http://localhost:8069 avec sa propre base. Ollama continue de tourner en dehors de Docker, sur la machine hôte.
-
-Pour tout arrêter proprement : docker-compose down
-
-
-**Intelligence artificielle**
-
-Télécharger le modèle utilisé par l'application : ollama pull qwen2.5
-
-Ollama expose ensuite ce modèle sur http://localhost:11434, sans configuration supplémentaire.
-
-**Frontend**
-
-Installer les dépendances puis lancer le serveur de développement :
-
+```bash
 npm install
-
 ng serve
+```
 
-Le frontend devient accessible sur http://localhost:4200.
+Le frontend est accessible sur **http://localhost:4200**.
 
-**Utilisation**
+## Lancer le projet avec Docker
 
-L'ordre de démarrage recommandé : Docker Desktop, puis les conteneurs Odoo, une vérification qu'Ollama répond correctement, puis le backend, et enfin le frontend.
+Le projet inclut un `Dockerfile` pour le backend, un `Dockerfile` pour le frontend, ainsi qu'un fichier `docker-compose.yml` à la racine, orchestrant l'ensemble des services (backend, frontend, base de données).
 
-docker start odoo-simac odoo-db
-ollama list
-mvn spring-boot:run
-ng serve
+Assure-toi d'avoir renseigné les variables d'environnement nécessaires (voir section précédente), puis lance :
 
-Les comptes autres qu'Administrateur sont créés depuis l'interface de gestion des utilisateurs, avec un mot de passe temporaire envoyé par email au nouvel utilisateur.
+```bash
+docker compose up --build
+```
 
-**Configuration de la base de données**
+L'application sera accessible sur **http://localhost:4200** (frontend) et **http://localhost:8080** (backend), une fois les conteneurs démarrés.
 
-Crée une base PostgreSQL dédiée au projet : CREATE DATABASE db_Simac;
+Pour arrêter les services :
 
-Aucune table n'a besoin d'être créée manuellement : Hibernate génère automatiquement l'intégralité du schéma au premier démarrage du backend, à partir des entités Java du projet (ddl-auto=update).
+```bash
+docker compose down
+```
 
-Les principales tables générées correspondent aux entités du projet : utilisateurs, departements, categorie_departs, budgets, depenses, categorie_depenses, codes_otp, alertes et estimation_budgets. Les relations entre elles (un utilisateur appartient à un département, une dépense est liée à un budget et à une catégorie, etc.) sont gérées automatiquement par Hibernate à partir des annotations JPA.
+## Déploiement
 
-Pour la configuration de la connexion, renseigne dans application.properties :
+L'application est déployée en production sur trois plateformes distinctes :
 
-spring.datasource.url=jdbc:postgresql://localhost:5432/db_Simac
+| Composant | Plateforme |
+|---|---|
+| Backend | Render |
+| Frontend | Vercel |
+| Base de données | Neon (PostgreSQL managé) |
 
-spring.datasource.username=postgres
+Le déploiement du backend et du frontend s'appuie sur les `Dockerfile` respectifs présents dans le projet. La base de données a été migrée vers une instance PostgreSQL managée sur Neon, configurée via la variable `SPRING_DATASOURCE_URL` pointant vers l'URL de connexion fournie par Neon.
 
-spring.datasource.password=123456789
+L'envoi d'emails en production utilise l'API HTTP de Resend plutôt que le protocole SMTP, ce dernier étant bloqué par défaut sur la plupart des hébergeurs gratuits.
 
-En production, la base de données est hébergée sur Neon (PostgreSQL), avec une chaîne de connexion fournie automatiquement par la plateforme.
+⚠️ Odoo et Ollama continuent de tourner en local et ne sont pas exposés en production (voir la limitation ci-dessous).
 
-**Déploiement**
+## Limitation connue
 
-Le backend est  déployé sur Render, le frontend est compilé puis hébergé sur Vercel, et la base de données PostgreSQL tourne sur Neon. Pour l'envoi d'emails en production, le projet bascule de SMTP vers l'API de Resend, la plupart des hébergeurs gratuits bloquant par défaut les connexions SMTP sortantes.
-Odoo et Ollama ne sont pas déployés et continuent de tourner exclusivement en local. Pour rendre les fonctionnalités qui en dépendent accessibles depuis la version déployée, il faut exposer temporairement ces services via un tunnel comme ngrok.
+Odoo et Ollama tournant en local, les fonctionnalités liées (achats, estimation par IA) ne sont pas accessibles depuis la version déployée sans exposer ces services via un tunnel (par exemple ngrok).
 
+## Auteur
 
-Projet réalisé dans le cadre d'un projet de stage — 2025/2026
+Hanen Ben Naceur — Stage d'immersion en entreprise, ESPRIT, 2026
