@@ -13,7 +13,6 @@ Application web de gestion budgétaire par département, développée dans le ca
 - [Lancer le projet avec Docker](#lancer-le-projet-avec-docker)
 - [Déploiement](#déploiement)
 - [Limitation connue](#limitation-connue)
-- [Auteur](#auteur)
 
 ## Fonctionnalités principales
 
@@ -50,35 +49,58 @@ Avant de lancer le projet, assure-toi d'avoir installé :
 ## Cloner le projet
 
 ```bash
-git clone https://github.com/<ton-nom-utilisateur>/SIMAC.git
+git clone https://github.com/hanennn/SIMAC.git
 cd SIMAC
 ```
 
 ## Configuration des variables d'environnement
 
-Le backend nécessite les variables d'environnement suivantes. Crée un fichier `.env` (ou configure-les directement dans ton environnement / IDE) à la racine du dossier backend :
+Le backend nécessite les variables d'environnement suivantes :
 
-```
-SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/simac
-SPRING_DATASOURCE_USERNAME=<ton_utilisateur_postgres>
-SPRING_DATASOURCE_PASSWORD=<ton_mot_de_passe_postgres>
+spring.application.name=SIMAC
 
-JWT_SECRET=<une_cle_secrete_longue_et_aleatoire>
+# Configuration PostgreSQL
+spring.datasource.url=jdbc:postgresql://localhost:5432/db_Simac
+spring.datasource.username=postgres
+spring.datasource.password=123456789
 
-SPRING_MAIL_USERNAME=<ton_adresse_email>
-SPRING_MAIL_PASSWORD=<mot_de_passe_application_email>
+# Driver PostgreSQL
+spring.datasource.driver-class-name=org.postgresql.Driver
 
-ODOO_URL=<url_de_ton_instance_odoo>
-ODOO_DB=<nom_de_la_base_odoo>
-ODOO_USERNAME=<compte_technique_odoo>
-ODOO_PASSWORD=<mot_de_passe_compte_technique_odoo>
+# Configuration JPA/Hibernate
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
 
-SPRING_AI_OLLAMA_BASE_URL=http://localhost:11434
+server.port=8081
 
-CORS_ALLOWED_ORIGINS=http://localhost:4200
-```
 
-⚠️ Ne commite jamais ce fichier `.env` — il est déjà exclu via `.gitignore`.
+# JWT
+jwt.secret=ZmFrZUtleUZvckRldkVudmlyb25tZW50T25seU5vdEZvclByb2R1Y3Rpb25Vc2FnZQ==
+jwt.expiration=86400000
+
+
+# Email (SMTP Gmail)
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=hanen.bennaceur@esprit.tn
+spring.mail.password=etrj ocsw ltkb hpwq
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+
+
+odoo.url=http://localhost:8069
+odoo.db=simac
+odoo.username=hanenbennaceur115@gmail.com
+odoo.password=123456789
+
+#ia
+spring.ai.ollama.base-url=http://localhost:11434
+spring.ai.ollama.chat.model=qwen2.5
+
+# Email (via Resend API)
+resend.api-key=${RESEND_API_KEY}
+resend.from-email=onboarding@resend.dev
 
 ## Lancer le projet en local (sans Docker)
 
@@ -151,12 +173,12 @@ Le déploiement du backend et du frontend s'appuie sur les `Dockerfile` respecti
 
 L'envoi d'emails en production utilise l'API HTTP de Resend plutôt que le protocole SMTP, ce dernier étant bloqué par défaut sur la plupart des hébergeurs gratuits.
 
-⚠️ Odoo et Ollama continuent de tourner en local et ne sont pas exposés en production (voir la limitation ci-dessous).
+ Odoo et Ollama continuent de tourner en local et ne sont pas exposés en production (voir la limitation ci-dessous).
 
 ## Limitation connue
 
 Odoo et Ollama tournant en local, les fonctionnalités liées (achats, estimation par IA) ne sont pas accessibles depuis la version déployée sans exposer ces services via un tunnel (par exemple ngrok).
 
-## Auteur
+
 
 Hanen Ben Naceur — Stage d'immersion en entreprise, ESPRIT, 2026
