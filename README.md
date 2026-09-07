@@ -169,7 +169,7 @@ L'application est déployée en production sur trois plateformes distinctes :
 | Frontend | Vercel |
 | Base de données | Neon  |
 
-Le déploiement du backend et du frontend s'appuie sur les `Dockerfile` respectifs présents dans le projet. La base de données a été migrée vers une instance PostgreSQL managée sur Neon, configurée via la variable `SPRING_DATASOURCE_URL` pointant vers l'URL de connexion fournie par Neon.
+Le déploiement du backend et du frontend s'appuie sur les `Dockerfile` respectifs présents dans le projet. La base de données a été migrée vers Neon, configurée via la variable `SPRING_DATASOURCE_URL` pointant vers l'URL de connexion fournie par Neon.
 
 L'envoi d'emails en production utilise l'API HTTP de Resend plutôt que le protocole SMTP, ce dernier étant bloqué par défaut sur la plupart des hébergeurs gratuits.
 
