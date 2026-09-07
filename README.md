@@ -1,4 +1,4 @@
-# SIMAC
+
 
 Application web de gestion budgétaire par département, développée dans le cadre d'un stage d'immersion en entreprise chez SIMAC Tunisie.
 
