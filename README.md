@@ -167,7 +167,7 @@ L'application est déployée en production sur trois plateformes distinctes :
 |---|---|
 | Backend | Render |
 | Frontend | Vercel |
-| Base de données | Neon (PostgreSQL managé) |
+| Base de données | Neon  |
 
 Le déploiement du backend et du frontend s'appuie sur les `Dockerfile` respectifs présents dans le projet. La base de données a été migrée vers une instance PostgreSQL managée sur Neon, configurée via la variable `SPRING_DATASOURCE_URL` pointant vers l'URL de connexion fournie par Neon.
 
