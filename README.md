@@ -60,16 +60,23 @@ Le backend nécessite les variables d'environnement suivantes :
 spring.application.name=SIMAC
 
 # Configuration PostgreSQL
+
 spring.datasource.url=jdbc:postgresql://localhost:5432/db_Simac
+
 spring.datasource.username=postgres
+
 spring.datasource.password=123456789
 
 # Driver PostgreSQL
+
 spring.datasource.driver-class-name=org.postgresql.Driver
 
 # Configuration JPA/Hibernate
+
 spring.jpa.hibernate.ddl-auto=update
+
 spring.jpa.show-sql=true
+
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
 
 server.port=8081
@@ -77,29 +84,42 @@ server.port=8081
 
 # JWT
 jwt.secret=ZmFrZUtleUZvckRldkVudmlyb25tZW50T25seU5vdEZvclByb2R1Y3Rpb25Vc2FnZQ==
+
 jwt.expiration=86400000
 
 
 # Email (SMTP Gmail)
+
 spring.mail.host=smtp.gmail.com
+
 spring.mail.port=587
+
 spring.mail.username=hanen.bennaceur@esprit.tn
+
 spring.mail.password=etrj ocsw ltkb hpwq
+
 spring.mail.properties.mail.smtp.auth=true
+
 spring.mail.properties.mail.smtp.starttls.enable=true
 
 
 odoo.url=http://localhost:8069
+
 odoo.db=simac
+
 odoo.username=hanenbennaceur115@gmail.com
+
 odoo.password=123456789
 
 #ia
 spring.ai.ollama.base-url=http://localhost:11434
+
 spring.ai.ollama.chat.model=qwen2.5
 
 # Email (via Resend API)
+
 resend.api-key=${RESEND_API_KEY}
+
 resend.from-email=onboarding@resend.dev
 
 ## Lancer le projet en local (sans Docker)
@@ -115,7 +135,9 @@ CREATE DATABASE simac;
 ### 2. Lancer Ollama et télécharger le modèle
 
 ```bash
+
 ollama serve
+
 ollama pull qwen2.5
 ```
 
