@@ -111,7 +111,7 @@ odoo.username=hanenbennaceur115@gmail.com
 
 odoo.password=123456789
 
-#ia
+
 spring.ai.ollama.base-url=http://localhost:11434
 
 spring.ai.ollama.chat.model=qwen2.5
